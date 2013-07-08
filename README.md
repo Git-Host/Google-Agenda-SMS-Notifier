@@ -1,5 +1,5 @@
-# jQbrick  
-> Bricks for Mobile App Directors
----------------------------------
+jQbrick  
+<small>Bricks for Mobile App Directors</small>
+==============================================
 
 web app startup package based on jQueryMobile, Backbone, RequireJS
