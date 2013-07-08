@@ -45,3 +45,4 @@ define(["jqbrick/amd"], function(jQbrick) {
 	});
 	
 });
+

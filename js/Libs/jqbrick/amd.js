@@ -17,7 +17,6 @@ define([
 	
 ) {
 	
-	
 	var jQbrick = function() {
 		return {
 			"AppClass" 		: AppClass,	

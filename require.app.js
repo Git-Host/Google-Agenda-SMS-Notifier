@@ -10,15 +10,25 @@
 
 
 requirejs.config({
-	"baseUrl" : "Libs",
+	"baseUrl" : "./",
 	"urlArgs" : "devTime=" + (new Date()).getTime(),
 	"paths" : {
-		"app" 			: "../App",
-		"model" 		: "../App/Model",
-		"collection"	: "../App/Collection",
-		"view"			: "../App/View",
-		"template"		: "../App/Template",
-		"page"			: "../App/Page"
+		
+		// Libraries
+		"jquery"		: "./js/Libs/jquery",
+		"jqueryui"		: "./js/Libs/jqueryui",
+		"underscore"	: "./js/Libs/underscore",
+		"backbone"		: "./js/Libs/backbone",
+		"jqm"			: "./js/Libs/jqm",
+		"jqbrick"		: "./js/Libs/jqbrick",
+		
+		// Application
+		"app" 			: "./js",
+		"model" 		: "./js/Model",
+		"collection"	: "./js/Collection",
+		"view"			: "./js/View",
+		"template"		: "./js/Template",
+		"page"			: "./js/Page"
 	},
 	"shim" : {
 		"underscore" : {
@@ -36,4 +46,4 @@ requirejs.config({
 });
 
 // Load Application Entry Point
-require(["jqm"]);
+require(["app/main", "jqm"]);

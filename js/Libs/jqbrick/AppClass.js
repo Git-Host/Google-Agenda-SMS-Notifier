@@ -7,6 +7,7 @@
  *
  */
 
+
 define(["jquery", "underscore"], function($, _) {
 	
 	var AppClass = function(options) {

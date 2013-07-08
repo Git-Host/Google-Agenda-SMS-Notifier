@@ -39,3 +39,19 @@ Contributors are welcome!
 - run apps on GoogleChrome, Safari, Firefox (IE? What that s**t?)
 - wrap apps with PhoneGap, deploy on iOS and Android
 
+## Optimize for Production:
+`jQbrick` comes with a built-in _RequireJS_ optimization script you can find under
+`/js` folder.
+
+**NOTE:** You need _node.js_ running on your machine to perform following actions!
+
+To run optimizer:
+- open a console window 
+- navigate to the `.../jQbrick/js/` folder
+- `node r.js -o require.build.js`
+
+a new folder named **"AppDeploy"** will be created under your app's root:  
+`.../jQbrick/AppDeploy/`
+
+Here you can completely remove `/js` and `/less` directory obtaining a **compressed
+production version** of you App.
