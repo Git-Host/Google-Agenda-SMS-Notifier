@@ -34,7 +34,7 @@ define(["jqbrick/amd"], function(jQbrick) {
 		console.log("pagecreated");
 		
 		var brick = new jQbrick.View({
-			html: 'mona',
+			html: 'test',
 			css: {
 				background:'yellow'
 			},
