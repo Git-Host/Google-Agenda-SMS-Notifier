@@ -1,3 +1,7 @@
-# jQbrick <small>{Bricks for Mobile App Directors}</small>
+# jQbrick
 
-web app startup package based on jQueryMobile, Backbone, RequireJS
+jQbrick is a components library I like do define _"Bricks for Mobile App Directors"_.  
+It is build over jQuery, BackboneJS and uses jQueryMobile as UI toolkit to produce well structured Mobile Apps.
+
+
+
