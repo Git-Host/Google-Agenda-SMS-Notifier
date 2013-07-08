@@ -23,12 +23,22 @@
 	
 	
 	/**
-	 * UGLIFICATION & COMPRESSION
+	 * JS - UGLIFICATION & COMPRESSION
 	 * optimized files are uglified and compressed by default.
+	 * 
 	 * uncomment this instruction to skip uglification and obtain
 	 * a single source file who still be debuggable!
 	 */
 	//optimize: "none",
+	
+	
+	/**
+	 * CSS - UGLIFICATION & COMPRESSION
+	 * uglify and compress all css files found inside project's folder structure.
+	 *
+	 * comment this instruction during debugging!
+	 */
+	optimizeCss: "standard",
 	
 	
 	
@@ -36,7 +46,8 @@
 	appDir: 	'../',
 	baseUrl: 	'./',
 	mainConfigFile: "../require.app.js",
-	modules:	[{name:'require.app'}]
+	modules:	[{name:'require.app'}],
+	removeCombined: true
 	
 })
 
