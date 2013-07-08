@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	
+	<!-- WebApp Properties -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+	
+	<!-- Home screen icons -->
+	<!--
+	<link rel="shortcut icon" href="assets/img/icons/icon.png?v001" />
+	<link rel="apple-touch-icon" sizes="57x57" href="assets/img/icons/icon-57.png?v001" />
+	<link rel="apple-touch-icon" sizes="72x72" href="assets/img/icons/icon-72.png?v001" />
+	<link rel="apple-touch-icon" sizes="114x114" href="assets/img/icons/icon@2x.png?v001" />
+	-->
+	
+	<title>jQbe - Bricks for Mobile Apps</title>
+	
+	<!-- App Styles -->
+	<link rel="stylesheet"  href="assets/css/app.css?v001">
+	
+	<!-- // Choose Developement or Production Entry Point -->
+	<script data-main="require.app" src="require.js?v001"></script>
+	
+	
+</head>
+<body style="display:none">
+	
+	<div data-role="page" id="home">
+		<div data-role="header"data-theme="b">
+			<h1>jQbe</h1>
+		</div>
+		<div data-role="content" data-scrollin="true">
+			<p>
+				<a href="#page2" data-role="button">click on me</a>
+			</p>
+			<div style="display:block;width:300px;height:300px;background:red" id="foo"></div>
+		</div>
+	</div>
+	
+	
+	<div data-role="page" id="page2">
+		<div data-role="header"data-theme="b">
+			<h1>jQbe - Bricks Mobile Apps</h1>
+		</div>
+		<div data-role="content" data-scrollin="true">
+			<p>
+				<a href="#" data-rel="back" data-role="button">go back</a>
+			</p>
+		</div>
+	</div>
+	
+</body>
+</html>
