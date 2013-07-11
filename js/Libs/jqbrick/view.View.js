@@ -6,15 +6,15 @@
  * Extends BackboneJS's View component adding some useful methods and
  * prototyping an inheritance for subclassing View object itself. 
  * 
- * $el vs $cnt
+ * $el vs $body
  * -----------------
  * BackboneJS's Views has a $el poiter to the main wrapped DOM element
  * who contain all view's structure.
  *
- * jQbrick's View is a "UI component" and a component can contain other
- * components; each component should have some structural differences 
- * between wrapper element and content element those pointers have
- * two dedicated names.
+ * jQbrick's View first subclass is a "UI component" and a component can 
+ * contain other components; each component should have some structural  
+ * differences between wrapper element and content element those pointers
+ * have two dedicated names.
  *
  * NOTE: this class does not implement any Component logic!
  *       component logic is delegated to Component subclass!
@@ -157,7 +157,7 @@ define([
 				parent:		null,
 				
 				// link to the DOM container
-				// (if empty but "parent" was set it will use parent's $cnt or $el)
+				// (if empty but "parent" was set it will use parent's $body or $el)
 				$container: null,
 				
 				/**
@@ -170,7 +170,7 @@ define([
 				when: {},
 				
 				// View layer ($el) attributes
-				html:		'',
+				html:		'',		// initialize view with some HTML contents inside
 				attrs:		{},		// a list of attributes to apply to $el
 				style:		'',
 				css:		{},
@@ -349,17 +349,17 @@ define([
 		}
 		
 		if (!this.$container && this.parent) {
-			if (this.parent.$cnt) {
-				this.$container = this.parent.$cnt;
+			if (this.parent.$body) {
+				this.$container = this.parent.$body;
 			} else if (this.parent.$el) {
 				this.$container = this.parent.$el;
 			}
 		}
 		
-		// !! subclasses may add some DOM layers between $el and $cnt!
+		// !! subclasses may add some DOM layers between $el and $body!
 		// !! $el is appended to $container
-		// !! $cnt is the container for sub-modules views!
-		this.$cnt = this.$el;
+		// !! $body is the container for sub-modules views!
+		this.$body = this.$el;
 		
 		
 		// setup wrapper attributes
@@ -443,7 +443,7 @@ define([
 	
 	View.prototype.__renderHTML = function() {
 		if (this.options.html.length && this.getDeferred('rendered').state() == 'pending') {
-			this.$cnt.append(this.options.html);
+			this.$body.append(this.options.html);
 		}
 	};
 	

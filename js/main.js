@@ -52,7 +52,7 @@ define(["jqbrick/amd"], function(jQbrick) {
 			
 			onAfterRender: function() {
 				console.log("rendered");
-				this.$cnt.append("MONA");
+				this.$body.append("MONA");
 			},
 			
 			autoRender: true
@@ -143,15 +143,43 @@ define(["jqbrick/amd"], function(jQbrick) {
 			style: "color:#fff",
 			innerStyle: 'background:red;',
 			items: [{
-				html: 'sottocomponente',
-				style: 'padding:50px;background:green',
-				items: [{
-					html: 'sub1'
-				}]
-			},
-				new jQbrick.View({html:'una vista'})
-			]
+				xtype:	"view",
+				id:		"cmp1",
+				html: 	"sottocomponente 1",
+			},{
+				xtype:	"view",
+				id:		"cmp2",
+				html: 	"sottocomponente 2"
+			},{
+				xtype:	"view",
+				id:		"cmp3",
+				html: 	"sottocomponente 3"
+			}]
 		});
+		
+		test1.$body.append("after components");
+		
+		
+		/*
+		var test2 = new jQbrick.Component({
+			html: "sottocomponente 4"
+		});
+		
+		test1.addItem([test2,{html:'mona cmp'}]);
+		
+		//console.log(test1.getItem('cmp1'));
+		
+		setTimeout(function() {
+			test1.removeItem('cmp1');
+			test1.removeItem('cmp2');
+			test1.removeItem('cmp3');
+		}, 1000);
+		
+		*/
+		setInterval(function() {
+			console.log("toggle");
+			test1.toggleItem("cmp3");
+		}, 1000);
 		
 		
 		

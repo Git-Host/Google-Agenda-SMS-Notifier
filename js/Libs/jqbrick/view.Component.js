@@ -13,7 +13,7 @@
  *
  *
  * - WRAPPER / CONTENT
- * Container class add a separated layer (DIV) for the $cnt property and
+ * Container class add a separated layer (DIV) for the $body property and
  * fill some base classNames:
  *
  *     <div class="jqbrick-cmp">
@@ -64,8 +64,8 @@ define([
 				
 				xtype: "component",
 				
-				// Content layer ($cnt) attributes:
-				innerAttrs:		{},		// a list of attributes to apply to $cnt
+				// Content layer ($body) attributes:
+				innerAttrs:		{},		// a list of attributes to apply to $body
 				innerStyle: 	'',
 				innerCss: 		{},
 				
@@ -94,18 +94,18 @@ define([
 	Component.prototype._initializeComponent = function() {
 		
 		// separate container from content layer
-		this.$cnt = $('<div>')
-		this.utils.moveChilds(this.$el, this.$cnt);
-		this.$cnt.appendTo(this.$el);
+		this.$body = $('<div>')
+		this.utils.moveChilds(this.$el, this.$body);
+		this.$body.appendTo(this.$el);
 		
 		// apply raw attributes to the node
-		this.utils.applyAttributes(this.$cnt, this.options.innerAttrs);
-		if (this.options.innerStyle) 	this.$cnt.attr('style', this.options.innerStyle);
-		if (this.options.innerCss) 		this.$cnt.css(this.options.innerCss);
+		this.utils.applyAttributes(this.$body, this.options.innerAttrs);
+		if (this.options.innerStyle) 	this.$body.attr('style', this.options.innerStyle);
+		if (this.options.innerCss) 		this.$body.css(this.options.innerCss);
 		
 		// add basic classes
 		this.$el.addClass('jqbrik-cmp');
-		this.$cnt.addClass('jqbrik-cmp-inner');
+		this.$body.addClass('jqbrik-cmp-inner');
 	};
 	
 	Component.prototype._initializeComponentItems = function() {
@@ -334,7 +334,7 @@ define([
 		// need to change parent, container and remove from existing DOM position
 		} else if (item instanceof View && !this.hasItem(item)) {
 			item.setParent(this);
-			item.setContainer(this.$cnt);
+			item.setContainer(this.$body);
 			item.$el.remove();
 			this.items.push({
 				item:	item,
@@ -483,7 +483,7 @@ define([
 			
 			// Fallback: append to the component's content if no other situation match
 			if (!this.items[idx].item.$el.parent().length) {
-				this.items[idx].item.$el.appendTo(this.$cnt);
+				this.items[idx].item.$el.appendTo(this.$body);
 			}
 			
 			return true;
