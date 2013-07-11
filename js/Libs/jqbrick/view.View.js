@@ -33,8 +33,8 @@
  * . callback should return a custom DeferredObject who is sent back to 
  *
  * ViewInstance.call("methodName", "a", "b", "c");
- * -> try to run "instance.options.method" - instance context
- * -> try to run "instance.method" - instance context
+ * -> try to run "instance.options.onMethodName" - instance context
+ * -> try to run "instance.onMethodName" - instance context
  * -> trigger "methodname" event on instance itself
  * -> trigger "methodname" event on instance.$el element
  * (following arguments are given to the view and to generated custom events)
@@ -529,10 +529,23 @@ define([
 	 * - trigger a custom event on view's instance class
 	 * - trigger a custom event on view's DOM node
 	 *
+	 * callback's names are prefixed by "on" so if you code:
+	 *     ViewInstance.apply('render')
+	 *     -> instance.options.onRender()
+	 *     -> instance.onRender()
+	 *     -> "render" event thrown on instance
+	 *     -> "render" event thrown on instance.$el
+	 *
+	 *     ViewInstance.apply('custoEvent')
+	 *     -> instance.options.onCustomEvent()
+	 *     -> instance.onCustomEvent()
+	 *     -> "customevent" event thrown on instance
+	 *     -> "customevent" event thrown on instance.$el
+	 *
 	 * callbacks should return a DeferredObject who is sent
 	 * back to the point where callback request began!
 	 *
-	 * anonymous functions skipt triggering of events because the name is... anonymous!
+	 * !!! anonymous functions skip triggering of events because the name is... anonymous!
 	 *
 	 * ViewInstance.apply(function(a, b, c) {}, ['a', 'b', 'c']);
 	 * ViewInstance.apply('afterCustomEvent');
@@ -541,17 +554,19 @@ define([
 	View.prototype.apply = function(name, args, ctx) {
 		ctx = ctx || this;
 		
+		var _cbName = "on" + this.utils.ucFirst(name);
+		
 		// first argument is a function
 		if (_.isFunction(name)) {
 			return name.apply(ctx, args);
 		
 		// options defined callback	
-		} else if (this.options[name] && _.isFunction(this.options[name])) {
-			var promise = this.options[name].apply(ctx, args);
+		} else if (this.options[_cbName] && _.isFunction(this.options[_cbName])) {
+			var promise = this.options[_cbName].apply(ctx, args);
 		
 		// object defined callback
-		} else if (this[name] && _.isFunction(this[name])) {
-			var promise = this[name].apply(ctx, args);
+		} else if (this[_cbName] && _.isFunction(this[_cbName])) {
+			var promise = this[_cbName].apply(ctx, args);
 		}
 		
 		// trigger callback event on both View instance and DOM node
