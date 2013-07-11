@@ -3,26 +3,9 @@
  * Bricks for Mobile Apps
  * =======================
  * 
- * Extends BackboneJS's View component adding some useful methods and
- * prototyping an inheritance for subclassing View object itself. 
- * 
- * $el vs $body
- * -----------------
- * BackboneJS's Views has a $el poiter to the main wrapped DOM element
- * who contain all view's structure.
- *
- * jQbrick's View first subclass is a "UI component" and a component can 
- * contain other components; each component should have some structural  
- * differences between wrapper element and content element those pointers
- * have two dedicated names.
- *
- * NOTE: this class does not implement any Component logic!
- *       component logic is delegated to Component subclass!
  *
  *
- *
- *
- * CALLBACKS:
+ * CALLBACK MIXIN:
  * ---------------------
  * Throwing callbacks is a very often implemented architecture so View class
  * implement two methods, "call" and "apply" to let things works fine.
@@ -46,68 +29,6 @@
  * 
  *
  *
- * 
- *
- * DEFERRED OBJECTS
- * ---------------------
- * View object implements jQuery's DeferredObject technique providing
- * some internal methods to setup, solve and check DFD easily and to
- * handle callbacks binded to resolution events.
- * 
- * You can enjoy the "when" configuration options who let you configure
- * DFD callbacks just like Backbone's "events" configuration.
- *
- * Subclasses can extend "_setup" method to define new Deferred Holding Points
- * using the Deferred() method:
- *
- *     // Just a piece of the Subclass:
- *     _setup: function() {
- *         Page.prototype._setup.apply(this, arguments);
- *         this.Deferred("foo1", "foo2", ...);
- *     },
- *     customMethod: function() {
- *         if (... custom logic ...) {
- *             this.resolve("foo1");
- *         } else {
- *             this.reject("foo1");
- *         }
- *     }
- *     
- *     // Just a way to use it:
- *     SubclassInstance.when("foo1").then(
- *         function() { ... },	// "done" tree
- *         function() { ... }	// "fail" tree
- *     );
- *
- * -- ABOUT DEFERRED RESOLUTION (and arguments):
- * Internal "resolve()" and "reject()",  take only the name of the
- * DFD to act on, they don't understand arguments.
- * (you can pass other arguments but they are not considerd by checking methods!)
- *
- * This is because they are intended to work much like an on/off control so you can
- * alter it's status (resolve/reject) but nothing more.
- *
- * -- CHECKING DEFERRED:
- * You can use "is()", "not()", "after()" who watch a named deferred and throw a callback:
- * 
- *     ViewInstance.is("ready", function() {...});
- *     ViewInstance.not("rendered", function() {...});
- *
- * Callback function is supplied with instance context.
- * You can pass explicit params to the callback:
- *
- *     ViewInstance.is("ready", function(arg1, arg2) {}, "arg1", "arg2");
- * 
- * 
- * -- CHECKING MULTIPLE DEFERRED:
- * There is no implemented utilities to check multiple deferreds but you can use
- * getDeferred('name') to obtain direct access to a deferred object.
- * 
- *     $.when(ViewInstance.getDeferred('ready'), ViewInstance.getDeferred('rendered')).then(
- *         function() {}
- *     );
- *
- * Read "getDeferred()" documentation to learn more about this feature!
  * 
  */
 

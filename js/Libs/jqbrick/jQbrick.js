@@ -86,7 +86,7 @@ define([
 		this.xtype = new LibXType(this);
 		
 		// add xtype
-		//this.libs.View.prototype.xtype = this.xtype;
+		this.libs.View.prototype.xtype = this.xtype;
 		
 		// register core's XTypes
 		this.xtype.register("view", this.libs.View);

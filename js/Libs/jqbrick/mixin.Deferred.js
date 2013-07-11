@@ -3,53 +3,12 @@
  * Bricks for Mobile Apps
  * =======================
  * 
- * Extends BackboneJS's View component adding some useful methods and
- * prototyping an inheritance for subclassing View object itself. 
- * 
- * $el vs $body
- * -----------------
- * BackboneJS's Views has a $el poiter to the main wrapped DOM element
- * who contain all view's structure.
- *
- * jQbrick's View first subclass is a "UI component" and a component can 
- * contain other components; each component should have some structural  
- * differences between wrapper element and content element those pointers
- * have two dedicated names.
- *
- * NOTE: this class does not implement any Component logic!
- *       component logic is delegated to Component subclass!
- *
- *
- *
- *
- * CALLBACKS:
- * ---------------------
- * Throwing callbacks is a very often implemented architecture so View class
- * implement two methods, "call" and "apply" to let things works fine.
- *
- * ViewInstance.call(function(a, b, c) {}, "a", "b", "c");
- * -> try to run given callback with instance context
- * . following arguments are given to the view and to generated custom events
- * . callback should return a custom DeferredObject who is sent back to 
- *
- * ViewInstance.call("methodName", "a", "b", "c");
- * -> try to run "instance.options.onMethodName" - instance context
- * -> try to run "instance.onMethodName" - instance context
- * -> trigger "methodname" event on instance itself
- * -> trigger "methodname" event on instance.$el element
- * (following arguments are given to the view and to generated custom events)
- *
- * ViewInstance.apply("methodName", [args], context);
- * -> works much like "call" but allow to setup a custom execution context as
- *    third optional argument
- *
- * 
  *
  *
  * 
  *
- * DEFERRED OBJECTS
- * ---------------------
+ * DEFERRED OBJECTS MIXIN
+ * ---------------------------
  * View object implements jQuery's DeferredObject technique providing
  * some internal methods to setup, solve and check DFD easily and to
  * handle callbacks binded to resolution events.
