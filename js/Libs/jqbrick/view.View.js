@@ -409,7 +409,7 @@ define([
 		} else if (this.options.autoRender === 'ready') {
 			this.is('ready', this.render);
 		
-		// wait for parent object so solve "rendered" Deferred to be solved
+		// wait for parent object to resolve "rendered" DeferredObject until render itself
 		} else if (this.options.autoRender === 'cascade') {
 			if (this.parent && _.isFunction(this.parent.is)) {
 				this.parent.is('rendered', _.bind(this.render, this));	

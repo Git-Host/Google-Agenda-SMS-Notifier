@@ -38,6 +38,7 @@ requirejs.config({
 			"deps" 		: ["underscore", "jquery"],
 			"exports" 	: "Backbone"
 		},
+		// This is an important configuration when using "amdJqm" in "app/main"
 		"jqm" : {
 			"deps"		: ["jquery", "app/main"]
 		}

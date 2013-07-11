@@ -8,69 +8,78 @@
  */
 
 
-define(["jquery", "underscore"], function($, _) {
+define([
+	"jquery", "underscore", 
+	"./mixin.Callback",
+	"./mixin.Deferred"
+
+], function(
+	$, _, 
+	CallbackMixin,
+	DeferredMixin
+
+) {
 	
-	var AppClass = function(options) {
+	
+	var AppClass = function() {this.__construct__.apply(this,arguments)};
+	
+	_.extend(
+		AppClass.prototype, 
+		Backbone.Events, 
+		CallbackMixin.prototype, 
+		DeferredMixin.prototype
+	);
+	
+	
+	
+	
+	
+	
+	
+	AppClass.prototype.__construct__ = function(options) {
 		var self = this;
 		
 		// App Default Values
 		this.options = _.extend({}, {
-			"uidefaults" 	: {},					// apply defaults to jQueryMobile
-			"uistartup"		: "ready",				// rules to starup jQueryMobile [init = as soon as loaded|ready = wait for App.initialize to solve|false = manual]
-			"uieffect"		: "fade",				// [fade|show] configure how to display an hidden document body.
-			"reseturl"		: false,				// prevent to reload internal pages
-			"initialize" 	: this.initialize,
-			"onReady" 		: this.onReady,
-			"onError" 		: this.onError
+			jqmDefaults 	: {},					// apply defaults to jQueryMobile
+			jqmStartup		: true,					// rules to starup jQueryMobile [init = as soon as loaded|ready = wait for App.initialize to solve|false = manual]
+			bodyDisplay		: "fade",				// [fade|show] configure how to display an hidden document body.
+			resetUrl		: false					// prevent to reload internal pages
 		}, options||{});
 		
+		// Reset Url
+		if (this.options.resetUrl !== false) this.resetUrl();
 		
-		// Reset url's hash to prevent reloading of internal pages
-		if (this.options.reseturl !== false) {
-			if (this.options.reseturl == true) {
-				window.location.hash = "";
-			} else {
-				window.location.hash = this.options.reseturl;
-			}
-		}
+		// Deferred Checkpoints
+		this.Deferred("initialized", "ready", "started");
 		
-		
-		// Apply jQueryMobile Configuration
-		// and solve UI kit DeferredObject to run with initialization process
-		var _uiready = $.Deferred();
-		$(document).on('mobileinit', function() {
-			
-			_.extend($.mobile, {
-				"autoInitializePage" 		: false,
-				"defaultPageTransition" 	: "slide"
-			}, self.options.uidefaults);
-			
-			if (self.options.uistartup === "init") self.initUi();
-			_uiready.resolve();
-		});
-		
-		
-		// Resolve initialization DeferredObject and run post-initialization logics
-		// "onReady, onError" callback should return DeferredObjects to posticipate
-		// internal logic!
-		this.ready = $.Deferred();
+		// -- setup step
 		$.when(
-			this.options.initialize(),
-			_uiready
-		).then(
-			function() {
-				$.when(self.options.onReady.apply(self)).then(function() {
-					self.initUi();
-				}).always(function() {
-					self.ready.resolveWith(self);
-				});
-			},
-			function() {
-				$.when(self.options.onError.apply(self)).always(function() {
-					self.ready.rejectWith(self);
-				});
-			}
-		);
+			this.setup(),
+			this.setupUi()
+		).always(function() {
+			
+			self.resolve("initialized");
+			
+			// -- startup step
+			$.when(
+				self.startup(),
+				self.startupUi()
+			).then(
+				function() {
+					self.resolve("ready");
+					self.call("ready");
+				},
+				function() {
+					self.reject("ready");
+					self.call("error");
+				}
+			).always(function() {
+				self.resolve("started");
+			});
+			
+		});
+
 		
 	};
 	
@@ -78,31 +87,69 @@ define(["jquery", "underscore"], function($, _) {
 	
 	
 	
-	/**
-	 * Initialize jQueryMobile page.
-	 * use <body style="display:none"> to hide content until UI is ready to load!
-	 */
-	AppClass.prototype.initUi = function() {
+	AppClass.prototype.setup = function() {
+		return this.apply("setup");
+	};
+	
+	AppClass.prototype.setupUi = function() {
+		return this.apply("setupui");
+	};
+	
+	AppClass.prototype.startup = function() {
+		return this.apply("startup");
+	};
+	
+	AppClass.prototype.startupUi = function() {
 		var self = this;
+		var _dfd = $.Deferred();
+		
 		setTimeout(function() {
-			if (self.options.uieffect == "fade") {
-				$('body').fadeIn();
-			} else {
-				$('body').show();
+			switch (self.options.bodyDisplay) {
+				case "fade":
+					$('body').fadeIn(_dfd.resolve);
+					break;
+				case "block":
+				default:
+					$('body').show(_dfd.resolve);
+					break;	
 			}
-			$.mobile.initializePage();	
 		}, 1);
+		
+		return _dfd.pipe(this.apply("startupui"));
 	};
 	
 	
 	
-	/**
-	 * Overriddable Callbacks
-	 */
-	AppClass.prototype.initialize 	= function() {};
-	AppClass.prototype.onReady 		= function() {};
-	AppClass.prototype.onError 		= function() {};
-
+	
+	
+	
+	AppClass.prototype.resetUrl = function() {		
+		var _before = window.location.hash;
+		if (this.options.resetUrl == true) {
+			window.location.hash = "";
+		} else {
+			window.location.hash = this.options.reseturl;
+		}
+		this.call("resetUrl", _before, window.location.hash);
+	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	return AppClass;
 	

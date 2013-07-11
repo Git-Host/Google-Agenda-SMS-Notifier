@@ -3,78 +3,20 @@
  * Bricks for Mobile App Directors
  * ===============================
  * 
- * Build jQbrick singleton namespace
+ * Build jQbrick Singleton Namespace
+ * 
+ * 
+ * 
  * 
  */
 
 define([
-	"./AppClass",
-	
-	"./lib.utils",
-	"./lib.xtype",
-	
-	"./view.View",
-	"./view.Component",
-	"./view.ComponentLayout"
+	"./jQbrick"
 	
 ], function(
-	AppClass,
-	
-	LibUtils,
-	LibXType,
-	
-	View,
-	Component,
-	ComponentLayout
+	jQbrick
 	
 ) {
-	
-	
-	var jQbrick = function() {
-		
-		this.__setupUtilisLibrary();
-		
-		this.__setupXtypes();
-		
-		return {
-			"AppClass" 				: AppClass,	
-			"View"					: View,
-			"Component"				: Component,
-			"ComponentLayout"		: ComponentLayout
-		}
-	};
-	
-	
-	/**
-	 * Setup LibUtils library and inject into framework modules
-	 */
-	jQbrick.prototype.__setupUtilisLibrary = function() {
-		
-		this.utils = new LibUtils(this);
-		
-		AppClass.prototype.utils 	= this.utils;
-		View.prototype.utils 		= this.utils;
-		
-	};
-	
-	
-	/**
-	 * Setup LibXType and register all known types
-	 */
-	jQbrick.prototype.__setupXtypes = function() {
-		
-		this.xtype = new LibXType(this);
-		
-		View.prototype.xtype = this.xtype;
-		
-		// register core's XTypes
-		this.xtype.register("view", View);
-		this.xtype.register("component", Component);
-		this.xtype.register("componentlayout", ComponentLayout);
-		
-	};
-	
-	
 	
 	
 	/**
@@ -85,10 +27,19 @@ define([
 	 * If no global namespace conflicts exists it export jQbrick
 	 * instance to the global namespace too.
 	 */
+	
+	var _Singleton = new jQbrick({
+		/*
+		NewLibName : NewLibObj,
+		NewLibName : NewLibObj,
+		NewLibName : NewLibObj,
+		*/
+	});
+	
 	if (!window.jQbrick) {
-		window.jQbrick = new jQbrick();
+		window.jQbrick = _Singleton;
 	}
 	
-	return window.jQbrick;
+	return _Singleton;
 	
 });
