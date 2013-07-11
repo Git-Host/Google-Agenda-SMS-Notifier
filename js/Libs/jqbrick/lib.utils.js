@@ -73,6 +73,20 @@ define(['jquery', 'underscore'], function($, _) {
 	};
 	
 	
+	
+	LibUtils.prototype.ucFirst = function(str) {
+		str += '';
+		var f = str.charAt(0).toUpperCase();
+		return f + str.substr(1);
+	};
+	
+	LibUtils.prototype.lcFirst = function(str) {
+		str += '';
+		var f = str.charAt(0).toLowerCase();
+		return f + str.substr(1);
+	};
+	
+	
 	/**
 	 * Global namespace singleton:
 	 * various namespaces under jQbrick will link this instance!
