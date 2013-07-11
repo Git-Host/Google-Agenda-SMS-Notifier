@@ -8,7 +8,7 @@
  *
  */
 
-define(['jquery'], function($) {
+define(['jquery', 'underscore'], function($, _) {
 	
 	var LibUtils = function(jQbrick) {
 		this.jQbrick = jQbrick;
@@ -29,6 +29,48 @@ define(['jquery'], function($) {
 		}
 	};
 	
+	
+	/**
+	 * Set a list of attributes to a given DOM node
+	 */
+	LibUtils.prototype.applyAttributes = function($dom, attrs) {
+		for (k in attrs) {
+			$dom.attr(k, attrs[k]);
+		}
+	};
+	
+	
+	/**
+	 * Move all childNodes from a $(DOM) to another without
+	 * losing active bindings (es listeners)
+	 */
+	LibUtils.prototype.moveChilds = function($from, $to) {
+		while ($from[0].hasChildNodes()) {
+			$to[0].appendChild($from[0].removeChild($from[0].firstChild));
+		}
+	};
+	
+	
+	
+	/**
+	 * Return true only if "object" is something like "{}"
+	 * Here a list of tested inputs ho return false:
+	 * - functions
+	 * - instances
+	 * - scalar (strings, numeric, boolean)
+	 * - verctors ([])
+	 */
+	LibUtils.prototype.isPlainObject = function(object) {
+		if (!_.isObject(object)) 	return false;
+		if (_.isArray(object)) 		return false;
+		if (_.isFunction(object)) 	return false;
+		
+		if (!object.prototype && _.isEmpty(object.__proto__) && object.constructor && object.constructor instanceof Object) {
+			return true;
+		} else {
+			return false;
+		}
+	};
 	
 	
 	/**

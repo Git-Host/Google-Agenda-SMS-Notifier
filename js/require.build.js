@@ -4,6 +4,11 @@
  * ===============================
  * 
  * RequireJs Optimizer Configuration
+ *
+ * ---------
+ * Run on your Mac console:
+ * >> node r.js -o require.build.js
+ * ---------
  * 
  * It creates an "/AppDeploy" directory under your App's project folder.
  * After that you can remove "/AppDeploy/js/" and "/AppDeploy/less/" folders to reduce

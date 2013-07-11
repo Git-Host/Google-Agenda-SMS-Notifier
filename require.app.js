@@ -8,14 +8,13 @@
  */
 
 
-
 requirejs.config({
 	"baseUrl" : "./",
 	"urlArgs" : "devTime=" + (new Date()).getTime(),
 	"paths" : {
 		
 		// Libraries
-		"jquery"		: "./js/Libs/jquery",
+		"jquery"		: "./js/Libs/jquery.v2.0.3",
 		"jqueryui"		: "./js/Libs/jqueryui",
 		"underscore"	: "./js/Libs/underscore",
 		"backbone"		: "./js/Libs/backbone",

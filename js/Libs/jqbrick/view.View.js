@@ -151,6 +151,8 @@ define([
 		defaults: function() {
 			return {
 				
+				//xtype: "view",
+				
 				// link to the parent Backbone.View class
 				parent:		null,
 				
@@ -167,7 +169,9 @@ define([
 				 */
 				when: {},
 				
+				// View layer ($el) attributes
 				html:		'',
+				attrs:		{},		// a list of attributes to apply to $el
 				style:		'',
 				css:		{},
 				
@@ -226,6 +230,7 @@ define([
 					$.when(self.apply("afterRender", arguments)).always(function() {
 					
 						self.resolve('rendered');
+						
 					});
 				});
 			});	
@@ -339,6 +344,10 @@ define([
 		this.parent 	= this.options.parent;
 		this.$container = this.options.$container;
 		
+		if (_.isString(this.$container) && this.$container.length) {
+			this.$container = $(this.$container);
+		}
+		
 		if (!this.$container && this.parent) {
 			if (this.parent.$cnt) {
 				this.$container = this.parent.$cnt;
@@ -351,6 +360,12 @@ define([
 		// !! $el is appended to $container
 		// !! $cnt is the container for sub-modules views!
 		this.$cnt = this.$el;
+		
+		
+		// setup wrapper attributes
+		this.utils.applyAttributes(this.$el, this.options.attrs);
+		if (this.options.style) 		this.$el.attr('style', this.options.style);
+		if (this.options.css) 			this.$el.css(this.options.css);
 		
 		// bind callbacks to Deferred holding points
 		for (var k in this.options.when) {
@@ -377,23 +392,8 @@ define([
 	 * 
 	 */
 	View.prototype._render = function() {
-		
-		if (this.options.style) {
-			this.$cnt.attr('style', this.options.style);
-		}
-		
-		if (this.options.css) {
-			this.$cnt.css(this.options.css);
-		}
-		
-		if (this.options.html.length) {
-			this.$cnt.append(this.options.html);
-		}
-		
-		if (!this.$el.parent().length && this.$container) {
-			this.appendTo(this.$container);
-		}
-		
+		this.__renderHTML();
+		this.__appendToContainer();
 	};
 	
 	
@@ -434,6 +434,39 @@ define([
 
 
 
+
+
+
+// --------------------------------------------- //
+// ---[[   P R I V A T E   M E T H O D S   ]]--- //
+// --------------------------------------------- //
+	
+	View.prototype.__renderHTML = function() {
+		if (this.options.html.length && this.getDeferred('rendered').state() == 'pending') {
+			this.$cnt.append(this.options.html);
+		}
+	};
+	
+	View.prototype.__appendToContainer = function() {
+		if (!this.$el.parent().length && this.$container) {
+			this.appendTo(this.$container);
+		}
+	};
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------- //	
 // ---[[   P U B L I C   A P I   ]]--- //	
 // ----------------------------------- //
@@ -454,6 +487,13 @@ define([
 		return this;
 	};
 	
+	View.prototype.setParent = function(parent) {
+		this.parent = parent;
+	}
+	
+	View.prototype.setContainer = function($container) {
+		this.$container = $container;
+	}
 	
 	
 	
@@ -461,13 +501,6 @@ define([
 	
 
 
-
-// --------------------------------------------- //
-// ---[[   P R I V A T E   M E T H O D S   ]]--- //
-// --------------------------------------------- //
-	
-	
-	
 	
 	
 	
@@ -734,7 +767,6 @@ define([
 	View.prototype.beforeRender = function() {};
 	
 	View.prototype.afterRender = function() {};
-	
 	
 	
 	

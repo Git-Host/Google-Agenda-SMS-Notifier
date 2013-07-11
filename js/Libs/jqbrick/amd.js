@@ -8,14 +8,24 @@
  */
 
 define([
-	"./lib.utils",
 	"./AppClass",
-	"./View"
+	
+	"./lib.utils",
+	"./lib.xtype",
+	
+	"./view.View",
+	"./view.Component",
+	"./view.ComponentLayout"
 	
 ], function(
-	LibUtils,
 	AppClass,
-	View
+	
+	LibUtils,
+	LibXType,
+	
+	View,
+	Component,
+	ComponentLayout
 	
 ) {
 	
@@ -24,9 +34,13 @@ define([
 		
 		this.__setupUtilisLibrary();
 		
+		this.__setupXtypes();
+		
 		return {
-			"AppClass" 		: AppClass,	
-			"View"			: View
+			"AppClass" 				: AppClass,	
+			"View"					: View,
+			"Component"				: Component,
+			"ComponentLayout"		: ComponentLayout
 		}
 	};
 	
@@ -40,6 +54,24 @@ define([
 		
 		AppClass.prototype.utils 	= this.utils;
 		View.prototype.utils 		= this.utils;
+		
+	};
+	
+	
+	/**
+	 * Setup LibXType and register all known types
+	 */
+	jQbrick.prototype.__setupXtypes = function() {
+		
+		this.xtype = new LibXType(this);
+		
+		View.prototype.xtype = this.xtype;
+		
+		// register core's XTypes
+		this.xtype.register("view", View);
+		this.xtype.register("component", Component);
+		this.xtype.register("componentlayout", ComponentLayout);
+		
 	};
 	
 	
