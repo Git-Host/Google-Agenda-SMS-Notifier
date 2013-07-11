@@ -122,20 +122,28 @@ define([
 	 * inject Component's rendering logic just before to inject DOM to container object
 	 */
 	Component.prototype._render = function() {
+		console.log("render: " + this.id);
 		this.__renderHTML();
-		this._renderComponent();
 		this.__appendToContainer();
+		return this._renderComponent();
 	};
 	
 	/**
-	 * Propagate rendering to sub-items
+	 * Propagate rendering to sub-items.
+	 * resolve a DFD when all items are rendered!
 	 */
 	Component.prototype._renderComponent = function() {
+		var _dfd = $.Deferred();
+		var count = 0;
 		for (var i=0; i<this.items.length; i++) {
 			if (this.items[i].active) {
-				this.items[i].item.render();
+				count+= 1;
+				$.when(this.items[i].item.render()).always(function() {
+					if (count-=1 == 0) _dfd.resolve();
+				});
 			}
 		}
+		return _dfd.promise();
 	};
 	
 	
