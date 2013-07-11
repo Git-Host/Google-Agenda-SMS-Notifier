@@ -21,6 +21,28 @@
  *     </div>
  *
  *
+ * - HANDLING ITEMS
+ * The most important feature of Component object is the ability to handle a list of
+ * sub-components named "items".
+ *
+ * !!! sub components are at least instances of "jQbrick.View" object !!!
+ *
+ *     var ComponentInstance = new jQmbr.Component({
+ *         items: [{
+ *             xtype: "view",
+ *             html: "Item 01"
+ *         },{
+ *             xtype: "component",
+ *             html: "Item 02"
+ *         }]
+ *     });
+ * 
+ * When Component.render() then it propagate to each items to maintain everything
+ * up to date.
+ * 
+ * Item's "parent" property link container Component object.
+ * Item's "$container" property link container Component.$body DOM node
+ * 
  * 
  *
  */
@@ -139,52 +161,26 @@ define([
 // ----------------------------------------------- //
 	
 	
-	Component.prototype.__alterItem__ = function(item, options, actionName, evtName) {
-		var self = this;
-		var _dfd = $.Deferred();
-		
-		options = $.extend({}, {
-			render: true,
-			silent: false,
-			complete: function() {}
-		}, options||{});
-		
-		
-		
-		// add multiple items, prevent from rendering for each item!
-		// (self call one by one)
-		if (_.isArray(item)) {
-			evtName += 's';
-			var _remaining = item.length;
-			for (var i=0; i<item.length; i++) {
-				var _options = $.extend({},options,{render: false});
-				$.when(this[actionName].call(this, item[i], _options)).always(function() {
-					_remaining-= 1;
-					if (_remaining == 0) _dfd.resolve();
-				});
-			}
-		
-		// add single component
-		} else {
-			$.when(this[actionName].call(this, item, options)).always(_dfd.resolve);
-		}
-		
-		// render component if required
-		_dfd.done(function() {
-			if (!options.silent) {
-				options.complete.call(self, item, options);
-				self.call(evtName, item, options);
-			}
-			if (options.render) {
-				self.render();
-			}
-		});
-			
-		return this;
+	Component.prototype.hasItem = function(item) {
+		return this.getItem(item) != null;
 	};
 	
+	Component.prototype.getItem = function(id) {
+		if (_.isString(id)) {
+			return this.getItemById(id);
+		} else {
+			return this.itemAt(this.itemPos(id));
+		}
+	};
 	
-	
+	Component.prototype.getItemById = function(id) {
+		for (var i=0; i<this.items.length; i++) {
+			if (this.items[i].item.id == id) {
+				return this.items[i].item;
+			}
+		}
+		return -1;
+	};
 	
 	Component.prototype.itemPos = function(item) {
 		for (var i=0; i<this.items.length; i++) {
@@ -196,33 +192,135 @@ define([
 	};
 	
 	Component.prototype.itemAt = function(idx) {
-		if (this.items[idx]) {
-			return this.items[idx].item;	
+		if (idx != -1 && this.items[idx]) {
+			return this.items[idx].item;
+		} else {
+			return null;
 		}
 	};
 	
-	Component.prototype.hasItem = function(item) {
-		return this.itemPos(item) != -1;
+	Component.prototype.getItemStatus = function(item) {
+		var idx = this.itemPos(this.getItem(item));
+		if (idx != -1 && this.items[idx]) {
+			return this.items[idx].active;
+		} else {
+			return false;
+		}
+	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * This is a private logic to apply an action to a set of Component's items.
+	 * It can receive a single item or an array of items.
+	 *
+	 * When action ends over all involved items a callback and an event are thrown.
+	 * (internal action logic should return a DeferredObject)
+	 *
+	 * CALLBACKS:
+	 * it uses internal callbacks utility "apply()" throwing
+	 * actionName - on each single item
+	 * actionName + "Complete" - when all items completes
+	 *
+	 * OPTIONS:
+	 * - render:   trigger component's render() after action [default:true]
+	 * - silent:   prevent to trigger callbacks and events [default:false]
+	 * - complete: anonymous callback triggered when all actions complete
+	 * - each:     anonymous callback triggered on each
+	 *
+	 */
+	Component.prototype.__alterItem__ = function(item, options, actionName, evtName) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		var options = $.extend({}, {
+			render: 	true,
+			silent: 	false,
+			each:		function() {},
+			complete: 	function() {}
+		}, options||{});
+		
+		// prevent internal logic to render the component.
+		// rendering is done at the end of the game!
+		var _options = $.extend({},options,{render: false});
+		
+		// add multiple items, prevent from rendering for each item!
+		// (self call one by one)
+		if (_.isArray(item)) {
+			var _remaining = item.length;
+			for (var i=0; i<item.length; i++) {
+				var _item = _.isString(item[i]) ? this.getItem(item[i]) : item[i];
+				$.when(this[actionName].call(this, _item, _options)).always(function() {
+					$.when(
+						options.each.call(self, _item, options),
+						self.call(evtName, _item, options)
+					).always(function() {
+						if (_remaining-=1 == 0) _dfd.resolve();
+					});
+				});
+			}
+		
+		// add single component
+		} else {
+			var _item = _.isString(item) ? this.getItem(item) : item;
+			$.when(this[actionName].call(this, _item, _options)).always(function() {
+				$.when(
+					options.each.call(self, _item, options),
+					self.call(evtName, _item, options)
+				).always(function() {
+					_dfd.resolve();
+				});
+			});
+		}
+		
+		// render component if required
+		_dfd.done(function() {
+			if (!options.silent) {
+				var _callbacks = $.when(
+					options.complete.call(self, item, options),
+					self.call(evtName+"Complete", item, options)
+				);
+			} else {
+				var _callbacks = true;
+			}
+			if (options.render) {
+				$.when(_callbacks).always(_.bind(self.render, self));
+			}
+		});
+			
+		return this;
 	};
 	
 	
 	
 	
 	/**
-	 * Add a new Component (or General View) to Component's Body
-	 * it handle single or multiple items and it is able to
-	 * throw "render()" when all new components are done
+	 * APIS for addItem(), removeItem(), enableItem(), disableItem(), toggleItem()
 	 */
-	Component.prototype.addItem = function(item, options) {
-		return this.__alterItem__(item, options, '_addItem', 'additem');
-	};
+	
+	
+	
 	
 	/**
-	 * @TODO:
-	 * should return a deferred to delay "add()" events triggering...
-	 * this may be used to delay "add" to match "initialized" deferred of each sub items....
-	 * or may be unuseful!
+	 * addItem()
+	 * ---------------------
 	 */
+	 
+	Component.prototype.addItem = function(item, options, getDeferred) {
+		var _dfd = this.__alterItem__(item, options, '_addItem', 'addItem');
+		if (getDeferred === true) {
+			return _dfd;
+		} else {
+			return this;
+		}
+	};
+	
 	Component.prototype._addItem = function(item, options) {
 		// configuration object, create new XType
 		if (this.utils.isPlainObject(item)) {
@@ -246,17 +344,149 @@ define([
 	};
 	
 	
-	
-	
-	
-	Component.prototype.removeItem = function(item, options) {
-		return this.__alterItem__(item, options, '_removeItem', 'removeitem');
+	/**
+	 * removeItem()
+	 * ---------------------
+	 */
+	 
+	Component.prototype.removeItem = function(item, options, getDeferred) {
+		var _dfd = this.__alterItem__(item, options, '_removeItem', 'removeItem');
+		if (getDeferred === true) {
+			return _dfd;
+		} else {
+			return this;
+		}
 	};
 	
 	Component.prototype._removeItem = function(item, options) {
+		var _dfd = $.Deferred();
 		if (this.hasItem(item)) {
 			this.items.splice(this.itemPos(item), 1);
-			item.$el.remove();
+			$.when(item.remove()).always(_dfd.resolve);
+		} else {
+			_dfd.reject();
+		}
+		return _dfd.promise();
+	};
+	
+	
+	/**
+	 * toggleItem()
+	 * ---------------------
+	 */
+	
+	Component.prototype.toggleItem = function(item, options, getDeferred) {
+		var _dfd = this.__alterItem__(item, options, '_toggleItem', 'toggleItem');
+		if (getDeferred === true) {
+			return _dfd;
+		} else {
+			return this;
+		}
+	};
+	
+	Component.prototype._toggleItem = function(item, options) {
+		if (this.getItemStatus(item)) {
+			return this.disableItem(item, {render:false}, true);
+		} else {
+			return this.enableItem(item, {render:false}, true);
+		}
+	}
+	
+	
+	/**
+	 * disableItem()
+	 * ---------------------
+	 */
+	
+	Component.prototype.disableItem = function(item, options, getDeferred) {
+		var _dfd = this.__alterItem__(item, options, '_disableItem', 'disableItem');
+		if (getDeferred === true) {
+			return _dfd;
+		} else {
+			return this;
+		}
+	};
+	
+	Component.prototype._disableItem = function(item, options) {
+		if (this.hasItem(item)) {
+			this.items[this.itemPos(item)].active = false;
+			this.items[this.itemPos(item)].item.$el.remove();
+			return true;
+		} else {
+			return false;
+		}
+	};
+	
+	
+	/**
+	 * enableItem()
+	 * ---------------------
+	 * this is the most difficult items handling logic because 
+	 * enabled item's DOM need to be re-injected into component's body
+	 * at the correct place!
+	 */
+	
+	Component.prototype.enableItem = function(item, options, getDeferred) {
+		var _dfd = this.__alterItem__(item, options, '_enableItem', 'enableItem');
+		if (getDeferred === true) {
+			return _dfd;
+		} else {
+			return this;
+		}
+	};
+	
+	Component.prototype._enableItem = function(item, options) {
+		if (this.hasItem(item)) {
+			var idx = this.itemPos(item);
+			this.items[idx].active = true;
+			
+			// Try to find out the correct place where to inject
+			// enabled item's DOM node.
+			
+			// First Item.
+			// append before to the first enabled item - if available
+			if (idx == 0) {
+				var _done = false;
+				for (var i=1; i<this.items.length; i++) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.before(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+			
+			// Last Item
+			// append after the last enabled item - if available
+			} else if (idx === this.items.length-1) {
+				var _done = false;
+				for (var i=this.items.length-2; i>=0; i--) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.after(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+				
+			} else {
+				var _done = false;
+				for (i=idx-1; i>=0; i--) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.after(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+				for (i=idx+1; i<this.items.length; i++) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.before(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+			}
+			
+			// Fallback: append to the component's content if no other situation match
+			if (!this.items[idx].item.$el.parent().length) {
+				this.items[idx].item.$el.appendTo(this.$cnt);
+			}
+			
+			return true;
 		} else {
 			return false;
 		}
