@@ -9,12 +9,12 @@
 
 
 define([
-	"jquery", "underscore", 
+	"jquery", "underscore", "backbone",
 	"./mixin.Callback",
 	"./mixin.Deferred"
 
 ], function(
-	$, _, 
+	$, _, Backbone,
 	CallbackMixin,
 	DeferredMixin
 
@@ -23,6 +23,10 @@ define([
 	
 	var AppClass = function() {this.__construct__.apply(this,arguments)};
 	
+	// Inherith extend capability from Backbone.extend() utility
+	AppClass.extend = Backbone.View.extend;
+	
+	// Append functionalities
 	_.extend(
 		AppClass.prototype, 
 		Backbone.Events, 
@@ -36,16 +40,19 @@ define([
 	
 	
 	
+	AppClass.prototype.defaults = function() {
+		return {
+			bodyDisplay		: "fade",				// [fade|show] configure how to display an hidden document body.
+			resetUrl		: false					// prevent to reload internal pages
+		};
+	};
+	
+	
 	AppClass.prototype.__construct__ = function(options) {
 		var self = this;
 		
 		// App Default Values
-		this.options = _.extend({}, {
-			jqmDefaults 	: {},					// apply defaults to jQueryMobile
-			jqmStartup		: true,					// rules to starup jQueryMobile [init = as soon as loaded|ready = wait for App.initialize to solve|false = manual]
-			bodyDisplay		: "fade",				// [fade|show] configure how to display an hidden document body.
-			resetUrl		: false					// prevent to reload internal pages
-		}, options||{});
+		this.options = _.extend({}, this.defaults(), options||{});
 		
 		// Reset Url
 		if (this.options.resetUrl !== false) this.resetUrl();
@@ -117,6 +124,12 @@ define([
 		
 		return _dfd.pipe(this.apply("startupui"));
 	};
+	
+	
+	
+	
+	
+	
 	
 	
 	

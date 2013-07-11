@@ -14,83 +14,89 @@
  */
 
 define([
+	"jquery",
 	"./jQbrick",
 	"./AppClass"
 	
 ], function(
+	$,
 	jQbrick,
 	AppClass
 	
 ) {
 	
 	
-	
-	
-	AppClass.prototype.setupUi = function() {
-		var self = this;
-		var _dfd = $.Deferred();
+	/**
+	 * Custom AppClass
+	 * implements jQueryMobile UI startup with options
+	 */
+	var JqmAppClass = AppClass.extend({
 		
-		this.Deferred("jqmready");
+		defaults: function() {
+			return $.extend({}, AppClass.prototype.defaults.apply(this), {
+				jqmDefaults 	: {},					// apply defaults to jQueryMobile
+				jqmStartup		: true					// rules to starup jQueryMobile [init = as soon as loaded|ready = wait for App.initialize to solve|false = manual]
+			});
+		},
 		
-		$(document).on('mobileinit', function() {
-			_.extend($.mobile, {
-				autoInitializePage 		: false,
-				defaultPageTransition 	: "slide"
-			}, self.options.jqmDefaults);
+		setupUi: function() {
+			var self = this;
+			var _dfd = $.Deferred();
 			
-			switch (self.options.jqmStartup) {
-				case false:
-				case "false":
-				case "off":
-				case "no":
-					break;
-				case "initialized":
-					self.is("initialized", _.bind(self.jqmInitializePage,self));
-					break;
-				case "ready":
-					self.is("ready", _.bind(self.jqmInitializePage,self));
-					break;
-				default:
-					self.jqmInitializePage();
-					break;
-			}
+			this.Deferred("jqmready");
 			
-			$.when(self.call("setupUi")).always(_dfd.resolve);
-		});
-		
-		return _dfd.promise();
-	};
-	
-	
-	AppClass.prototype.jqmInitializePage = function() {
-		var _dfd = $.Deferred();
-		var self = this;
-		
-		setTimeout(function() {
-			switch (self.options.bodyDisplay) {
-				case "fade":
-					$('body').fadeIn();
-					break;
-				case "block":
-				default:
-					$('body').show();
-					break;	
-			}
+			$(document).on('mobileinit', function() {
+				_.extend($.mobile, {
+					autoInitializePage 		: false,
+					defaultPageTransition 	: "slide"
+				}, self.options.jqmDefaults);
+				
+				switch (self.options.jqmStartup) {
+					case false:
+					case "false":
+					case "off":
+					case "no":
+						break;
+					case "initialized":
+						self.is("initialized", _.bind(self.jqmInitializePage,self));
+						break;
+					case "ready":
+						self.is("ready", _.bind(self.jqmInitializePage,self));
+						break;
+					default:
+						self.jqmInitializePage();
+						break;
+				}
+				
+				$.when(self.call("setupUi")).always(_dfd.resolve);
+			});
 			
-			$.mobile.initializePage();
-			self.resolve("jqmready");
-			
-		}, 1);
+			return _dfd.promise();
+		},
 		
-		return _dfd.promise();
-	};
-	
-	
-	
-	
-	
-	
-	
+		jqmInitializePage: function() {
+			var _dfd = $.Deferred();
+			var self = this;
+			
+			setTimeout(function() {
+				switch (self.options.bodyDisplay) {
+					case "fade":
+						$('body').fadeIn();
+						break;
+					case "block":
+					default:
+						$('body').show();
+						break;	
+				}
+				
+				$.mobile.initializePage();
+				self.resolve("jqmready");
+				
+			}, 1);
+			
+			return _dfd.promise();
+		}
+	});
 	
 	
 	
@@ -105,11 +111,7 @@ define([
 	 */
 	
 	var _Singleton = new jQbrick({
-		/*
-		NewLibName : NewLibObj,
-		NewLibName : NewLibObj,
-		NewLibName : NewLibObj,
-		*/
+		AppClass : JqmAppClass
 	});
 	
 	if (!window.jQbrick) {
