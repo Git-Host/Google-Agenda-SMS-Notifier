@@ -117,15 +117,15 @@ define([
 		initialize: function(options) {
 			var self = this;
 			
-			$.when(self._buildOptions.apply(self, arguments)).always(function() {
+			$.when(self._buildOptions.apply(self, arguments)).then(function() {
 				
-				$.when(self._setup()).always(function() {
+				$.when(self._setup()).then(function() {
 					
-					$.when(self.apply("setup", arguments)).always(function() {
+					$.when(self.apply("setup", arguments)).then(function() {
 						
-						$.when(self._initialize()).always(function() {
+						$.when(self._initialize()).then(function() {
 							
-							$.when(self.apply("init", arguments)).always(function() {
+							$.when(self.apply("init", arguments)).then(function() {
 								
 								self.resolve('initialized');
 								
@@ -150,11 +150,11 @@ define([
 		render: function() {
 			
 			var self = this;
-			$.when(self.apply("beforeRender", arguments)).always(function() {
+			$.when(self.apply("beforeRender", arguments)).then(function() {
 				
 				$.when(self._render()).always(function() {
 					
-					$.when(self.apply("afterRender", arguments)).always(function() {
+					$.when(self.apply("afterRender", arguments)).then(function() {
 						
 						self.resolve('rendered');
 						

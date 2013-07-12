@@ -68,17 +68,44 @@ define([
 	 *     -> "customevent" event thrown on instance
 	 *     -> "customevent" event thrown on instance.$el
 	 *
-	 * callbacks should return a DeferredObject who is sent
-	 * back to the point where callback request began!
 	 *
 	 * !!! anonymous functions skip triggering of events because the name is... anonymous!
 	 *
-	 * ViewInstance.apply(function(a, b, c) {}, ['a', 'b', 'c']);
-	 * ViewInstance.apply('afterCustomEvent');
-	 * ViewInstance.apply('render', null, anotherContext);
+	 *     ViewInstance.apply(function(a, b, c) {}, ['a', 'b', 'c']);
+	 *     ViewInstance.apply('afterCustomEvent');
+	 *     ViewInstance.apply('render', null, anotherContext);
+	 *
+	 *
+	 * BLOCKING CALLBACKS:
+	 * binded callbacks should return a DeferredObject.
+	 * "apply" wait for this object to resolve before try to trigger events
+	 *
+	 * BLOCKING EVENTS:
+	 * binded events should use "block()" and "unblock()" APIs to stop
+	 * code execution and inject some strategic logic!
+	 *
+	 *     ViewInstance.on("customEvent", function(e) {
+	 *         e.block();
+	 *         setTimeout(e.unblock, 1000);
+	 *     });
+	 *
+	 *
+	 * IMPORTANT NOTE ABOUT BLOCKING CALLBACKS
+	 * to be blocking callbacks working well the caller must listen to DeferredObject
+	 * resolution to move on on the code!
+	 *
+	 *     // blocking callback works well:
+	 *     $.when(this.apply("customCallback")).then(function() { alert("OK"); });
+	 *     
+	 *     // unuseful blocking callback 
+	 *     this.apply("customCallback");
+	 *     alert("OK");
+	 * 
+	 *
 	 */
 	Mixin.prototype.apply = function(name, args, ctx) {
 		var self = this;
+		var _dfd = $.Deferred();
 		ctx = ctx || this;
 		
 		// "callbackName" -> "onCallbackName"
@@ -97,35 +124,55 @@ define([
 		
 		// options defined callback	
 		} else if (this.options[_cbName] && _.isFunction(this.options[_cbName])) {
-			var promise = this.options[_cbName].apply(ctx, args);
+			var callbackDfd = this.options[_cbName].apply(ctx, args);
 		
 		// object defined callback
 		} else if (this[_cbName] && _.isFunction(this[_cbName])) {
-			var promise = this[_cbName].apply(ctx, args);
+			var callbackDfd = this[_cbName].apply(ctx, args);
 			
 		} else {
 			var preventEvent = true;
 		}
 		
+		
+		
 		// trigger callback event on both View instance and DOM node
-		var evtName = name.toLowerCase();
-		var evtInfo = {
+		var eventDfd	= null;
+		var evtName 	= name.toLowerCase();
+		var evtInfo 	= {
 			type:			evtName,
 			originalName:	name,
 			details: 		args,
-			context: 		ctx
+			context: 		ctx,
+			
+			block: function() 	{eventDfd = $.Deferred()},
+			unblock: function() {if (eventDfd){eventDfd.resolve()}},
 		};
 		
-		// event trigger after callback resolves.
+		
+		// event trigger after callback resolves:
 		// callback must exists for event to be triggered!
+		// event's callbacks can block code execution using these methods
+		// - block()
+		// - unblock()
 		if (!preventEvent) {
-			$.when(promise).always(function() {
+			$.when(callbackDfd).then(function() {
+				
 				self.trigger(evtName, $.extend({},evtInfo,{}));
 				if (self.$el) self.$el.trigger($.Event(evtName, evtInfo));
+				
+				$.when(eventDfd).then(_dfd.resolve);
+				
 			});
+		
+		// no events, resolve only with binded callback
+		} else {
+			$.when(callbackDfd).then(_dfd.resolve);
 		}
 		
-		return promise;
+		
+		
+		return _dfd.promise();
 	};
 	
 	/**

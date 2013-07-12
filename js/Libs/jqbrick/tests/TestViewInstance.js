@@ -26,16 +26,30 @@ define([
 ) {
 	
 	var Test = TestClass.extend({
-		timeout: 2500,
 		run: function() {
 			var Test = this;
 			
 			var testView = new jQbrickView({
+				autoRender: true,
 				container: 	this.options.viewport,
 				html: 		'TestView',
-				autoRender: true,
 				
 				
+				
+				
+				
+				/**
+				 * Working Callbacks (blocking)
+				 * these callbacks are invoked during initialization and rendering process
+				 * 
+				 * these are all "blocking callbacks":
+				 * you can return a DeferredObject as callback output to stop main logic
+				 * until this deferred resolve!
+				 * !!! a failure deferred will block the process!
+				 *
+				 * 
+				 *
+				 */
 				
 				onSetup: function() {
 					console.log('[CALLBACK] onSetup');
@@ -76,6 +90,17 @@ define([
 				
 				
 				
+				
+				/**
+				 * CheckPoints Related Callbacks (non blocking)
+				 * these callbacks are invoked only when name-related checkpoints resolve with success.
+				 *
+				 * these are non blocking callbacks because they are outside initialization
+				 * or rendering process.
+				 *
+				 * these callbacks are invoked after Checkpoint's callbacks and events!
+				 */
+				
 				onReady: function() {
 					console.log('[CALLBACK] onReady');
 					var _dfd = $.Deferred();
@@ -100,71 +125,124 @@ define([
 				
 				
 				
+				
+				
+				
+				/**
+				 * CheckPoints
+				 * allows you to configure some non-blocking callbacks to be invoked
+				 * when view reaches some particular points... checkpoints!
+				 *
+				 * You can fill your initialization process with many checkpoints and
+				 * use them at your choice!
+				 */
+				
 				checkpoints: {
 					"initialized" 		: "InitializedCheckpoint",
 					"rendered"			: "RenderedCheckpoint",
 					"ready"				: "ReadyCheckpoint",
-					"modelready"		: "ModelReady",
-					"collectionready"	: "CollectionReady"
+					"modelready"		: "ModelReadyCheckpoint",
+					"collectionready"	: "CollectionReadyCheckpoint"
 				},
 				
 				InitializedCheckpoint: function() {
-					console.log('[CHECKPOINT] initialized');
+					console.log('[CHECKPOINT CALLBACK] initialized');
 				},
 				
 				RenderedCheckpoint: function() {
-					console.log('[CHECKPOINT] rendered');
+					console.log('[CHECKPOINT CALLBACK] rendered');
 				},
 				
 				ReadyCheckpoint: function() {
-					console.log('[CHECKPOINT] ready');
+					console.log('[CHECKPOINT CALLBACK] ready');
 				},
 				
-				ModelReady: function() {
-					console.log('[CHECKPOINT] modelready');
+				ModelReadyCheckpoint: function() {
+					console.log('[CHECKPOINT CALLBACK] modelready');
 				},
 				
-				CollectionReady: function() {
-					console.log('[CHECKPOINT] collectionready');
+				CollectionReadyCheckpoint: function() {
+					console.log('[CHECKPOINT CALLBACK] collectionready');
 				}
 			});
 			
 			
 			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			/**
-			 * View Events
+			 * View Events (blocking)
+			 * events who are involved in initialization or rendering process can block
+			 * that process using "e.block()" and "e.unblock()" apis
 			 */
 			
-			testView.on("setup", function() {
+			testView.on("setup", function(e) {
 				console.log("[EVENT] on:setup");
+				console.log(e);
+				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testView.on("init", function() {
+			testView.on("init", function(e) {
 				console.log("[EVENT] on:init");
+				console.log(e);
+				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testView.on("beforerender", function() {
+			testView.on("beforerender", function(e) {
 				console.log("[EVENT] on:beforerender");
+				console.log(e);
+				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testView.on("afterrender", function() {
+			testView.on("afterrender", function(e) {
 				console.log("[EVENT] on:afterrender");
+				console.log(e);
+				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testView.on("rendercomplete", function() {
+			
+			
+			
+			
+			
+			
+			/**
+			 * View Events (non blocking)
+			 * these events are not involved in any process to they can't be
+			 * considered as blocking events!
+			 */
+			
+			testView.on("rendercomplete", function(e) {
 				console.log("[EVENT] on:rendercomplete");
+				console.log(e);
 			});
 			
-			testView.on("ready", function() {
+			testView.on("ready", function(e) {
 				console.log("[EVENT] on:ready");
+				console.log(e);
 			});
 			
-			testView.on("modelready", function() {
+			testView.on("modelready", function(e) {
 				console.log("[EVENT] on:modelready");
+				console.log(e);
 			});
 			
-			testView.on("collectionready", function() {
+			testView.on("collectionready", function(e) {
 				console.log("[EVENT] on:collectionready");
+				console.log(e);
 			});
 			
 			
@@ -222,22 +300,43 @@ define([
 			 * Checkpoint's Callbacks
 			 */
 			
-			testView.on("initializedcheckpoint", function() {
+			testView.on("initializedcheckpoint", function(e) {
 				console.log("[checkpointEvent] on:initializedcheckpoint");
+				console.log(e);
 			});
 			
-			testView.on("renderedcheckpoint", function() {
+			testView.on("renderedcheckpoint", function(e) {
 				console.log("[checkpointEvent] on:renderedcheckpoint");
+				console.log(e);
 			});
 			
-			testView.on("readycheckpoint", function() {
+			testView.on("readycheckpoint", function(e) {
 				console.log("[checkpointEvent] on:readycheckpoint");
+				console.log(e);
+			});
+			
+			testView.on("modelreadycheckpoint", function(e) {
+				console.log("[checkpointEvent] on:modelreadycheckpoint");
+				console.log(e);
+			});
+			
+			testView.on("collectionreadycheckpoint", function(e) {
+				console.log("[checkpointEvent] on:collectionreadycheckpoint");
+				console.log(e);
 			});
 			
 			
 			
 			
 			
+			
+			
+			
+			
+			
+			/**
+			 * Simulation of out-of-process checkpoints resolution
+			 */
 			
 			testView.on("rendercomplete", function() {
 				
@@ -249,12 +348,11 @@ define([
 				
 				setTimeout(function() {
 					testView.resolve("collectionready");
-				}, Test.options.timeout*2);
-				
-				setTimeout(function() {
-					testView.setReady();
 				}, Test.options.timeout*4);
 				
+				setTimeout(function() {
+					testView.resolve("ready");
+				}, Test.options.timeout*8);
 				
 			});
 			
