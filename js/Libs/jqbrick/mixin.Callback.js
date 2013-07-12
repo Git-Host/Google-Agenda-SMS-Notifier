@@ -145,8 +145,8 @@ define([
 			details: 		args,
 			context: 		ctx,
 			
-			block: function() 	{eventDfd = $.Deferred()},
-			unblock: function() {if (eventDfd){eventDfd.resolve()}},
+			block: function() 	{if (!eventDfd) {eventDfd = $.Deferred()}},
+			unblock: function() {if (eventDfd) 	{eventDfd.resolve()}},
 		};
 		
 		
