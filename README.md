@@ -1,33 +1,36 @@
 # jQbrick
 
-`jQbrick` is a **components library for Mobile Apps developement**.  
+`jQbrick` is a **components library for Web/Mobile Apps developement**.
+
 It is build over `jQuery` and `BackboneJS`, it uses RequireJS for dependencies and optimization and `jQueryMobile` as _first implemented UI toolkit_ to produce well structured MobileApps.
 
-> I like do call it _"Bricks for Mobile App Directors"_.
+> I like to call `jQbrick` as _"Bricks for Mobile App Directors"_.
 
 
-## Where "jQbrick" cames from?
-`jQbrick` comes from a `jQMBR` reengineering process.  
-The name is a mix of "bricks" to highlight the **components library** nature of this project.
+## Where `jQbrick` comes from?
+`jQbrick` comes from a `jQMBR` (repo) reengineering process.  
+The name is a mix of "bricks" - to highlight the **components library** nature of this project - and "jQ" to remember what's behind!
 
-You speak "jQubrick" as "jay" + "Kubrick" (the American film director).  
+You speak `jQbrick` as "jay" + "Kubrick" (the American film director).  
 I like to refer to a very important film director because - in my intention - **you will use
-`jQbrick` components as actors in you Mobile Application**.
+`jQbrick` components as actors in you Web/Mobile Application**.
 
 
 
 
-## What's Provided?
+## What's Included?
 
-Forking or downloading this repo will provide you a fully functional test application,
-a "kitchen sink" where I put all provided features into a real Mobile App.  
+Forking or downloading `jQbrick` will provide you a fully functional test application
+- a "kitchen sink" - where I put all provided features into a real Web/Mobile App.  
 (by now - early developement - you got running tests...)
 
+Dependencies are also included into the repo (by now).
 
 
-## For Web, For Mobile
+
+## For the Web, For Mobile
 `jQbrick` is not only for Mobile developement!  
-It isn't tied to jQueryMobile!
+<u>It isn't tied up to jQueryMobile!</u>
 
 `jQbrick` should be used as a simple _jQuery+Backbone+RequireJs_ boilerplate who provides
 some useful Backbone extensions object to implement components in your application.
