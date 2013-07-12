@@ -1,9 +1,9 @@
 # jQbrick
 
-`jQbrick` is a **components library for Mobile App** I like do define _"Bricks for Mobile App Directors"_.  
-It is build over _jQuery_ and _BackboneJS_, and it uses _jQueryMobile_ as UI toolkit to produce well structured Mobile Apps.
+`jQbrick` is a **components library for Mobile Apps developement** I like do define _"Bricks for Mobile App Directors"_.  
+It is build over _jQuery_ and _BackboneJS_, it uses RequireJS for dependencies and optimization and _jQueryMobile_ as _first implemented UI toolkit_ to produce well structured MobileApps.
 
-_RequireJS_ is the glue between all blocks and allow to optimize your Application in production stage.
+> _RequireJS_ is the glue between all blocks and allow to optimize your Application for production.
 
 
 ## Where "jQbrick" cames from?
