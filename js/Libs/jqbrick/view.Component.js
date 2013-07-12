@@ -135,17 +135,35 @@ define([
 	Component.prototype._renderComponent = function() {
 		var _dfd = $.Deferred();
 		var count = 0;
+		var items = [];
 		for (var i=0; i<this.items.length; i++) {
 			if (this.items[i].active) {
+				/*
 				count+= 1;
 				$.when(this.items[i].item.render()).always(function() {
 					if (count-=1 == 0) _dfd.resolve();
 				});
+				*/
+				items.push(this.items[i].item);
 			}
 		}
-		return _dfd.promise();
+		console.log(items);
+		return this._renderComponentIterator(items, _dfd);
 	};
 	
+	Component.prototype._renderComponentIterator = function(items, _dfd) {
+		var self = this;
+		if (items.length) {
+			console.log("iterate " + items.length);
+			$.when(items[0].render()).always(function() {
+				self._renderComponentIterator(items.slice(1), _dfd);
+			});
+		} else {
+			console.log("resolve");
+			return _dfd.resolve();
+		}
+		return _dfd;
+	};
 	
 	
 	
@@ -302,7 +320,7 @@ define([
 			}
 		});
 			
-		return this;
+		return _dfd;
 	};
 	
 	
@@ -321,7 +339,12 @@ define([
 	 */
 	 
 	Component.prototype.addItem = function(item, options, getDeferred) {
+		console.log("addItem");
 		var _dfd = this.__alterItem__(item, options, '_addItem', 'addItem');
+		
+		_dfd.done(function() {console.log("addIten END")});
+		
+		
 		if (getDeferred === true) {
 			return _dfd;
 		} else {
@@ -330,25 +353,32 @@ define([
 	};
 	
 	Component.prototype._addItem = function(item, options) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
 		// configuration object, create new XType
 		if (this.utils.isPlainObject(item)) {
-			var item = this.xtype.make(null, item, this);
-			this.items.push({
-				item:	item,
-				active:	true
-			});
+			var _item = this.xtype.make(null, item, this);
 		
 		// object instance.
 		// need to change parent, container and remove from existing DOM position
 		} else if (item instanceof View && !this.hasItem(item)) {
-			item.setParent(this);
-			item.setContainer(this.$body);
-			item.$el.remove();
+			var _item = item;
+			_item.setParent(this);
+			_item.setContainer(this.$body);
+		}
+		
+		if (_item) {
 			this.items.push({
-				item:	item,
+				item:	_item,
 				active:	true
 			});
+			_item.is("initialized", _dfd.resolve);
+		} else {
+			_dfd.reject();
 		}
+		
+		return _dfd.promise();
 	};
 	
 	

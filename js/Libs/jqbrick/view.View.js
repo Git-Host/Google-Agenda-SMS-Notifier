@@ -20,6 +20,17 @@
  *       component logic is delegated to Component subclass!
  *
  *
+ *
+ * CALLBACKS:
+ * -----------------
+ *
+ * on
+ *
+ * EVENTS:
+ * -----------------
+ *
+ * DEFERREDS:
+ * -----------------
  * 
  */
 
@@ -67,14 +78,14 @@ define([
 		defaults: function() {
 			return {
 				
-				//xtype: "view",
+				xtype: "view",
 				
 				// link to the parent Backbone.View class
 				parent:		null,
 				
 				// link to the DOM container
 				// (if empty but "parent" was set it will use parent's $body or $el)
-				$container: null,
+				container: null,
 				
 				/**
 				 * Attach callbacks to DFD resolution events:
@@ -83,7 +94,7 @@ define([
 				 *    "foo" : "fooCallback"
 				 * }
 				 */
-				when: {},
+				checkpoints: {},
 				
 				// View layer ($el) attributes
 				html:		'',		// initialize view with some HTML contents inside
@@ -114,7 +125,7 @@ define([
 						
 						$.when(self._initialize()).always(function() {
 							
-							$.when(self.apply("initialized", arguments)).always(function() {
+							$.when(self.apply("init", arguments)).always(function() {
 								
 								self.resolve('initialized');
 								
@@ -144,12 +155,15 @@ define([
 				$.when(self._render()).always(function() {
 					
 					$.when(self.apply("afterRender", arguments)).always(function() {
-					
+						
 						self.resolve('rendered');
+						
+						self.apply("renderComplete", arguments);
 						
 					});
 				});
-			});	
+			});
+			
 			return this;
 		}
 		
@@ -209,6 +223,15 @@ define([
 			_dfd.resolveWith(this);
 		}
 		
+		// bind callbacks to Deferred checkpoints
+		// checkpoints need to be configured as soon as possibile
+		// to be called before external cheking (is(), when())
+		_dfd.done(function() {
+			for (var k in self.options.checkpoints) {
+				self.is(k, self.options.checkpoints[k]);
+			}
+		});
+		
 		return _dfd.promise();
 	};
 	
@@ -245,7 +268,32 @@ define([
 	View.prototype._setup = function() {
 		
 		// setup default deferred holding points
-		this.Deferred('ready', 'initialized', 'rendered');
+		this.Deferred(
+			
+			// initialization process is complete
+			// onSetup, onInit callbacks have solved
+			'initialized', 
+			
+			// rendering process is complete
+			// onBeforeRender, onAfterRender have solved
+			'rendered',
+			
+			'modelready',
+			
+			'collectionready',
+			
+			// manual or data-driven checkpoint
+			// if a model or a collection are given to the view
+			// then them can solve this checkpoint when data is ready
+			'ready'
+			
+		);
+		
+		// bind xxReady() callbacks to checkpoints resolutions
+		var self = this;
+		$.when(this.getDeferred("ready")).then(function() {				self.apply("ready")				});
+		$.when(this.getDeferred("modelready")).then(function() {		self.apply("modelReady")		});
+		$.when(this.getDeferred("collectionready")).then(function() {	self.apply("collectionReady")	});
 		
 	};
 	
@@ -265,7 +313,7 @@ define([
 		
 		// setup parent and $container objects
 		this.parent 	= this.options.parent;
-		this.$container = this.options.$container;
+		this.$container = this.options.container;
 		
 		if (_.isString(this.$container) && this.$container.length) {
 			this.$container = $(this.$container);
@@ -284,16 +332,18 @@ define([
 		// !! $body is the container for sub-modules views!
 		this.$body = this.$el;
 		
+		this.__appendToContainer();
+		
+		// default component id from view's CID
+		if (!this.options.id) {
+			this.options.id = this.cid;
+			this.options.attrs['id'] = this.options.id;
+		}
 		
 		// setup wrapper attributes
 		this.utils.applyAttributes(this.$el, this.options.attrs);
 		if (this.options.style) 		this.$el.attr('style', this.options.style);
 		if (this.options.css) 			this.$el.css(this.options.css);
-		
-		// bind callbacks to Deferred holding points
-		for (var k in this.options.when) {
-			this.is(k, this.options.when[k]);
-		}
 		
 	};
 	
@@ -416,6 +466,7 @@ define([
 	
 	View.prototype.setContainer = function($container) {
 		this.$container = $container;
+		this.__appendToContainer();
 	}
 	
 	
@@ -445,32 +496,6 @@ define([
 	
 	
 	
-	
-	
-	
-	
-
-
-
-
-
-
-
-	
-
-
-
-// ----------------------------------------------------------- //
-// ---[[   C A L L B A C K S   P L A C E H O L D E R S   ]]--- //	
-// ----------------------------------------------------------- //
-	
-	View.prototype.setup = function() {};
-	
-	View.prototype.initialized = function() {};
-	
-	View.prototype.beforeRender = function() {};
-	
-	View.prototype.afterRender = function() {};
 	
 	
 	

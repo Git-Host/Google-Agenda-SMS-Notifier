@@ -78,9 +78,18 @@ define([
 	 * ViewInstance.apply('render', null, anotherContext);
 	 */
 	Mixin.prototype.apply = function(name, args, ctx) {
+		var self = this;
 		ctx = ctx || this;
 		
-		var _cbName = "on" + this.utils.ucFirst(name);
+		// "callbackName" -> "onCallbackName"
+		// !callbackName" -> "callbackName"
+		if (name.length && name.substring(0, 1) == '!') {
+			name = name.substring(1);
+			var _cbName = name;
+		} else {
+			var _cbName = "on" + this.utils.ucFirst(name);
+		}
+		
 		
 		// first argument is a function
 		if (_.isFunction(name)) {
@@ -93,6 +102,9 @@ define([
 		// object defined callback
 		} else if (this[_cbName] && _.isFunction(this[_cbName])) {
 			var promise = this[_cbName].apply(ctx, args);
+			
+		} else {
+			var preventEvent = true;
 		}
 		
 		// trigger callback event on both View instance and DOM node
@@ -103,8 +115,15 @@ define([
 			details: 		args,
 			context: 		ctx
 		};
-		this.trigger(evtName, $.extend({},evtInfo,{}));
-		if (this.$el) this.$el.trigger($.Event(evtName, evtInfo));
+		
+		// event trigger after callback resolves.
+		// callback must exists for event to be triggered!
+		if (!preventEvent) {
+			$.when(promise).always(function() {
+				self.trigger(evtName, $.extend({},evtInfo,{}));
+				if (self.$el) self.$el.trigger($.Event(evtName, evtInfo));
+			});
+		}
 		
 		return promise;
 	};

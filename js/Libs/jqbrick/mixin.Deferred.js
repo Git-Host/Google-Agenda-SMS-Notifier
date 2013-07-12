@@ -142,6 +142,14 @@ define([
 	// shortcut
 	Mixin.prototype._d = Mixin.prototype.getDeferred;
 	
+	
+	
+	
+	
+	
+	
+	
+	
 	Mixin.prototype.resolve = function() {
 		var args = []; Array.prototype.push.apply(args, arguments);
 		var name = args.shift();
@@ -155,6 +163,15 @@ define([
 		this.__deferred(name, true).rejectWith(this, args);
 		return this;
 	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	Mixin.prototype.when = function(name) {
 		return $.when(this.__deferred(name));
@@ -177,7 +194,7 @@ define([
 		
 		var self = this;
 		this.getDeferred(name).done(function() {
-			self.apply(callback, args);
+			self.apply("!" + callback, args);
 		});
 		return this;
 	};
@@ -192,7 +209,7 @@ define([
 		
 		var self = this;
 		this.getDeferred(name).fail(function() {
-			self.apply(callback, args);
+			self.apply("!" + callback, args);
 		});
 		return this;
 	};
@@ -207,7 +224,7 @@ define([
 		
 		var self = this;
 		this.getDeferred(name).always(function() {
-			self.apply(callback, args);
+			self.apply("!" + callback, args);
 		});
 		return this;
 	};
@@ -222,12 +239,37 @@ define([
 		
 		var self = this;
 		if (this.getDeferred(name).state() == 'pending') {
-			self.apply(callback, args);
+			self.apply("!" + callback, args);
 		}
 		return this;
 	};
 	
 	
+	
+	
+	
+	
+	Mixin.prototype.ready = function(set) {
+		// resolve or reject
+		if (_.isBoolean(set)) {
+			if (set) {
+				this.resolve("ready");
+			} else {
+				this.reject("ready");
+			}
+		
+		// bind callback
+		} else if (_.isFunction(set)) {
+			this.is("ready", set);
+		}
+		
+		return this.getDeferred("ready");
+	};
+	
+	Mixin.prototype.setReady = function() {
+		this.ready(true);
+		return this;
+	};
 	
 	
 	return Mixin;
