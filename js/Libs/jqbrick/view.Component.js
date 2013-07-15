@@ -3,48 +3,7 @@
  * Bricks for Mobile Apps
  * =======================
  * 
- * Backbone.View
- *  |
- *   -- jQbrick.View
- *    |
- *     -- jQbrick.Component
- *
- * Subclass of "View" to add some "container" behaviors to a View.
- *
- *
- * - WRAPPER / CONTENT
- * Container class add a separated layer (DIV) for the $body property and
- * fill some base classNames:
- *
- *     <div class="jqbrick-cmp">
- *         <div class="jqbrick-cmp-inner"></div>
- *     </div>
- *
- *
- * - HANDLING ITEMS
- * The most important feature of Component object is the ability to handle a list of
- * sub-components named "items".
- *
- * !!! sub components are at least instances of "jQbrick.View" object !!!
- *
- *     var ComponentInstance = new jQmbr.Component({
- *         items: [{
- *             xtype: "view",
- *             html: "Item 01"
- *         },{
- *             xtype: "component",
- *             html: "Item 02"
- *         }]
- *     });
  * 
- * When Component.render() then it propagate to each items to maintain everything
- * up to date.
- * 
- * Item's "parent" property link container Component object.
- * Item's "$container" property link container Component.$body DOM node
- * 
- * 
- *
  */
 
 define([
@@ -56,7 +15,6 @@ define([
 	View
 	
 ) {
-	
 	var Component = View.extend({
 		
 		defaults: function() {
@@ -70,7 +28,8 @@ define([
 				innerCss: 		{},
 				
 				// A list of sub-items configuration to add to the component during initialization
-				items: []
+				items: [],
+				itemDefaults: {}
 				
 			});
 		}
@@ -79,19 +38,17 @@ define([
 	
 	
 	
-	
-	
-	
 	/**
-	 * Initialization
+	 * Initialization Process
+	 * - handle $el / $body separation
+	 * - add items into the DOM node without render them!
 	 */
-	Component.prototype._initialize = function() {
-		View.prototype._initialize.apply(this, arguments);
-		this._initializeComponent();
-		this._initializeComponentItems();
-	};
 	
-	Component.prototype._initializeComponent = function() {
+	Component.prototype._initializeEl = function() {
+		return this._initializeElComponent();
+	}
+	
+	Component.prototype._initializeElComponent = function() {
 		
 		// separate container from content layer
 		this.$body = $('<div>')
@@ -106,63 +63,156 @@ define([
 		// add basic classes
 		this.$el.addClass('jqbrik-cmp');
 		this.$body.addClass('jqbrik-cmp-inner');
+		
+		// append raw html
+		this.$body.append(this.options.html);
+		
+		// waith for items initialization to solve 
+		_dfd = this._initializeItems();
+		_dfd.done(_.bind(this.__appendToContainer, this));
+		return _dfd;	
 	};
 	
-	Component.prototype._initializeComponentItems = function() {
+	Component.prototype._initializeItems = function() {
 		this.items = [];
-		this.addItem(this.options.items, {render:false});
+		return this.addItems(this.options.items, {
+			defaults: 		this.options.itemDefaults,
+			overrides: 		{autoRender:false},
+			getDeferred:	true
+		});
 	};
 	
 	
 	
 	
 	
+	
+	
+	
+	
+	
+	
 	/**
-	 * Overrides Rendering Process
-	 * inject Component's rendering logic just before to inject DOM to container object
+	 * Rendering Process
+	 * - attach $el to parent
+	 * - render each "active" item in the correct order
 	 */
+	
 	Component.prototype._render = function() {
-		console.log("render: " + this.id);
-		this.__renderHTML();
-		this.__appendToContainer();
-		return this._renderComponent();
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		$.when(View.prototype._render.apply(this, arguments)).then(function() {
+			$.when(self._renderItems()).then(_dfd.resolve);
+		});
+		
+		return _dfd.promise();
 	};
 	
-	/**
-	 * Propagate rendering to sub-items.
-	 * resolve a DFD when all items are rendered!
-	 */
-	Component.prototype._renderComponent = function() {
-		var _dfd = $.Deferred();
-		var count = 0;
+	Component.prototype._renderItems = function() {
+		// compose a list of items to render
 		var items = [];
 		for (var i=0; i<this.items.length; i++) {
 			if (this.items[i].active) {
-				/*
-				count+= 1;
-				$.when(this.items[i].item.render()).always(function() {
-					if (count-=1 == 0) _dfd.resolve();
-				});
-				*/
 				items.push(this.items[i].item);
 			}
 		}
-		console.log(items);
-		return this._renderComponentIterator(items, _dfd);
+		// walk through items and render them
+		return this.__walkItems(items, this._renderItem, this);
 	};
 	
-	Component.prototype._renderComponentIterator = function(items, _dfd) {
+	Component.prototype._renderItem = function(item) {
+		return item.render().renderComplete;
+	};
+	
+	
+	
+	
+	
+	
+		
+	
+	
+	
+	
+	
+	
+	
+	
+		
+	
+	
+	
+	/**
+	 * Add New Item
+	 *
+	 * @TODO: initialization data should have an "active:false" key so that
+	 * item starts inactive... it is initialized but not rendered!
+	 */
+	Component.prototype.addItems = function(items, options) {
+		
+		if (!_.isArray(items)) {
+			items = [items];
+		};
+		
+		if (_.isBoolean(options)) {
+			options = {getDeferred:options};
+		};
+		
+		options = $.extend({}, {
+			defaults: 		{},
+			overrides: 		{},
+			getDeferred:	false
+		}, options||{});
+		
+		// apply defaults and overrides to each item before to walk through
+		for (var i=0; i<items.length; i++) {
+			items[i] = $.extend({}, options.defaults, items[i], options.overrides);
+		};
+		
+		// walk through i
+		var _dfd = this.__walkItems(items, this._addItem, this);
+		
+		if (options.getDeferred) {
+			return _dfd;
+		} else {
+			return this;
+		}
+	};
+	
+	Component.prototype._addItem = function(item) {
 		var self = this;
-		if (items.length) {
-			console.log("iterate " + items.length);
-			$.when(items[0].render()).always(function() {
-				self._renderComponentIterator(items.slice(1), _dfd);
+		var _dfd = $.Deferred();
+		
+		// Configuration object, create new XType
+		if (this.utils.isPlainObject(item)) {
+			var _item = this.xtype.make(null, item, this);
+			
+		// Object instance:
+		// need to change parent, container and remove from existing DOM position
+		} else if (item instanceof View && !this.hasItem(item)) {
+			var _item = item;
+			_item.setParent(this);
+			_item.setContainer(this.$body);
+		}
+		
+		// Check for item validity and add to the items stack.
+		// item is appended to component items if valid
+		// blocking deferred is resolved when item initialization ends
+		// and "addItem" callback and events resolves.
+		if (_item) {
+			this.items.push({
+				item:	_item,
+				active:	true
+			});
+			_item.is("initialized", function() {
+				$.when(self.apply("addItem", [_item], {trigger:true})).then(_dfd.resolve);
 			});
 		} else {
-			console.log("resolve");
-			return _dfd.resolve();
+			_dfd.reject();
 		}
-		return _dfd;
+		
+		return _dfd.promise();
 	};
 	
 	
@@ -176,16 +226,62 @@ define([
 	
 	
 	
+	Component.prototype.removeItems = function(items, options) {
+		
+		if (!_.isArray(items)) {
+			items = [items];
+		};
+		
+		if (_.isBoolean(options)) {
+			options = {getDeferred:options};
+		};
+		
+		options = $.extend({}, {
+			getDeferred:	false
+		}, options||{});
+		
+		console.log("REMOVE ITEMS");
+		
+		// walk through i
+		var _dfd = this.__walkItems(this.getItems(items), this._removeItem, this);
+		
+		if (options.getDeferred) {
+			return _dfd;
+		} else {
+			return this;
+		}
+		
+	};
+	
+	Component.prototype._removeItem = function(item) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		if (this.hasItem(item)) {
+			$.when(item.remove()).then(function() {
+				self.items.splice(self.itemPos(item), 1);
+				_dfd.resolve();
+			});
+		} else {
+			_dfd.reject();
+		}
+		return _dfd.promise();		
+	};
 	
 	
 	
 	
 	
 	
-// ----------------------------------------------- //
-// ---[[   I T E M S   M A N A G E M E N T   ]]--- //
-// ----------------------------------------------- //
 	
+	
+	
+	
+	
+	
+// ------------------------------------------------------------- //
+// ---[[   I T E M S   F I N D I N G   U T I L I T I E S   ]]--- //	
+// ------------------------------------------------------------- //
 	
 	Component.prototype.hasItem = function(item) {
 		return this.getItem(item) != null;
@@ -194,34 +290,101 @@ define([
 	Component.prototype.getItem = function(id) {
 		if (_.isString(id)) {
 			return this.getItemById(id);
+			
+		} else if (_.isNumber(id)) {
+			return this.itemAt(id);
+		
 		} else {
 			return this.itemAt(this.itemPos(id));
 		}
 	};
 	
+	/**
+	 * Take an array of eterogeneous item references and return
+	 * an array of item instances.
+	 *
+	 * You can filter on active/inactive only
+	 * 
+	 * -> ['foo', 0, obj]
+	 * <- [obj, obj, obj]
+	 */
+	Component.prototype.getItems = function(items, activeOnly) {
+		var objects = [];
+		var item 	= null;
+		
+		if (!this.items) {
+			return objects;
+		}
+		
+		for (var i=0; i<items.length; i++) {
+			console.log("check: " + items[i]);
+			if ((item = this.getItem(items[i])) != -1) {
+				if (activeOnly === true) {
+					if (this.getItemStatus(item)) {
+						objects.push(item);
+					}
+				} else if (activeOnly === false) {
+					if (!this.getItemStatus(item)) {
+						objects.push(item);
+					}
+				} else {
+					objects.push(item);
+				}
+			}
+		}
+		
+		return objects;
+	};
+	
 	Component.prototype.getItemById = function(id) {
+		if (!this.items) {
+			return false;
+		}
+		
 		for (var i=0; i<this.items.length; i++) {
 			if (this.items[i].item.id == id) {
 				return this.items[i].item;
 			}
 		}
+		
 		return -1;
 	};
 	
 	Component.prototype.itemPos = function(item) {
+		if (!this.items) {
+			return false;
+		}
+		
 		for (var i=0; i<this.items.length; i++) {
 			if (this.items[i].item == item) {
 				return i;
 			}
 		}
+		
 		return -1;
 	};
 	
-	Component.prototype.itemAt = function(idx) {
-		if (idx != -1 && this.items[idx]) {
+	/**
+	 * Return an item object by it's position index or false if don't exists.
+	 * you can also pass a callback function to be applied to matching item.
+	 *
+	 * NOTE: this method can work only after "initialized" checkpoint!
+	 */
+	Component.prototype.itemAt = function(idx, options) {
+		if (!this.items) {
+			return false;
+		}
+		
+		if (_.isFunction(options)) options = {apply:options};
+		options = $.extend({}, {
+			apply: function() {}
+		}, options||{});
+		
+		if (idx >= 0 && idx < this.items.length) {
+			options.apply.call(this, this.items[idx].item, idx);
 			return this.items[idx].item;
 		} else {
-			return null;
+			return -1;
 		}
 	};
 	
@@ -242,292 +405,39 @@ define([
 	
 	
 	
-	/**
-	 * This is a private logic to apply an action to a set of Component's items.
-	 * It can receive a single item or an array of items.
-	 *
-	 * When action ends over all involved items a callback and an event are thrown.
-	 * (internal action logic should return a DeferredObject)
-	 *
-	 * CALLBACKS:
-	 * it uses internal callbacks utility "apply()" throwing
-	 * actionName - on each single item
-	 * actionName + "Complete" - when all items completes
-	 *
-	 * OPTIONS:
-	 * - render:   trigger component's render() after action [default:true]
-	 * - silent:   prevent to trigger callbacks and events [default:false]
-	 * - complete: anonymous callback triggered when all actions complete
-	 * - each:     anonymous callback triggered on each
-	 *
-	 */
-	Component.prototype.__alterItem__ = function(item, options, actionName, evtName) {
+	
+	
+	
+	
+	
+	
+	
+	
+	Component.prototype.__walkItems = function(items, callback, context, args) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
-		var options = $.extend({}, {
-			render: 	true,
-			silent: 	false,
-			each:		function() {},
-			complete: 	function() {}
-		}, options||{});
+		args = args || [];
 		
-		// prevent internal logic to render the component.
-		// rendering is done at the end of the game!
-		var _options = $.extend({},options,{render: false});
-		
-		// add multiple items, prevent from rendering for each item!
-		// (self call one by one)
-		if (_.isArray(item)) {
-			var _remaining = item.length;
-			for (var i=0; i<item.length; i++) {
-				var _item = _.isString(item[i]) ? this.getItem(item[i]) : item[i];
-				$.when(this[actionName].call(this, _item, _options)).always(function() {
-					$.when(
-						options.each.call(self, _item, options),
-						self.call(evtName, _item, options)
-					).always(function() {
-						if (_remaining-=1 == 0) _dfd.resolve();
-					});
-				});
+		var __step = function() {
+			// detect walking end
+			if (!items.length) {
+				_dfd.resolve();
+				return;
 			}
+			// inject step item as first argument for the callback
+			var _args = args;
+			_args.unshift(items[0]);
+			// run callback waiting for execution to end
+			$.when(callback.apply(context,_args)).then(function() {
+				items = items.slice(1);
+				__step();
+			});			
+		};
 		
-		// add single component
-		} else {
-			var _item = _.isString(item) ? this.getItem(item) : item;
-			$.when(this[actionName].call(this, _item, _options)).always(function() {
-				$.when(
-					options.each.call(self, _item, options),
-					self.call(evtName, _item, options)
-				).always(function() {
-					_dfd.resolve();
-				});
-			});
-		}
-		
-		// render component if required
-		_dfd.done(function() {
-			if (!options.silent) {
-				var _callbacks = $.when(
-					options.complete.call(self, item, options),
-					self.call(evtName+"Complete", item, options)
-				);
-			} else {
-				var _callbacks = true;
-			}
-			if (options.render) {
-				$.when(_callbacks).always(_.bind(self.render, self));
-			}
-		});
-			
-		return _dfd;
-	};
-	
-	
-	
-	
-	/**
-	 * APIS for addItem(), removeItem(), enableItem(), disableItem(), toggleItem()
-	 */
-	
-	
-	
-	
-	/**
-	 * addItem()
-	 * ---------------------
-	 */
-	 
-	Component.prototype.addItem = function(item, options, getDeferred) {
-		console.log("addItem");
-		var _dfd = this.__alterItem__(item, options, '_addItem', 'addItem');
-		
-		_dfd.done(function() {console.log("addIten END")});
-		
-		
-		if (getDeferred === true) {
-			return _dfd;
-		} else {
-			return this;
-		}
-	};
-	
-	Component.prototype._addItem = function(item, options) {
-		var self = this;
-		var _dfd = $.Deferred();
-		
-		// configuration object, create new XType
-		if (this.utils.isPlainObject(item)) {
-			var _item = this.xtype.make(null, item, this);
-		
-		// object instance.
-		// need to change parent, container and remove from existing DOM position
-		} else if (item instanceof View && !this.hasItem(item)) {
-			var _item = item;
-			_item.setParent(this);
-			_item.setContainer(this.$body);
-		}
-		
-		if (_item) {
-			this.items.push({
-				item:	_item,
-				active:	true
-			});
-			_item.is("initialized", _dfd.resolve);
-		} else {
-			_dfd.reject();
-		}
-		
+		// startup walking and return DeferredObject
+		__step();
 		return _dfd.promise();
-	};
-	
-	
-	/**
-	 * removeItem()
-	 * ---------------------
-	 */
-	 
-	Component.prototype.removeItem = function(item, options, getDeferred) {
-		var _dfd = this.__alterItem__(item, options, '_removeItem', 'removeItem');
-		if (getDeferred === true) {
-			return _dfd;
-		} else {
-			return this;
-		}
-	};
-	
-	Component.prototype._removeItem = function(item, options) {
-		var _dfd = $.Deferred();
-		if (this.hasItem(item)) {
-			this.items.splice(this.itemPos(item), 1);
-			$.when(item.remove()).always(_dfd.resolve);
-		} else {
-			_dfd.reject();
-		}
-		return _dfd.promise();
-	};
-	
-	
-	/**
-	 * toggleItem()
-	 * ---------------------
-	 */
-	
-	Component.prototype.toggleItem = function(item, options, getDeferred) {
-		var _dfd = this.__alterItem__(item, options, '_toggleItem', 'toggleItem');
-		if (getDeferred === true) {
-			return _dfd;
-		} else {
-			return this;
-		}
-	};
-	
-	Component.prototype._toggleItem = function(item, options) {
-		if (this.getItemStatus(item)) {
-			return this.disableItem(item, {render:false}, true);
-		} else {
-			return this.enableItem(item, {render:false}, true);
-		}
-	}
-	
-	
-	/**
-	 * disableItem()
-	 * ---------------------
-	 */
-	
-	Component.prototype.disableItem = function(item, options, getDeferred) {
-		var _dfd = this.__alterItem__(item, options, '_disableItem', 'disableItem');
-		if (getDeferred === true) {
-			return _dfd;
-		} else {
-			return this;
-		}
-	};
-	
-	Component.prototype._disableItem = function(item, options) {
-		if (this.hasItem(item)) {
-			this.items[this.itemPos(item)].active = false;
-			this.items[this.itemPos(item)].item.$el.remove();
-			return true;
-		} else {
-			return false;
-		}
-	};
-	
-	
-	/**
-	 * enableItem()
-	 * ---------------------
-	 * this is the most difficult items handling logic because 
-	 * enabled item's DOM need to be re-injected into component's body
-	 * at the correct place!
-	 */
-	
-	Component.prototype.enableItem = function(item, options, getDeferred) {
-		var _dfd = this.__alterItem__(item, options, '_enableItem', 'enableItem');
-		if (getDeferred === true) {
-			return _dfd;
-		} else {
-			return this;
-		}
-	};
-	
-	Component.prototype._enableItem = function(item, options) {
-		if (this.hasItem(item)) {
-			var idx = this.itemPos(item);
-			this.items[idx].active = true;
-			
-			// Try to find out the correct place where to inject
-			// enabled item's DOM node.
-			
-			// First Item.
-			// append before to the first enabled item - if available
-			if (idx == 0) {
-				var _done = false;
-				for (var i=1; i<this.items.length; i++) {
-					if (!_done && this.items[i].active) {
-						this.items[i].item.$el.before(this.items[idx].item.$el);
-						_done = true;
-					}
-				}
-			
-			// Last Item
-			// append after the last enabled item - if available
-			} else if (idx === this.items.length-1) {
-				var _done = false;
-				for (var i=this.items.length-2; i>=0; i--) {
-					if (!_done && this.items[i].active) {
-						this.items[i].item.$el.after(this.items[idx].item.$el);
-						_done = true;
-					}
-				}
-				
-			} else {
-				var _done = false;
-				for (i=idx-1; i>=0; i--) {
-					if (!_done && this.items[i].active) {
-						this.items[i].item.$el.after(this.items[idx].item.$el);
-						_done = true;
-					}
-				}
-				for (i=idx+1; i<this.items.length; i++) {
-					if (!_done && this.items[i].active) {
-						this.items[i].item.$el.before(this.items[idx].item.$el);
-						_done = true;
-					}
-				}
-			}
-			
-			// Fallback: append to the component's content if no other situation match
-			if (!this.items[idx].item.$el.parent().length) {
-				this.items[idx].item.$el.appendTo(this.$body);
-			}
-			
-			return true;
-		} else {
-			return false;
-		}
 	};
 	
 	

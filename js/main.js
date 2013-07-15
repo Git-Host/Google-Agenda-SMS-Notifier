@@ -9,10 +9,12 @@
 
 define([
 	"jqbrick/amd.jqm",
-	"jqbrick/tests/TestViewInstance"
+	"jqbrick/tests/TestView",
+	"jqbrick/tests/TestComponent"
 ], function(
 	jQbrick,
-	TestViewInstance
+	TestView,
+	TestComponent
 ) {
 	
 	window.App = new jQbrick.AppClass({
@@ -23,9 +25,20 @@ define([
 	
 	$(document).delegate('#home', 'pageshow', function() {
 		
-		var test = new TestViewInstance({
+		
+		// TestView
+		/*
+		var test = new TestView({
 			viewport: 	'#viewport'
 		});
+		*/
+		
+		// TestComponent
+		var test = new TestComponent({
+			viewport: 	'#viewport',
+			timeout: 50
+		});
+		
 		
 	});
 	

@@ -103,10 +103,15 @@ define([
 	 * 
 	 *
 	 */
-	Mixin.prototype.apply = function(name, args, ctx) {
+	Mixin.prototype.apply = function(name, args, options) {
 		var self = this;
 		var _dfd = $.Deferred();
-		ctx = ctx || this;
+		
+		var options = $.extend({}, {
+			context: 		this,
+			trigger:		null	// set to "true" to force triggering related events!
+		}, options||{});
+		
 		
 		// "callbackName" -> "onCallbackName"
 		// !callbackName" -> "callbackName"
@@ -119,19 +124,25 @@ define([
 		
 		
 		// first argument is a function
+		// complete skip of event triggering!
 		if (_.isFunction(name)) {
-			return name.apply(ctx, args);
+			return name.apply(options.context, args);
 		
 		// options defined callback	
 		} else if (this.options[_cbName] && _.isFunction(this.options[_cbName])) {
-			var callbackDfd = this.options[_cbName].apply(ctx, args);
+			var callbackDfd = this.options[_cbName].apply(options.context, args);
 		
 		// object defined callback
 		} else if (this[_cbName] && _.isFunction(this[_cbName])) {
-			var callbackDfd = this[_cbName].apply(ctx, args);
+			var callbackDfd = this[_cbName].apply(options.context, args);
 			
 		} else {
-			var preventEvent = true;
+			var callbackDfd = true;
+			// disable triggering of events if no callback exists
+			// !! skip if events are strict required!
+			if (_.isNull(options.trigger)) {
+				options.trigger = false;
+			}
 		}
 		
 		
@@ -143,7 +154,7 @@ define([
 			type:			evtName,
 			originalName:	name,
 			details: 		args,
-			context: 		ctx,
+			context: 		options.context,
 			
 			block: function() 	{if (!eventDfd) {eventDfd = $.Deferred()}},
 			unblock: function() {if (eventDfd) 	{eventDfd.resolve()}},
@@ -155,9 +166,8 @@ define([
 		// event's callbacks can block code execution using these methods
 		// - block()
 		// - unblock()
-		if (!preventEvent) {
+		if (options.trigger !== false) {
 			$.when(callbackDfd).then(function() {
-				
 				self.trigger(evtName, $.extend({},evtInfo,{}));
 				if (self.$el) self.$el.trigger($.Event(evtName, evtInfo));
 				
@@ -169,8 +179,6 @@ define([
 		} else {
 			$.when(callbackDfd).then(_dfd.resolve);
 		}
-		
-		
 		
 		return _dfd.promise();
 	};

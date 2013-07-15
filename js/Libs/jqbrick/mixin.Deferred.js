@@ -194,7 +194,11 @@ define([
 		
 		var self = this;
 		this.getDeferred(name).done(function() {
-			self.apply("!" + callback, args);
+			if (_.isString(callback)) {
+				self.apply("!" + callback, args);
+			} else {
+				self.apply(callback, args);
+			}
 		});
 		return this;
 	};
@@ -209,7 +213,11 @@ define([
 		
 		var self = this;
 		this.getDeferred(name).fail(function() {
-			self.apply("!" + callback, args);
+			if (_.isString(callback)) {
+				self.apply("!" + callback, args);
+			} else {
+				self.apply(callback, args);
+			}
 		});
 		return this;
 	};
@@ -224,7 +232,11 @@ define([
 		
 		var self = this;
 		this.getDeferred(name).always(function() {
-			self.apply("!" + callback, args);
+			if (_.isString(callback)) {
+				self.apply("!" + callback, args);
+			} else {
+				self.apply(callback, args);
+			}
 		});
 		return this;
 	};
@@ -239,7 +251,11 @@ define([
 		
 		var self = this;
 		if (this.getDeferred(name).state() == 'pending') {
-			self.apply("!" + callback, args);
+			if (_.isString(callback)) {
+				self.apply("!" + callback, args);
+			} else {
+				self.apply(callback, args);
+			}
 		}
 		return this;
 	};

@@ -116,27 +116,38 @@ define([
 		 */
 		initialize: function(options) {
 			var self = this;
+			var args = arguments;
 			
-			$.when(self._buildOptions.apply(self, arguments)).then(function() {
-				
-				$.when(self._setup()).then(function() {
+			// timeout allow to add events listeners from otside og given instance
+			// whithout this timeout you are not able to listen to events without
+			// also defining related callbacks!
+			setTimeout(function() {
+				$.when(self._buildOptions.apply(self, args)).then(function() {
 					
-					$.when(self.apply("setup", arguments)).then(function() {
+					$.when(self._setup()).then(function() {
 						
-						$.when(self._initialize()).then(function() {
+						$.when(self.apply("setup", arguments, {trigger:true})).then(function() {
 							
-							$.when(self.apply("init", arguments)).then(function() {
-								
-								self.resolve('initialized');
-								
-								self._autoRender();
-								
+							$.when(self._initialize()).then(function() {
+							
+								//$.when(self.apply("beforeInit", arguments, {trigger:true})).then(function() {
+							
+									$.when(self._initializeEl()).then(function() {
+									
+										$.when(self.apply("init", arguments, {trigger:true})).then(function() {
+											
+											self.resolve('initialized');
+											
+											self._autoRender();
+											
+										});
+									});
+								//});
 							});
 						});
 					});
 				});
 			});
-			
 			return this;
 			
 		},
@@ -146,23 +157,41 @@ define([
 		 * so is is possible to handle heavy asyncronous actions maintaining desired order!
 		 *
 		 * NOTE: by default no DeferredObject are used so performance are quite good!
+		 *
+		 * "renderComplete" DeferredObject:
+		 * -------------------------------------
+		 * every step of rendering process should return a DeferredObject to syncronize
+		 * steps into the right order.
+		 * 
+		 * It may be very important to know when a rendering process end and if it fail.
+		 * You can use the "rendering" property who is a DFD renewed at each render() call:
+		 *
+		 *     $.when(ViewInstance.render().renderComplete).then(...);
+		 *
+		 *
 		 */
-		render: function() {
-			
+		render: function(options) {
 			var self = this;
-			$.when(self.apply("beforeRender", arguments)).then(function() {
+			
+			// reset rendered DeferredObject to fit this rendering process
+			this.renderComplete = $.Deferred();
+			
+			$.when(self.apply("beforeRender", arguments, {trigger:true})).then(function() {
 				
 				$.when(self._render()).always(function() {
 					
-					$.when(self.apply("afterRender", arguments)).then(function() {
+					$.when(self.apply("afterRender", arguments, {trigger:true})).then(function() {
 						
 						self.resolve('rendered');
 						
-						self.apply("renderComplete", arguments);
+						$.when(self.apply("renderComplete", arguments, {trigger:true})).then(
+							self.renderComplete.resolve,
+							self.renderComplete.reject
+						);
 						
-					});
-				});
-			});
+					}, self.renderComplete.reject);
+				}, self.renderComplete.reject);
+			}, self.renderComplete.reject);
 			
 			return this;
 		}
@@ -289,6 +318,9 @@ define([
 			
 		);
 		
+		// please read about this property on "render()" documentation
+		this.renderComplete = $.Deferred();
+		
 		// bind xxReady() callbacks to checkpoints resolutions
 		var self = this;
 		$.when(this.getDeferred("ready")).then(function() {				self.apply("ready")				});
@@ -307,9 +339,10 @@ define([
 	 * Subclass.prototype._initialize = function() {
 	 *   View.prototype._initialize.apply(this);
 	 * };
-	 * 
+	 *
 	 */
 	View.prototype._initialize = function() {
+		var self = this;
 		
 		// setup parent and $container objects
 		this.parent 	= this.options.parent;
@@ -327,13 +360,6 @@ define([
 			}
 		}
 		
-		// !! subclasses may add some DOM layers between $el and $body!
-		// !! $el is appended to $container
-		// !! $body is the container for sub-modules views!
-		this.$body = this.$el;
-		
-		this.__appendToContainer();
-		
 		// default component id from view's CID
 		if (!this.options.id) {
 			this.options.id = this.cid;
@@ -344,7 +370,23 @@ define([
 		this.utils.applyAttributes(this.$el, this.options.attrs);
 		if (this.options.style) 		this.$el.attr('style', this.options.style);
 		if (this.options.css) 			this.$el.css(this.options.css);
-		
+	};
+	
+	
+	
+	/**
+	 * Specific DOM initialization extension point.
+	 * subclasses should add more complex logic (think to component logic or layouting)
+	 * and return a DeferredObject promise object to syncronize 
+	 * initialization process
+	 */
+	View.prototype._initializeEl = function() {
+		// !! subclasses may add some DOM layers between $el and $body!
+		// !! $el is appended to $container
+		// !! $body is the container for sub-modules views!
+		this.$body = this.$el;
+		this.$body.append(this.options.html);
+		this.__appendToContainer();
 	};
 	
 	
@@ -365,7 +407,6 @@ define([
 	 * 
 	 */
 	View.prototype._render = function() {
-		this.__renderHTML();
 		this.__appendToContainer();
 	};
 	
@@ -414,17 +455,31 @@ define([
 // ---[[   P R I V A T E   M E T H O D S   ]]--- //
 // --------------------------------------------- //
 	
-	View.prototype.__renderHTML = function() {
-		if (this.options.html.length && this.getDeferred('rendered').state() == 'pending') {
-			this.$body.append(this.options.html);
-		}
-	};
 	
+	/**
+	 * Append instance $el to container's DOM node.
+	 * you can skip from outside using
+	 * __preventAppendToContainer() API
+	 */
 	View.prototype.__appendToContainer = function() {
+		if (this.__preventAppendToContainer__) {
+			this.__preventAppendToContainer__ = null;
+			return;
+		}
 		if (!this.$el.parent().length && this.$container) {
 			this.appendTo(this.$container);
 		}
 	};
+	
+	/**
+	 * Skip the next call to __appendToContainer()
+	 * -- very useful in extensions initialization methods
+	 * -- where many operations may need to be done before
+	 * -- append item to relative container
+	 */
+	View.prototype.__preventAppendToContainer = function() {
+		this.__preventAppendToContainer__ = true;
+	}
 	
 
 

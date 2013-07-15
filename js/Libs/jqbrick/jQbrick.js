@@ -27,7 +27,7 @@ define([
 	// UI Components
 	"./view.View",
 	"./view.Component",
-	"./view.ComponentLayout"
+	//"./view.ComponentLayout"
 	
 ], function(
 	_,
@@ -39,8 +39,8 @@ define([
 	
 	// UI Components
 	View,
-	Component,
-	ComponentLayout
+	Component
+	//ComponentLayout
 
 	
 ) {
@@ -56,7 +56,7 @@ define([
 			"AppClass" 				: AppClass,
 			"View"					: View,
 			"Component"				: Component,
-			"ComponentLayout"		: ComponentLayout
+			//"ComponentLayout"		: ComponentLayout
 		}, libs);
 		
 		this._setupUtiliesLibrary();

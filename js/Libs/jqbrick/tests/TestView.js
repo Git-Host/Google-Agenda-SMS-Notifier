@@ -128,6 +128,7 @@ define([
 				
 				
 				
+				
 				/**
 				 * CheckPoints
 				 * allows you to configure some non-blocking callbacks to be invoked
@@ -164,6 +165,7 @@ define([
 				CollectionReadyCheckpoint: function() {
 					console.log('[CHECKPOINT CALLBACK] collectionready');
 				}
+				
 			});
 			
 			
@@ -355,6 +357,7 @@ define([
 				}, Test.options.timeout*8);
 				
 			});
+			
 			
 			
 		}
