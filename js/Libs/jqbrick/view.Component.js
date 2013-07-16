@@ -320,9 +320,183 @@ define([
 		
 		return _dfd.promise();		
 	};
+
+
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Enable Items
+	 */
+	
+	Component.prototype.enableItems = function(items, options) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		if (!_.isArray(items)) {
+			items = [items];
+		};
+		
+		if (_.isBoolean(options)) {
+			options = {getDeferred:options};
+		};
+		
+		options = $.extend({}, {
+			silent:			null,
+			getDeferred:	false,
+			success:		function(items) {},
+			error:			function() {}
+		}, options||{});
+		
+		return this.__performOnComponentItems(self.enableItem, items, options, "beforeEnableItems", "enableItems");
+	};
+	
+	Component.prototype.enableItem = function(item, options) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		options = $.extend({}, {
+			silent:			null,
+			getDeferred:	true,
+			success:		function() {},
+			error:			function() {}
+		}, options||{});
+		
+		return this.__performOnComponentItem(self.__enableItem, item, options, "beforeEnableItem", "enableItem");
+	};
+	
+	Component.prototype.__enableItem = function(item) {
+		var _dfd = $.Deferred();
+		
+		if ((item = this.getItem(item)) !== -1) {
+			var idx = this.itemPos(item);
+			this.items[idx].active = true;
+			
+			// Try to find out the correct place where to inject
+			// enabled item's DOM node.
+			
+			// First Item.
+			// append before to the first enabled item - if available
+			if (idx == 0) {
+				var _done = false;
+				for (var i=1; i<this.items.length; i++) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.before(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+			
+			// Last Item
+			// append after the last enabled item - if available
+			} else if (idx === this.items.length-1) {
+				var _done = false;
+				for (var i=this.items.length-2; i>=0; i--) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.after(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+				
+			} else {
+				var _done = false;
+				for (i=idx-1; i>=0; i--) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.after(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+				for (i=idx+1; i<this.items.length; i++) {
+					if (!_done && this.items[i].active) {
+						this.items[i].item.$el.before(this.items[idx].item.$el);
+						_done = true;
+					}
+				}
+			}
+			
+			// Fallback: append to the component's content if no other situation match
+			if (!this.items[idx].item.$el.parent().length) {
+				this.items[idx].item.$el.appendTo(this.$body);
+			}
+			
+			_dfd.resolve(item, this.itemPos(item));
+		} else {
+			_dfd.reject();
+		}
+		
+		return _dfd.promise();
+	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Disable Items
+	 */
+	
+	Component.prototype.disableItems = function(items, options) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		if (!_.isArray(items)) {
+			items = [items];
+		};
+		
+		if (_.isBoolean(options)) {
+			options = {getDeferred:options};
+		};
+		
+		options = $.extend({}, {
+			silent:			null,
+			getDeferred:	false,
+			success:		function(items) {},
+			error:			function() {}
+		}, options||{});
+		
+		return this.__performOnComponentItems(self.disableItem, items, options, "beforeDisableItems", "disableItems");
+	};
+	
+	Component.prototype.disableItem = function(item, options) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		options = $.extend({}, {
+			silent:			null,
+			getDeferred:	true,
+			success:		function() {},
+			error:			function() {}
+		}, options||{});
+		
+		return this.__performOnComponentItem(self.__disableItem, item, options, "beforeDisableItem", "disableItem");
+	};
+	
+	Component.prototype.__disableItem = function(item, options) {
+		var _dfd = $.Deferred();
+		
+		if ((item = this.getItem(item)) !== -1) {
+			this.items[this.itemPos(item)].active = false;
+			this.items[this.itemPos(item)].item.$el.remove();
+			
+			_dfd.resolve(item, this.itemPos(item));
+		} else {
+			_dfd.reject();
+		}
+		
+		return _dfd.promise();
+	};
 	
 	
 	
@@ -493,8 +667,9 @@ define([
 			var _args = [items[0]].concat(args);
 			
 			// run callback waiting for execution to end
-			$.when(callback.apply(context, _args)).then(function() {
+			$.when(callback.apply(context, _args)).done(function() {
 				_items.push(items[0]);
+			}).always(function() {
 				items = items.slice(1);
 				__step();
 			});			

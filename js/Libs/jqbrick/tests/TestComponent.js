@@ -143,6 +143,58 @@ define([
 			
 			
 			
+			testComponent.on("beforeenableitem", function(e) {
+				console.log("[EVENT] on:beforeenableitem");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("enableitem", function(e) {
+				console.log("[EVENT] on:enableitem");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("beforeenableitems", function(e) {
+				console.log("[EVENT] on:beforeenableitems(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("enableitems", function(e) {
+				console.log("[EVENT] on:enableitems(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			
+			
+			testComponent.on("beforedisableitem", function(e) {
+				console.log("[EVENT] on:beforedisableitem");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("disableitem", function(e) {
+				console.log("[EVENT] on:disableitem");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("beforedisableitems", function(e) {
+				console.log("[EVENT] on:beforedisableitems(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("disableitems", function(e) {
+				console.log("[EVENT] on:disableitems(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			
+			
 			
 			/**
 			 * Bind on Items
@@ -164,15 +216,22 @@ define([
 				});
 				*/
 				
-				/*
+				
 				$.when(testComponent.getDeferred("initialized")).then(function() {
 					setTimeout(function() {
-						testComponent.removeItems(['it2', 0], {
+						testComponent.enableItems([0,5], {
 							silent:false
 						});
-					}, 100);
+					}, 1000);
+					/*
+					setTimeout(function() {
+						testComponent.disableItems(["it2", "aa"], {
+							silent:false
+						});
+					}, 2000);
+					*/
 				});
-				*/
+				
 				
 			});
 			
