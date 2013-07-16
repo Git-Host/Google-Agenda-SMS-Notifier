@@ -21,6 +21,9 @@ define([
 	"./lib.utils",
 	"./lib.xtype",
 	
+	"./mixin.Callback",
+	"./mixin.Deferred",
+	
 	// Logic Components
 	"./AppClass",
 	
@@ -33,6 +36,9 @@ define([
 	_,
 	LibUtils,
 	LibXType,
+	
+	CallbackMixin,
+	DeferredMixin,
 	
 	// Logic Components
 	AppClass,
@@ -54,10 +60,20 @@ define([
 		
 		this.libs = _.extend({
 			"AppClass" 				: AppClass,
+			"mixin"					: {},
+			"view"					: {}
+		}, libs);
+		
+		this.libs.mixin = _.extend({
+			"Callback"				: CallbackMixin,
+			"Deferred"				: DeferredMixin
+		}, this.libs.mixin);
+		
+		this.libs.view = _.extend({
 			"View"					: View,
 			"Component"				: Component,
 			//"ComponentLayout"		: ComponentLayout
-		}, libs);
+		}, this.libs.view);
 		
 		this._setupUtiliesLibrary();
 		this._setupXtypes();
@@ -73,8 +89,8 @@ define([
 		
 		this.utils = new LibUtils(this);
 		
-		this.libs.AppClass.prototype.utils 	= this.utils;
-		this.libs.View.prototype.utils 		= this.utils;
+		this.libs.AppClass.prototype.utils 			= this.utils;
+		this.libs.view.View.prototype.utils 		= this.utils;
 	};
 	
 	
@@ -86,12 +102,12 @@ define([
 		this.xtype = new LibXType(this);
 		
 		// add xtype
-		this.libs.View.prototype.xtype = this.xtype;
+		this.libs.view.View.prototype.xtype = this.xtype;
 		
 		// register core's XTypes
-		this.xtype.register("view", this.libs.View);
-		this.xtype.register("component", this.libs.Component);
-		this.xtype.register("componentlayout", this.libs.ComponentLayout);
+		this.xtype.register("view", this.libs.view.View);
+		this.xtype.register("component", this.libs.view.Component);
+		//this.xtype.register("componentlayout", this.libs.view.ComponentLayout);
 		
 	};
 	

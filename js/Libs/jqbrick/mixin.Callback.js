@@ -148,16 +148,27 @@ define([
 		
 		
 		// trigger callback event on both View instance and DOM node
-		var eventDfd	= null;
-		var evtName 	= name.toLowerCase();
-		var evtInfo 	= {
+		var viewEventDfd	= null;
+		var domEventDfd		= null;
+		
+		var evtName 		= name.toLowerCase();
+		var viewEvtInfo 	= {
 			type:			evtName,
 			originalName:	name,
 			details: 		args,
 			context: 		options.context,
 			
-			block: function() 	{if (!eventDfd) {eventDfd = $.Deferred()}},
-			unblock: function() {if (eventDfd) 	{eventDfd.resolve()}},
+			block: 			function() {if (!viewEventDfd) 	{viewEventDfd = $.Deferred()}},
+			unblock:		function() {if (viewEventDfd) 	{viewEventDfd.resolve()}},
+		};
+		var domEvtInfo 		= {
+			type:			evtName,
+			originalName:	name,
+			details: 		args,
+			context: 		options.context,
+			
+			block: 			function() {if (!domEventDfd) 	{domEventDfd = $.Deferred()}},
+			unblock:		function() {if (domEventDfd) 	{domEventDfd.resolve()}},
 		};
 		
 		
@@ -168,10 +179,12 @@ define([
 		// - unblock()
 		if (options.trigger !== false) {
 			$.when(callbackDfd).then(function() {
-				self.trigger(evtName, $.extend({},evtInfo,{}));
-				if (self.$el) self.$el.trigger($.Event(evtName, evtInfo));
+				self.trigger(evtName, $.extend({},viewEvtInfo,{}));
+				if (self.$el) {
+					self.$el.trigger($.Event(evtName, domEvtInfo));
+				}
 				
-				$.when(eventDfd).then(_dfd.resolve);
+				$.when(viewEventDfd, domEventDfd).then(_dfd.resolve);
 				
 			});
 		
