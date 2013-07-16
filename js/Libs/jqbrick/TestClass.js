@@ -9,10 +9,12 @@
 
 
 define([
-	"jquery", "underscore", "backbone"
+	"jquery", "underscore", "backbone",
+	"./lib.utils"
 
 ], function(
-	$, _, Backbone
+	$, _, Backbone,
+	LibUtils
 
 ) {
 	
@@ -20,8 +22,8 @@ define([
 	var TestClass = function() {this.__construct__.apply(this,arguments)};
 	
 	// Inherith extend capability from Backbone.extend() utility
-	TestClass.extend = Backbone.View.extend;
-	
+	TestClass.extend 	= Backbone.View.extend;
+	TestClass.utils 	= new LibUtils();
 	
 	
 	
@@ -60,6 +62,11 @@ define([
 	TestClass.prototype.run = function() {
 		return this;
 	};
+	
+	
+	
+	
+	
 	
 	return TestClass;
 	

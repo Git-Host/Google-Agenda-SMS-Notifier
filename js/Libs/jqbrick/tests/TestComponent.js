@@ -26,18 +26,29 @@ define([
 			console.log("###");
 			
 			var testComponent = new jQbrickComponent({
-				autoRender: true,
+				//autoRender: true,
 				container: 	this.options.viewport,
 				html: 		'TestView',
 				
 				style: 		"border:4px solid red",
 				innerStyle: "border:4px solid yellow",
 				
+				
+				
 				items: [{
-					html: 	"Item 01"
+					html: 	"Item 01",
+					active: false,
+					onSetup: function() {
+						console.log("setup Item 01");
+						return TestClass.utils.delayedDeferred(5);
+					}
 				},{
 					id: 	"it2",
-					html: 	"Item 02"
+					html: 	"Item 02",
+					onSetup: function() {
+						console.log("setup Item 02");
+						return TestClass.utils.delayedDeferred(5);
+					}
 				}],
 				
 				itemDefaults: {
@@ -75,14 +86,61 @@ define([
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
+			*/
+			
+			
+			/*
+			testComponent.on("beforeadditem", function(e) {
+				console.log("[EVENT] on:beforeadditem");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
 			
 			testComponent.on("additem", function(e) {
 				console.log("[EVENT] on:additem");
 				console.log(e);
-				e.block();setTimeout(e.unblock, Test.options.timeout);
+				e.block();setTimeout(e.unblock, 50);
 			});
 			
+			testComponent.on("beforeadditems", function(e) {
+				console.log("[EVENT] on:beforeadditem(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("additems", function(e) {
+				console.log("[EVENT] on:additem(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			
+			
+			testComponent.on("beforeremoveitem", function(e) {
+				console.log("[EVENT] on:beforeremoveitem");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("removeitem", function(e) {
+				console.log("[EVENT] on:removeitem");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("beforeremoveitems", function(e) {
+				console.log("[EVENT] on:beforeremoveitem(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
+			
+			testComponent.on("removeitems", function(e) {
+				console.log("[EVENT] on:removeitem(s)");
+				console.log(e);
+				e.block();setTimeout(e.unblock, 50);
+			});
 			*/
+			
 			
 			
 			
@@ -92,20 +150,29 @@ define([
 			
 			testComponent.is("initialized", function() {
 				
+				/*
 				testComponent.itemAt(0).on("beforerender", function(e) {
 					console.log("[EVENT] ItemAt(0) :: beforeRender");
-					//e.block();
+					e.block();
+					setTimeout(e.unblock, 1000);
 				});
 				
 				testComponent.itemAt(1).on("beforerender", function(e) {
 					console.log("[EVENT] ItemAt(1) :: beforeRender");
-					//e.block();
+					e.block();
+					setTimeout(e.unblock, 1000);
 				});
+				*/
 				
-				
-				setTimeout(function() {
-					testComponent.removeItems([0, 'it2']);
-				}, 100);
+				/*
+				$.when(testComponent.getDeferred("initialized")).then(function() {
+					setTimeout(function() {
+						testComponent.removeItems(['it2', 0], {
+							silent:false
+						});
+					}, 100);
+				});
+				*/
 				
 			});
 			

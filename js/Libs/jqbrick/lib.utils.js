@@ -87,6 +87,31 @@ define(['jquery', 'underscore'], function($, _) {
 	};
 	
 	
+	
+	
+	
+	
+	
+	/**
+	 * Static method to return a DeferredObject who resolve after
+	 * given interval.
+	 */
+	LibUtils.prototype.delayedDeferred = function(delay) {
+		if (delay !== false) {
+			delay = delay || 1;
+		}
+		var _dfd = $.Deferred();
+		if (delay !== false) {
+			setTimeout(_dfd.resolve, delay);
+		}
+		return _dfd.promise();
+	};
+	
+	
+	
+	
+	
+	
 	/**
 	 * Global namespace singleton:
 	 * various namespaces under jQbrick will link this instance!

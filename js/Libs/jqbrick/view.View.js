@@ -130,24 +130,22 @@ define([
 							
 							$.when(self._initialize()).then(function() {
 							
-								//$.when(self.apply("beforeInit", arguments, {trigger:true})).then(function() {
-							
-									$.when(self._initializeEl()).then(function() {
-									
-										$.when(self.apply("init", arguments, {trigger:true})).then(function() {
-											
-											self.resolve('initialized');
-											
-											self._autoRender();
-											
-										});
+								$.when(self._initializeEl()).then(function() {
+								
+									$.when(self.apply("init", arguments, {trigger:true})).then(function() {
+										
+										self.resolve('initialized');
+										
+										self._autoRender();
+										
 									});
-								//});
+								});
 							});
 						});
 					});
 				});
 			});
+			
 			return this;
 			
 		},
@@ -192,6 +190,28 @@ define([
 					}, self.renderComplete.reject);
 				}, self.renderComplete.reject);
 			}, self.renderComplete.reject);
+			
+			return this;
+		},
+		
+		
+		remove: function() {
+			
+			var self = this;
+			
+			// reset rendered DeferredObject to fit this rendering process
+			this.removeComplete = $.Deferred();
+			
+			$.when(self.apply("beforeRemove", arguments, {trigger:true})).then(function() {
+				
+				$.when(self._remove()).always(function() {
+					
+					$.when(self.apply("afterRemove", arguments, {trigger:true})).then(
+						self.removeComplete.resolve,
+						self.removeComplete.reject
+					);
+				}, self.removeComplete.reject);
+			}, self.removeComplete.reject);
 			
 			return this;
 		}
@@ -391,7 +411,7 @@ define([
 	
 	
 	/**
-	 * Run class related rendering logic.
+	 * Run class related "rendering" logic.
 	 * it run between "beforeRender" and "afterRender" callbacks
 	 *
 	 * -- SUBCLASSING:
@@ -410,6 +430,14 @@ define([
 		this.__appendToContainer();
 	};
 	
+	
+	/**
+	 * Run class related "removing" logic.
+	 * should return a DeferredObject
+	 */
+	View.prototype._remove = function() {
+		this.$el.remove();
+	};
 	
 	
 	/**

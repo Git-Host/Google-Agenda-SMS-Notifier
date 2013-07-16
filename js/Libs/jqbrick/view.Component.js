@@ -49,6 +49,8 @@ define([
 	}
 	
 	Component.prototype._initializeElComponent = function() {
+		var self = this;
+		var _dfd = $.Deferred();
 		
 		// separate container from content layer
 		this.$body = $('<div>')
@@ -67,17 +69,29 @@ define([
 		// append raw html
 		this.$body.append(this.options.html);
 		
-		// waith for items initialization to solve 
-		_dfd = this._initializeItems();
-		_dfd.done(_.bind(this.__appendToContainer, this));
+		// waith for items initialization to solve.
+		// DOM manipulation are done after all items are ready inside component $el
+		$.when(this._initializeItems()).always(function() {
+			self.__appendToContainer();
+			_dfd.resolve();
+		});
+		
 		return _dfd;	
 	};
 	
+	/**
+	 * Items initialization run "addItems()" in silent mode because this is not
+	 * an explicit items addition but just an initialization of the entire component
+	 */
 	Component.prototype._initializeItems = function() {
 		this.items = [];
+		if (!this.options.items || !this.options.items.length) {
+			return true;
+		}
 		return this.addItems(this.options.items, {
 			defaults: 		this.options.itemDefaults,
 			overrides: 		{autoRender:false},
+			silent: 		false,
 			getDeferred:	true
 		});
 	};
@@ -144,12 +158,14 @@ define([
 	
 	
 	/**
-	 * Add New Item
+	 * Add New Items
 	 *
 	 * @TODO: initialization data should have an "active:false" key so that
 	 * item starts inactive... it is initialized but not rendered!
 	 */
 	Component.prototype.addItems = function(items, options) {
+		var self = this;
+		var _dfd = $.Deferred();
 		
 		if (!_.isArray(items)) {
 			items = [items];
@@ -160,35 +176,49 @@ define([
 		};
 		
 		options = $.extend({}, {
-			defaults: 		{},
-			overrides: 		{},
-			getDeferred:	false
+			silent:			null,
+			getDeferred:	true,
+			success:		function(items) {},
+			error:			function() {}
 		}, options||{});
 		
-		// apply defaults and overrides to each item before to walk through
-		for (var i=0; i<items.length; i++) {
-			items[i] = $.extend({}, options.defaults, items[i], options.overrides);
-		};
-		
-		// walk through i
-		var _dfd = this.__walkItems(items, this._addItem, this);
-		
-		if (options.getDeferred) {
-			return _dfd;
-		} else {
-			return this;
-		}
+		return this.__performOnComponentItems(self.addItem, items, options, "beforeAddItems", "addItems");
 	};
 	
-	Component.prototype._addItem = function(item) {
+	Component.prototype.addItem = function(item, options) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		options = $.extend({}, {
+			defaults: 		{},
+			overrides: 		{},
+			active:			true,
+			
+			silent:			null,
+			getDeferred:	true,
+			success:		function() {},
+			error:			function() {}
+		}, options||{});
+		
+		// listen to an item's "active" property and propagate to the creation options.
+		if (_.isBoolean(item.active)) {
+			options.active = item.active;
+		}
+		
+		return this.__performOnComponentItem(self.__addItem, item, options, "beforeAddItem", "addItem");
+	};
+	
+	Component.prototype.__addItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
 		// Configuration object, create new XType
+		// defaults and overrides from options are applied before creating new object
 		if (this.utils.isPlainObject(item)) {
+			item = $.extend({}, options.defaults, item, options.overrides);
 			var _item = this.xtype.make(null, item, this);
 			
-		// Object instance:
+		// Existing Object Instance:
 		// need to change parent, container and remove from existing DOM position
 		} else if (item instanceof View && !this.hasItem(item)) {
 			var _item = item;
@@ -201,13 +231,20 @@ define([
 		// blocking deferred is resolved when item initialization ends
 		// and "addItem" callback and events resolves.
 		if (_item) {
-			this.items.push({
-				item:	_item,
-				active:	true
-			});
-			_item.is("initialized", function() {
-				$.when(self.apply("addItem", [_item], {trigger:true})).then(_dfd.resolve);
-			});
+			$.when(_item.getDeferred("initialized")).then(function() {
+				self.items.push({
+					item:	_item,
+					active:	options.active
+				});
+				
+				// remove inactive item from the DOM the quick possible way.
+				// here i don't use high level APIs such "item.remove()"
+				// because I just don't want item's HTML inside component's DOM now.
+				if (!options.active) _item.$el.remove();
+				
+				_dfd.resolve(_item, self.items.length-1);
+				
+			}, _dfd.reject);
 		} else {
 			_dfd.reject();
 		}
@@ -222,11 +259,13 @@ define([
 	
 	
 	
-	
-	
-	
+	/**
+	 * Remove Items
+	 */
 	
 	Component.prototype.removeItems = function(items, options) {
+		var self = this;
+		var _dfd = $.Deferred();
 		
 		if (!_.isArray(items)) {
 			items = [items];
@@ -237,36 +276,51 @@ define([
 		};
 		
 		options = $.extend({}, {
-			getDeferred:	false
+			silent:			null,
+			getDeferred:	false,
+			success:		function(items) {},
+			error:			function() {}
 		}, options||{});
 		
-		console.log("REMOVE ITEMS");
-		
-		// walk through i
-		var _dfd = this.__walkItems(this.getItems(items), this._removeItem, this);
-		
-		if (options.getDeferred) {
-			return _dfd;
-		} else {
-			return this;
-		}
-		
+		return this.__performOnComponentItems(self.removeItem, items, options, "beforeRemoveItems", "removeItems");
 	};
 	
-	Component.prototype._removeItem = function(item) {
+	Component.prototype.removeItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
-		if (this.hasItem(item)) {
-			$.when(item.remove()).then(function() {
-				self.items.splice(self.itemPos(item), 1);
-				_dfd.resolve();
-			});
+		options = $.extend({}, {
+			silent:			null,
+			getDeferred:	true,
+			success:		function() {},
+			error:			function() {}
+		}, options||{});
+		
+		return this.__performOnComponentItem(self._removeItem, item, options, "beforeRemoveItem", "removeItem");
+	};
+	
+	Component.prototype._removeItem = function(item) {
+		var self 	= this;
+		var _dfd 	= $.Deferred();
+		var _item 	= this.getItem(item);
+		
+		if (_item !== -1) {
+			if (this.hasItem(_item)) {
+				$.when(_item.remove()).then(function() {
+					var _itemPos = self.itemPos(_item);
+					self.items.splice(_itemPos, 1);
+					_dfd.resolve(_item, _itemPos);
+				});
+			} else {
+				_dfd.reject();
+			}		
 		} else {
 			_dfd.reject();
 		}
+		
 		return _dfd.promise();		
 	};
+	
 	
 	
 	
@@ -410,26 +464,37 @@ define([
 	
 	
 	
-	
-	
+// ----------------------------------------- //
+// ---[[   R E C A P   M E T H O D S   ]]--- //
+// ----------------------------------------- //
+//
+// following method tries to recap repeated logic
+// to maintain APIs methods as DRY as possibile!
+// 
+// 
+
+
 	
 	Component.prototype.__walkItems = function(items, callback, context, args) {
-		var self = this;
-		var _dfd = $.Deferred();
+		var self 	= this;
+		var _dfd 	= $.Deferred();
+		var _items 	= []; // resolved items
 		
 		args = args || [];
 		
 		var __step = function() {
-			// detect walking end
+			// detect walking ends and return items who resolved
 			if (!items.length) {
-				_dfd.resolve();
+				_dfd.resolve(_items);
 				return;
 			}
+			
 			// inject step item as first argument for the callback
-			var _args = args;
-			_args.unshift(items[0]);
+			var _args = [items[0]].concat(args);
+			
 			// run callback waiting for execution to end
-			$.when(callback.apply(context,_args)).then(function() {
+			$.when(callback.apply(context, _args)).then(function() {
+				_items.push(items[0]);
 				items = items.slice(1);
 				__step();
 			});			
@@ -438,6 +503,115 @@ define([
 		// startup walking and return DeferredObject
 		__step();
 		return _dfd.promise();
+	};
+	
+	
+	/**
+	 * Apply "__walkItems()" with custom METHOD_NAME on given ITEMS array.
+	 * it is used by:
+	 * - addItems()
+	 * - removeItems()
+	 *
+	 * options.silent - is used to decide if to throw callbacks (BEFORE, AFTER) or not.
+	 * options.getDeferred - is used to decide if to return an execution complete DeferredObject or instance itself.
+	 */
+	
+	Component.prototype.__performOnComponentItems = function(__METHOD_NAME__, __ITEMS__, __OPTIONS__, __BEFORE__, __AFTER__) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		// collect object who have been really involved into the action
+		var _involvedItems 	= [];
+		
+		// shortcut to walk through items initialization
+		var __applyWalkingLogic = function() {
+			return self.__walkItems(__ITEMS__, __METHOD_NAME__, self, [$.extend({}, __OPTIONS__, {
+				getDeferred: 	true,
+				silent: 		__OPTIONS__.silent === false ? false : true,
+				success: 		function(_item, _itemPos) {_involvedItems.push(_item)},
+				error:			function() {}
+			})]);
+		};
+		
+		// silent mode
+		if (__OPTIONS__.silent) {
+			$.when(__applyWalkingLogic()).then(function() {
+				_dfd.resolve(_involvedItems);
+			}, _dfd.reject);
+		
+		// verbose - trigger blocking events
+		} else {
+			$.when(self.apply(__BEFORE__, {items:__ITEMS__, options:__OPTIONS__}, {trigger:true})).then(function() {
+				$.when(__applyWalkingLogic()).then(function() {
+					$.when(self.apply(__AFTER__, {items:_involvedItems}, {trigger:true})).then(function() {
+						_dfd.resolve(_involvedItems);
+					}, _dfd.reject);
+				}, _dfd.reject);
+			}, _dfd.reject);
+		}
+		
+		
+		// throw direct callbacks from given options
+		// these are non-blocking callbacks
+		$.when(_dfd).then(
+			_.bind(__OPTIONS__.success, self),
+			_.bind(__OPTIONS__.error, self)
+		);
+		
+		
+		
+		if (__OPTIONS__.getDeferred) {
+			return _dfd;
+		} else {
+			return this;
+		}
+		
+	};
+	
+	
+	/**
+	 * Run an internal METHOD_NAME on a given ITEM + OPTIONS.
+	 * used by:
+	 * - addItem()
+	 * - removeItem()
+	 * 
+	 * options.silent - is used to decide if to throw callbacks (BEFORE, AFTER) or not.
+	 * options.getDeferred - is used to decide if to return an execution complete DeferredObject or instance itself.
+	 */
+	Component.prototype.__performOnComponentItem = function(__METHOD_NAME__, __ITEM__, __OPTIONS__, __BEFORE__, __AFTER__) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		// remove item in silent mode
+		if (__OPTIONS__.silent) {
+			$.when(__METHOD_NAME__.call(self, __ITEM__, __OPTIONS__)).then(function(_item) {
+				_dfd.resolve(_item);
+			},_dfd.reject);
+		
+		// remove item within "xxxRemoveItem" events chain
+		} else {
+			$.when(self.apply(__BEFORE__, {item:__ITEM__, options:__OPTIONS__}, {trigger:true})).then(function() {
+				$.when(__METHOD_NAME__.call(self, __ITEM__, __OPTIONS__)).then(function(_item, _itemPos) {
+					$.when(self.apply(__AFTER__, {item:_item, pos:_itemPos}, {trigger:true})).then(function() {
+						_dfd.resolve(_item);
+					},_dfd.reject);
+				}, _dfd.reject);
+			}, _dfd.reject);	
+		};
+		
+		// throw direct callbacks from given options
+		// these are non-blocking callbacks
+		$.when(_dfd).then(
+			_.bind(__OPTIONS__.success, self),
+			_.bind(__OPTIONS__.error, self)
+		);
+		
+		if (__OPTIONS__.getDeferred) {
+			return _dfd.promise();
+		} else {
+			return this;
+		}
+		
 	};
 	
 	
