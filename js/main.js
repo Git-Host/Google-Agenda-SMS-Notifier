@@ -38,7 +38,7 @@ define([
 		// TestComponent
 		var test = new TestComponent({
 			viewport: 	'#viewport',
-			timeout: 50
+			timeout: 	500
 		});
 		
 		

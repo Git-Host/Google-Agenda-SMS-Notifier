@@ -26,7 +26,7 @@ define([
 			console.log("###");
 			
 			var testComponent = new jQbrickComponent({
-				//autoRender: true,
+				autoRender: true,
 				container: 	this.options.viewport,
 				html: 		'TestView',
 				
@@ -35,36 +35,220 @@ define([
 				
 				
 				
+				
+				
+				/**
+				 * Initialize some items to be created during
+				 * Component initialization process
+				 *
+				 * Each component should expose it's callbacks!
+				 */
+				
 				items: [{
-					html: 	"Item 01",
-					active: false,
-					onSetup: function() {
-						console.log("setup Item 01");
-						return TestClass.utils.delayedDeferred(5);
-					}
+					id:		"item-01",
+					html: 	"Item 01"
 				},{
-					id: 	"it2",
+					id: 	"item-02",
 					html: 	"Item 02",
-					onSetup: function() {
-						console.log("setup Item 02");
-						return TestClass.utils.delayedDeferred(5);
+					items: [{
+						id:		"subItem-02-01",
+						html:	"SubItem 02-01"
+					},{
+						id:		"subItem-02-02",
+						html:	"SubItem 02-02"
+					}],
+					itemDefaults: {
+						xtype: 'view',
+						css: {marginLeft:10,fontSize:'9pt'}
+					},
+					onBeforeRemove: function() {
+						var _dfd = $.Deferred();
+						this.$el.slideUp("slow", _dfd.resolve);
+						return _dfd.promise();
+					},
+					onAfterAppend: function() {
+						var _dfd = $.Deferred();
+						this.$el.slideDown("slow", _dfd.resolve);
+						return _dfd.promise();
 					}
 				}],
 				
 				itemDefaults: {
-					//xtype: "view",
-					style: "border: 2px solid blue"
+					style: "margin-left:10px;border: 2px solid blue"
+				},
+				
+				
+				
+				
+				
+				
+				/**
+				 * Working Callbacks (blocking)
+				 * these callbacks are invoked during initialization and rendering process
+				 * 
+				 * these are all "blocking callbacks":
+				 * you can return a DeferredObject as callback output to stop main logic
+				 * until this deferred resolve!
+				 * !!! a failure deferred will block the process!
+				 *
+				 * 
+				 *
+				 */
+				
+				onSetup: function() {
+					console.log('[CALLBACK] onSetup');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onBeforeItems: function() {
+					console.log('[CALLBACK] onBeforeItems');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onAfterItems: function() {
+					console.log('[CALLBACK] onAfterItems');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onInit: function() {
+					console.log('[CALLBACK] onInit');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onBeforeRender: function() {
+					console.log('[CALLBACK] onBeforeRender');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onAfterRender: function() {
+					console.log('[CALLBACK] onAfterRender');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onRenderComplete: function() {
+					console.log('[CALLBACK] onRenderComplete');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				
+				
+				
+				
+				
+				
+				
+				/**
+				 * CheckPoints Related Callbacks (non blocking)
+				 * these callbacks are invoked only when name-related checkpoints resolve with success.
+				 *
+				 * these are non blocking callbacks because they are outside initialization
+				 * or rendering process.
+				 *
+				 * these callbacks are invoked after Checkpoint's callbacks and events!
+				 */
+				
+				onReady: function() {
+					console.log('[CALLBACK] onReady');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onModelReady: function() {
+					console.log('[CALLBACK] onModelReady');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				onCollectionReady: function() {
+					console.log('[CALLBACK] onCollectionReady');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
+				
+				
+				
+				/**
+				 * CheckPoints
+				 * allows you to configure some non-blocking callbacks to be invoked
+				 * when view reaches some particular points... checkpoints!
+				 *
+				 * You can fill your initialization process with many checkpoints and
+				 * use them at your choice!
+				 */
+				
+				checkpoints: {
+					"initialized" 		: "InitializedCheckpoint",
+					"rendered"			: "RenderedCheckpoint",
+					"ready"				: "ReadyCheckpoint",
+					"modelready"		: "ModelReadyCheckpoint",
+					"collectionready"	: "CollectionReadyCheckpoint"
+				},
+				
+				InitializedCheckpoint: function() {
+					console.log('[CHECKPOINT CALLBACK] initialized');
+				},
+				
+				RenderedCheckpoint: function() {
+					console.log('[CHECKPOINT CALLBACK] rendered');
+				},
+				
+				ReadyCheckpoint: function() {
+					console.log('[CHECKPOINT CALLBACK] ready');
+				},
+				
+				ModelReadyCheckpoint: function() {
+					console.log('[CHECKPOINT CALLBACK] modelready');
+				},
+				
+				CollectionReadyCheckpoint: function() {
+					console.log('[CHECKPOINT CALLBACK] collectionready');
 				}
+				
+				
 			});
 			
+			
+			
+			
+			
+			
 			/**
-			 * View Events (blocking)
+			 * Component Events (blocking)
 			 * events who are involved in initialization or rendering process can block
 			 * that process using "e.block()" and "e.unblock()" apis
 			 */
-			/*
+			
 			testComponent.on("setup", function(e) {
 				console.log("[EVENT] on:setup");
+				console.log(e);
+				e.block();setTimeout(e.unblock, Test.options.timeout);
+			});
+			
+			testComponent.on("beforeitems", function(e) {
+				console.log("[EVENT] on:beforeitems");
+				console.log(e);
+				e.block();setTimeout(e.unblock, Test.options.timeout);
+			});
+			
+			testComponent.on("afteritems", function(e) {
+				console.log("[EVENT] on:afteritems");
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
@@ -86,150 +270,221 @@ define([
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
-			*/
-			
-			
-			/*
-			testComponent.on("beforeadditem", function(e) {
-				console.log("[EVENT] on:beforeadditem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("additem", function(e) {
-				console.log("[EVENT] on:additem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("beforeadditems", function(e) {
-				console.log("[EVENT] on:beforeadditem(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("additems", function(e) {
-				console.log("[EVENT] on:additem(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
 			
 			
 			
-			testComponent.on("beforeremoveitem", function(e) {
-				console.log("[EVENT] on:beforeremoveitem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("removeitem", function(e) {
-				console.log("[EVENT] on:removeitem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("beforeremoveitems", function(e) {
-				console.log("[EVENT] on:beforeremoveitem(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("removeitems", function(e) {
-				console.log("[EVENT] on:removeitem(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			*/
 			
 			
 			
-			testComponent.on("beforeenableitem", function(e) {
-				console.log("[EVENT] on:beforeenableitem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
 			
-			testComponent.on("enableitem", function(e) {
-				console.log("[EVENT] on:enableitem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("beforeenableitems", function(e) {
-				console.log("[EVENT] on:beforeenableitems(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("enableitems", function(e) {
-				console.log("[EVENT] on:enableitems(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			
-			
-			testComponent.on("beforedisableitem", function(e) {
-				console.log("[EVENT] on:beforedisableitem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("disableitem", function(e) {
-				console.log("[EVENT] on:disableitem");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("beforedisableitems", function(e) {
-				console.log("[EVENT] on:beforedisableitems(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
-			
-			testComponent.on("disableitems", function(e) {
-				console.log("[EVENT] on:disableitems(s)");
-				console.log(e);
-				e.block();setTimeout(e.unblock, 50);
-			});
 			
 			
 			
 			
 			/**
-			 * Bind on Items
+			 * Component Events (non blocking)
+			 * these events are not involved in any process to they can't be
+			 * considered as blocking events!
 			 */
 			
-			testComponent.is("initialized", function() {
+			testComponent.on("rendercomplete", function(e) {
+				console.log("[EVENT] on:rendercomplete");
+				console.log(e);
+			});
+			
+			testComponent.on("ready", function(e) {
+				console.log("[EVENT] on:ready");
+				console.log(e);
+			});
+			
+			testComponent.on("modelready", function(e) {
+				console.log("[EVENT] on:modelready");
+				console.log(e);
+			});
+			
+			testComponent.on("collectionready", function(e) {
+				console.log("[EVENT] on:collectionready");
+				console.log(e);
+			});
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			/**
+			 * Component CheckPoints
+			 */
+			
+			$.when(testComponent.getDeferred('initialized')).then(
+				function() {console.log("[Deferred] initialized - done")},
+				function() {console.log("[Deferred] initialized - fail")},
+				function() {console.log("[Deferred] initialized - progress")}
+			).always(
+				function() {console.log("[Deferred] initialized - complete")}
+			);
+			
+			$.when(testComponent.getDeferred('rendered')).then(
+				function() {console.log("[Deferred] rendered - done")},
+				function() {console.log("[Deferred] rendered - fail")},
+				function() {console.log("[Deferred] rendered - progress")}
+			).always(
+				function() {console.log("[Deferred] rendered - complete")}
+			);
+			
+			$.when(testComponent.getDeferred('ready')).then(
+				function() {console.log("[Deferred] ready - done")},
+				function() {console.log("[Deferred] ready - fail")},
+				function() {console.log("[Deferred] ready - progress")}
+			).always(
+				function() {console.log("[Deferred] ready - complete")}
+			);
+			
+			$.when(testComponent.getDeferred('modelready')).then(
+				function() {console.log("[Deferred] modelready - done")},
+				function() {console.log("[Deferred] modelready - fail")},
+				function() {console.log("[Deferred] modelready - progress")}
+			).always(
+				function() {console.log("[Deferred] modelready - complete")}
+			);
+			
+			$.when(testComponent.getDeferred('collectionready')).then(
+				function() {console.log("[Deferred] collectionready - done")},
+				function() {console.log("[Deferred] collectionready - fail")},
+				function() {console.log("[Deferred] collectionready - progress")}
+			).always(
+				function() {console.log("[Deferred] collectionready - complete")}
+			);
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			/**
+			 * Checkpoint's Callbacks
+			 */
+			
+			testComponent.on("initializedcheckpoint", function(e) {
+				console.log("[checkpointEvent] on:initializedcheckpoint");
+				console.log(e);
+			});
+			
+			testComponent.on("renderedcheckpoint", function(e) {
+				console.log("[checkpointEvent] on:renderedcheckpoint");
+				console.log(e);
+			});
+			
+			testComponent.on("readycheckpoint", function(e) {
+				console.log("[checkpointEvent] on:readycheckpoint");
+				console.log(e);
+			});
+			
+			testComponent.on("modelreadycheckpoint", function(e) {
+				console.log("[checkpointEvent] on:modelreadycheckpoint");
+				console.log(e);
+			});
+			
+			testComponent.on("collectionreadycheckpoint", function(e) {
+				console.log("[checkpointEvent] on:collectionreadycheckpoint");
+				console.log(e);
+			});
+			
+			
+			
+			
+			
+			
+			
+			
+			/**
+			 * Simulation of out-of-process checkpoints resolution
+			 */
+			
+			testComponent.on("rendercomplete", function() {
 				
-				/*
-				testComponent.itemAt(0).on("beforerender", function(e) {
-					console.log("[EVENT] ItemAt(0) :: beforeRender");
-					e.block();
-					setTimeout(e.unblock, 1000);
-				});
+				console.log("###");
+				console.log("### READY RESOLUTION SIMULATION");
+				console.log("###");
 				
-				testComponent.itemAt(1).on("beforerender", function(e) {
-					console.log("[EVENT] ItemAt(1) :: beforeRender");
-					e.block();
-					setTimeout(e.unblock, 1000);
-				});
-				*/
+				setTimeout(function() {
+					testComponent.resolve("modelready");
+				}, Test.options.timeout);
+				
+				setTimeout(function() {
+					testComponent.resolve("collectionready");
+				}, Test.options.timeout*4);
+				
+				setTimeout(function() {
+					testComponent.resolve("ready");
+				}, Test.options.timeout*8);
+				
+			});
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			/**
+			 * Simulation of altering Items structure
+			 */
+			
+			testComponent.on("ready", function() {
+				
+				console.log("###");
+				console.log("### PLAY WITH ITEMS");
+				console.log("###");
+				
+				console.log("-- Instance.itemAt(0):");
+				console.log(testComponent.itemAt(0));
+				console.log("-- Instance.itemAt(1):");
+				console.log(testComponent.itemAt(1));
+				console.log("-- Instance.itemAt(5) -- expected \"-1\" --:");
+				console.log(testComponent.itemAt(5));
+				
+				var __add 		= $.Deferred();
+				var __toggle 	= $.Deferred();
+				
+				// Run add new item
+				console.log("-- Add new item: (1s)");
+				$.when(testComponent.addItem({
+					getDeferred: 	true,
+					html: 			'New Item',
+					onInit: 		function() {
+						var _dfd = $.Deferred();
+						this.$el.hide().fadeIn("slow", _dfd.resolve);
+						return _dfd.promise();
+					}
+				})).then(__add.resolve);
 				
 				
-				$.when(testComponent.getDeferred("initialized")).then(function() {
-					setTimeout(function() {
-						testComponent.enableItems([0,5], {
-							silent:false
+				// Run toggle
+				$.when(__add).then(function(){
+					console.log("-- Toggle item 2:");
+					$.when(testComponent.toggleItem('item-02', true)).then(function() {
+						console.log("-- Toggle Back:");
+						$.when(testComponent.toggleItem('item-02', true)).then(function() {
+							console.log("-- Toggle Complete");
+							__toggle.resolve();
 						});
-					}, 1000);
-					/*
-					setTimeout(function() {
-						testComponent.disableItems(["it2", "aa"], {
-							silent:false
-						});
-					}, 2000);
-					*/
+					});
 				});
 				
 				

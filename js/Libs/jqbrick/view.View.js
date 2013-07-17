@@ -195,25 +195,61 @@ define([
 		},
 		
 		
-		remove: function() {
+		/**
+		 * chain several steps when appendint the view into a container.
+		 * it allow to apply effects and use DeferredObject to synchronize them.
+		 */
+		append: function() {
+			// reset rendered DeferredObject to fit this rendering process
+			this.appendComplete = $.Deferred();
 			
 			var self = this;
+			var args = arguments;
 			
+			$.when(self.apply("beforeAppend", args, {trigger:true})).then(function() {
+				$.when(self._append.apply(self, args)).then(function() {
+					$.when(self.apply("afterAppend", args, {trigger:true})).then(
+						self.appendComplete.resolve,
+						self.appendComplete.reject
+					);
+				}, self.appendComplete.reject);
+			}, self.appendComplete.reject);
+			
+			// boolean true value as last param will force returning DeferredObject
+			if (arguments.length && arguments[arguments.length-1] === true) {
+				return this.appendComplete;
+			} else {
+				return this;	
+			}
+		},
+		
+		
+		/**
+		 * chain several steps when removing the view from it's container.
+		 * it allow to apply effects and use DeferredObject to synchronize them.
+		 */
+		remove: function() {
 			// reset rendered DeferredObject to fit this rendering process
 			this.removeComplete = $.Deferred();
 			
-			$.when(self.apply("beforeRemove", arguments, {trigger:true})).then(function() {
-				
-				$.when(self._remove()).always(function() {
-					
-					$.when(self.apply("afterRemove", arguments, {trigger:true})).then(
+			var self = this;
+			var args = arguments;
+			
+			$.when(self.apply("beforeRemove", args, {trigger:true})).then(function() {
+				$.when(self._remove.apply(self, args)).always(function() {
+					$.when(self.apply("afterRemove", args, {trigger:true})).then(
 						self.removeComplete.resolve,
 						self.removeComplete.reject
 					);
 				}, self.removeComplete.reject);
 			}, self.removeComplete.reject);
 			
-			return this;
+			// boolean true value as last param will force returning DeferredObject
+			if (arguments.length && arguments[arguments.length-1] === true) {
+				return this.appendComplete;
+			} else {
+				return this;	
+			}
 		}
 		
 	});
@@ -340,6 +376,8 @@ define([
 		
 		// please read about this property on "render()" documentation
 		this.renderComplete = $.Deferred();
+		this.appendComplete = $.Deferred();
+		this.removeComplete = $.Deferred();
 		
 		// bind xxReady() callbacks to checkpoints resolutions
 		var self = this;
@@ -406,7 +444,7 @@ define([
 		// !! $body is the container for sub-modules views!
 		this.$body = this.$el;
 		this.$body.append(this.options.html);
-		this.__appendToContainer();
+		this._append();
 	};
 	
 	
@@ -427,7 +465,7 @@ define([
 	 * 
 	 */
 	View.prototype._render = function() {
-		this.__appendToContainer();
+		this._append();
 	};
 	
 	
@@ -437,6 +475,43 @@ define([
 	 */
 	View.prototype._remove = function() {
 		this.$el.remove();
+	};
+	
+	/**
+	 * Run class related "appending" logic.
+	 * try to append $el to the $container property or a given
+	 * options.$target property.
+	 *
+	 * return a DeferredObject who resolves is appending success
+	 * or reject if no container exists.
+	 */
+	View.prototype._append = function(options) {
+		var _dfd = $.Deferred();
+		
+		options = $.extend({}, {
+			before:		null,
+			after:		null,
+			target: 	this.$container
+		}, options||{});
+		
+		if (options.before) {
+			options.before.before(this.$el);
+			_dfd.resolve();
+			
+		} else if (options.after) {
+			options.after.after(this.$el);
+			_dfd.resolve();
+			
+		} else if (options.target) {
+			this.$el.appendTo(options.target);
+			_dfd.resolve();
+			
+		} else {
+			_dfd.reject();
+			
+		}
+		
+		return _dfd.promise();
 	};
 	
 	
@@ -482,33 +557,7 @@ define([
 // --------------------------------------------- //
 // ---[[   P R I V A T E   M E T H O D S   ]]--- //
 // --------------------------------------------- //
-	
-	
-	/**
-	 * Append instance $el to container's DOM node.
-	 * you can skip from outside using
-	 * __preventAppendToContainer() API
-	 */
-	View.prototype.__appendToContainer = function() {
-		if (this.__preventAppendToContainer__) {
-			this.__preventAppendToContainer__ = null;
-			return;
-		}
-		if (!this.$el.parent().length && this.$container) {
-			this.appendTo(this.$container);
-		}
-	};
-	
-	/**
-	 * Skip the next call to __appendToContainer()
-	 * -- very useful in extensions initialization methods
-	 * -- where many operations may need to be done before
-	 * -- append item to relative container
-	 */
-	View.prototype.__preventAppendToContainer = function() {
-		this.__preventAppendToContainer__ = true;
-	}
-	
+
 
 
 
@@ -527,6 +576,13 @@ define([
 // ---[[   P U B L I C   A P I   ]]--- //	
 // ----------------------------------- //
 	
+	View.prototype.setParent = function(parent) {
+		this.parent = parent;
+	}
+	
+	View.prototype.setContainer = function($container) {
+		this.$container = $container;
+	}
 	
 	View.prototype.appendTo = function($target) {
 		if ($target instanceof Backbone.View) {
@@ -538,19 +594,12 @@ define([
 	};
 	
 	View.prototype.renderTo = function($target) {
-		this.render();
-		this.appendTo($target);
+		var self = this;
+		$.when(this.append({target:$target})).then(function() {
+			self.render();
+		});
 		return this;
 	};
-	
-	View.prototype.setParent = function(parent) {
-		this.parent = parent;
-	}
-	
-	View.prototype.setContainer = function($container) {
-		this.$container = $container;
-		this.__appendToContainer();
-	}
 	
 	
 	
