@@ -63,12 +63,12 @@ define([
 					},
 					onBeforeRemove: function() {
 						var _dfd = $.Deferred();
-						this.$el.slideUp("slow", _dfd.resolve);
+						this.$el.slideUp(3000, _dfd.resolve);
 						return _dfd.promise();
 					},
 					onAfterAppend: function() {
 						var _dfd = $.Deferred();
-						this.$el.slideDown("slow", _dfd.resolve);
+						this.$el.slideDown(3000, _dfd.resolve);
 						return _dfd.promise();
 					}
 				}],
@@ -469,7 +469,7 @@ define([
 					html: 			'New Item',
 					onInit: 		function() {
 						var _dfd = $.Deferred();
-						this.$el.hide().fadeIn("slow", _dfd.resolve);
+						this.$el.hide().fadeIn(3000, _dfd.resolve);
 						return _dfd.promise();
 					}
 				})).then(__add.resolve);

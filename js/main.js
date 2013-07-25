@@ -26,21 +26,20 @@ define([
 	$(document).delegate('#home', 'pageshow', function() {
 		
 		
-		
+		/*
 		// TestView
-		
 		var test = new TestView({
 			viewport: 	'#viewport'
 		});
+		*/
 		
 		
-		/*
 		// TestComponent
 		var test = new TestComponent({
 			viewport: 	'#viewport',
-			timeout: 	500
+			timeout: 	50
 		});
-		*/
+		
 		
 		
 	});

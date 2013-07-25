@@ -75,7 +75,6 @@ define([
 		},
 		
 		jqmInitializePage: function() {
-			var _dfd = $.Deferred();
 			var self = this;
 			
 			setTimeout(function() {
@@ -93,8 +92,6 @@ define([
 				self.resolve("jqmready");
 				
 			}, 1);
-			
-			return _dfd.promise();
 		}
 	});
 	
