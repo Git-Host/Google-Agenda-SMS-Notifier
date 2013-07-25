@@ -122,7 +122,7 @@ define([
 			// whithout this timeout you are not able to listen to events without
 			// also defining related callbacks!
 			setTimeout(function() {
-				$.when(self._buildOptions.apply(self, args)).then(function() {
+				$.when(self._options.apply(self, args)).then(function() {
 					
 					$.when(self._setup()).then(function() {
 						
@@ -176,35 +176,45 @@ define([
 			
 			$.when(self.apply("beforeRender", arguments, {trigger:true})).then(function() {
 				
-				$.when(self._render()).always(function() {
+				$.when(self._render()).then(function() {
 					
 					$.when(self.apply("afterRender", arguments, {trigger:true})).then(function() {
-						
-						self.resolve('rendered');
-						
-						$.when(self.apply("renderComplete", arguments, {trigger:true})).then(
-							self.renderComplete.resolve,
-							self.renderComplete.reject
-						);
-						
+					
+							$.when(self._finalize()).then(function() {
+								
+								self.renderComplete.resolve();
+								self.apply("renderComplete", arguments, {trigger:true});
+								self.resolve('rendered');
+									
+							},self.renderComplete.reject);
 					}, self.renderComplete.reject);
 				}, self.renderComplete.reject);
 			}, self.renderComplete.reject);
 			
-			return this;
+			// allow last given param to be a direct callback to be
+			if (arguments.length && _.isFunction(arguments[arguments.length-1])) {
+				$.when(self.renderComplete).then(_.bind(arguments[arguments.length-1], self));
+			}
+			
+			// allow to get a render deferred promise
+			if (options === true && arguments.length == 1) {
+				return this.renderComplete.promise();
+			} else {
+				return this;
+			}
 		},
 		
 		
 		/**
-		 * chain several steps when appendint the view into a container.
+		 * chain several steps when append in the view into a container.
 		 * it allow to apply effects and use DeferredObject to synchronize them.
 		 */
-		append: function() {
-			// reset rendered DeferredObject to fit this rendering process
-			this.appendComplete = $.Deferred();
-			
+		append: function(options) {
 			var self = this;
 			var args = arguments;
+			
+			// reset rendered DeferredObject to fit this rendering process
+			this.appendComplete = $.Deferred();
 			
 			$.when(self.apply("beforeAppend", args, {trigger:true})).then(function() {
 				$.when(self._append.apply(self, args)).then(function() {
@@ -215,11 +225,16 @@ define([
 				}, self.appendComplete.reject);
 			}, self.appendComplete.reject);
 			
-			// boolean true value as last param will force returning DeferredObject
-			if (arguments.length && arguments[arguments.length-1] === true) {
-				return this.appendComplete;
+			// allow last given param to be a direct callback to be
+			if (arguments.length && _.isFunction(arguments[arguments.length-1])) {
+				$.when(self.renderComplete).then(_.bind(arguments[arguments.length-1], self));
+			}
+			
+			// allow to get a render deferred promise
+			if (options === true && arguments.length == 1) {
+				return this.appendComplete.promise();
 			} else {
-				return this;	
+				return this;
 			}
 		},
 		
@@ -228,15 +243,15 @@ define([
 		 * chain several steps when removing the view from it's container.
 		 * it allow to apply effects and use DeferredObject to synchronize them.
 		 */
-		remove: function() {
-			// reset rendered DeferredObject to fit this rendering process
-			this.removeComplete = $.Deferred();
-			
+		remove: function(options) {
 			var self = this;
 			var args = arguments;
 			
+			// reset rendered DeferredObject to fit this rendering process
+			this.removeComplete = $.Deferred();
+			
 			$.when(self.apply("beforeRemove", args, {trigger:true})).then(function() {
-				$.when(self._remove.apply(self, args)).always(function() {
+				$.when(self._remove.apply(self, args)).then(function() {
 					$.when(self.apply("afterRemove", args, {trigger:true})).then(
 						self.removeComplete.resolve,
 						self.removeComplete.reject
@@ -244,13 +259,49 @@ define([
 				}, self.removeComplete.reject);
 			}, self.removeComplete.reject);
 			
-			// boolean true value as last param will force returning DeferredObject
-			if (arguments.length && arguments[arguments.length-1] === true) {
-				return this.appendComplete;
+			// allow last given param to be a direct callback to be
+			if (arguments.length && _.isFunction(arguments[arguments.length-1])) {
+				$.when(self.renderComplete).then(_.bind(arguments[arguments.length-1], self));
+			}
+			
+			// allow to get a render deferred promise
+			if (options === true && arguments.length == 1) {
+				return this.removeComplete.promise();
 			} else {
-				return this;	
+				return this;
+			}
+		},
+		
+		
+		destroy: function(options) {
+			var self = this;
+			var args = arguments;
+			
+			// reset rendered DeferredObject to fit this rendering process
+			this.destroyComplete = $.Deferred();
+			
+			$.when(self.apply("beforeRemove", args, {trigger:true})).then(function() {
+				$.when(self._destroy.apply(self, args)).then(function() {
+					$.when(self.apply("afterDestroy", args, {trigger:true})).then(
+						self.destroyComplete.resolve,
+						self.destroyComplete.reject
+					);
+				}, self.destroyComplete.reject);
+			}, self.destroyComplete.reject);
+			
+			// allow last given param to be a direct callback to be
+			if (arguments.length && _.isFunction(arguments[arguments.length-1])) {
+				$.when(self.destroyComplete).then(_.bind(arguments[arguments.length-1], self));
+			}
+			
+			// allow to get a render deferred promise
+			if (options === true && arguments.length == 1) {
+				return this.destroyComplete.promise();
+			} else {
+				return this;
 			}
 		}
+		
 		
 	});
 	
@@ -275,65 +326,38 @@ define([
 // ------------------------------------------------------- //
 	
 	/**
-	 * It build instance obtions extending class's defaults with initialization options.
-	 * It allow this.defaults to be a function who return an object or a deferred
-	 *
-	 * If this.defaults() returns a deferred then this deferred MUST to 
-	 * be resolved! Otherwise initialization process will block!
 	 *
 	 * Subclassing:
 	 * if you are sure your subclass don't use complex defaults ligics you
 	 * can override this method skipping Deferred object usage... this will
 	 * increase performances!
+	 *
+	 * -- SUBCLASSING:
+	 * Subclass.prototype._setup = function() {
+	 *   var self = this;
+	 *   var _dfd = $.Deferred();
+	 *   
+	 *   $.when(View.prototype._setup.apply(this)).then(function() {
+	 *     ... subclass logic ....
+	 *   });
+	 *   
+	 *   return _dfd.promise();
+	 * };
+	 *
+	 *
+	 * -- NO DEFERRED OBJECT VERSION:
+	 * -- if you don't need asynchronous operations you should override
+	 * -- as follow to increase performances.
+	 * View.prototype._buildOptions = function(options) {
+	 *   this.__applyDefaultValues(options);
+	 *   return this;
+	 * };
+	 *
+	 *
 	 */
-	View.prototype._buildOptions = function(options) {
-		var self = this;
-		var _dfd = $.Deferred();
-		
-		// fetch default options coming from structure or method output
-		var defaults = this.defaults;
-		if (_.isFunction(this.defaults)) defaults = this.defaults();
-		
-		// default method return a DeferredObject
-		// it's solution will contain defaults for the class
-		if (this.utils.isDeferred(defaults)) {
-			defaults.done(function(defaults) {
-				self.options = $.extend({}, defaults||{}, options||{});
-				_dfd.resolveWith(self);
-			});
-		
-		// defaults values are a clean object!
-		} else {
-			this.options = $.extend({}, defaults||{}, options||{});
-			_dfd.resolveWith(this);
-		}
-		
-		// bind callbacks to Deferred checkpoints
-		// checkpoints need to be configured as soon as possibile
-		// to be called before external cheking (is(), when())
-		_dfd.done(function() {
-			for (var k in self.options.checkpoints) {
-				self.is(k, self.options.checkpoints[k]);
-			}
-		});
-		
-		return _dfd.promise();
+	View.prototype._options = function(options) {
+		return this.__applyDefaultValues(options);
 	};
-	
-	/*
-	// no DeferredObject version
-	// just a memo to speed up performances!
-	View.prototype._buildOptions = function(options) {
-		
-		// fetch default options coming from structure or method output
-		var defaults = this.defaults;
-		if (_.isFunction(this.defaults)) defaults = this.defaults();
-		
-		// mix defaults with given options
-		this.options = $.extend({}, defaults||{}, options||{});
-		return this;
-	};
-	*/
 	
 	
 	
@@ -352,7 +376,7 @@ define([
 	 */
 	View.prototype._setup = function() {
 		
-		// setup default deferred holding points
+		// setup default deferred checkpoints
 		this.Deferred(
 			
 			// initialization process is complete
@@ -363,8 +387,8 @@ define([
 			// onBeforeRender, onAfterRender have solved
 			'rendered',
 			
+			// data related deferreds
 			'modelready',
-			
 			'collectionready',
 			
 			// manual or data-driven checkpoint
@@ -379,11 +403,15 @@ define([
 		this.appendComplete = $.Deferred();
 		this.removeComplete = $.Deferred();
 		
-		// bind xxReady() callbacks to checkpoints resolutions
+		// bind onXXXReady() callbacks to checkpoints resolutions
+		// 
 		var self = this;
 		$.when(this.getDeferred("ready")).then(function() {				self.apply("ready")				});
 		$.when(this.getDeferred("modelready")).then(function() {		self.apply("modelReady")		});
 		$.when(this.getDeferred("collectionready")).then(function() {	self.apply("collectionReady")	});
+		
+		// register checkpoints callbacks defined by the options set.
+		this.__registerOptionsCheckpoints();
 		
 	};
 	
@@ -464,9 +492,8 @@ define([
 	 * to defer "afterRender" callback execution util promise solution!
 	 * 
 	 */
-	View.prototype._render = function() {
-		this._append();
-	};
+	View.prototype._render = function() {};
+	View.prototype._finalize = function() {};
 	
 	
 	/**
@@ -475,6 +502,15 @@ define([
 	 */
 	View.prototype._remove = function() {
 		this.$el.remove();
+	};
+	
+	/**
+	 * Free as much memory as possible of istance
+	 */
+	View.prototype._destroy = function() {
+		this._remove();
+		this.$el = null;
+		this.$body = null;
 	};
 	
 	/**
@@ -557,7 +593,46 @@ define([
 // --------------------------------------------- //
 // ---[[   P R I V A T E   M E T H O D S   ]]--- //
 // --------------------------------------------- //
-
+	
+	/**
+	 * It build instance obtions extending class's defaults with initialization options.
+	 * It allow this.defaults to be a function who return an object or a deferred
+	 *
+	 * If this.defaults() returns a promise then it MUST be resolved! 
+	 * Otherwise initialization process blocks!
+	 */
+	View.prototype.__applyDefaultValues = function(options) {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		// fetch default options coming from structure or method output
+		var defaults = this.defaults;
+		if (_.isFunction(this.defaults)) {
+			defaults = this.defaults();
+		}
+		
+		// default method return a DeferredObject
+		// it's solution will contain defaults for the class
+		if (this.utils.isDeferred(defaults)) {
+			defaults.done(function(defaults) {
+				self.options = $.extend({}, defaults||{}, options||{});
+				_dfd.resolve();
+			});
+		
+		// defaults values are a clean object!
+		} else {
+			this.options = $.extend({}, defaults||{}, options||{});
+			_dfd.resolve();
+		}
+		
+		return _dfd.promise();
+	};
+	
+	View.prototype.__registerOptionsCheckpoints = function() {
+		for (var k in this.options.checkpoints) {
+			this.is(k, this.options.checkpoints[k]);
+		}
+	};
 
 
 

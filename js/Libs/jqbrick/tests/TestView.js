@@ -30,7 +30,7 @@ define([
 			var Test = this;
 			
 			var testView = new jQbrickView({
-				autoRender: true,
+				//autoRender: true,
 				container: 	this.options.viewport,
 				html: 		'TestView',
 				
@@ -79,14 +79,43 @@ define([
 					return _dfd;
 				},
 				
-				onRenderComplete: function() {
-					console.log('[CALLBACK] onRenderComplete');
+				onBeforeRemove: function () {
+					console.log('[CALLBACK] onBeforeRemove');
+					var _dfd = $.Deferred();
+					this.$el.fadeOut("slow", _dfd.resolve);
+					return _dfd;
+				},
+				
+				onAfterRemove: function () {
+					console.log('[CALLBACK] onAfterRemove');
 					var _dfd = $.Deferred();
 					setTimeout(_dfd.resolve, Test.options.timeout);
 					return _dfd;
 				},
 				
+				onBeforeAppend: function () {
+					console.log('[CALLBACK] onBeforeAppend');
+					var _dfd = $.Deferred();
+					setTimeout(_dfd.resolve, Test.options.timeout);
+					return _dfd;
+				},
 				
+				onAfterAppend: function () {
+					console.log('[CALLBACK] onAfterAppend');
+					var _dfd = $.Deferred();
+					this.$el.fadeIn("slow", _dfd.resolve);
+					return _dfd;
+				},
+				
+				
+				
+				/**
+				 * Non blocking callback
+				 */
+				
+				onRenderComplete: function() {
+					console.log('[CALLBACK] onRenderComplete');
+				},
 				
 				
 				
@@ -209,10 +238,13 @@ define([
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
+			
+			/**
+			 * Non Blocking Events
+			 */
 			testView.on("afterrender", function(e) {
 				console.log("[EVENT] on:afterrender");
 				console.log(e);
-				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
 			
@@ -251,7 +283,7 @@ define([
 			
 			
 			/**
-			 * View CheckPoints
+			 * View CheckPoints events
 			 */
 			
 			$.when(testView.getDeferred('initialized')).then(
@@ -333,14 +365,28 @@ define([
 			
 			
 			
+			/**
+			 * Manual rendering to test direct callback and renderComplete deferred
+			 */
+			testView.on("initializedcheckpoint", function() {
+				console.log("========= THROW MANUAL RENDERING PROCESS ============");
+				this.render(function() {
+					console.log("-------> RENDER COMPLETE (from direct callback)");
+				});
+				this.renderComplete.done(function() {
+					console.log("-------> RENDER COMPLETE (from deferred)");
+				});
+			});
+			
+			
+			
 			
 			
 			
 			/**
 			 * Simulation of out-of-process checkpoints resolution
 			 */
-			
-			testView.on("rendercomplete", function() {
+			testView.on("renderedcheckpoint", function() {
 				
 				console.log("=========== READY RESOLUTION SIMULATION =============");
 				
@@ -358,6 +404,21 @@ define([
 				
 			});
 			
+			
+			testView.on("readycheckpoint", function() {
+				var self = this;
+				setTimeout(function() {
+					console.log("============= READY CHECKPOINT =============");
+					
+					$.when(self.remove(true)).then(function() {
+						$.when(self.append(true)).then(function() {
+							console.log(">>>>>>>>>>>>>>>>>>> TEST END !!!");
+						});
+					});
+					
+					
+				}, Test.options.timeout);
+			});
 			
 			
 		}
