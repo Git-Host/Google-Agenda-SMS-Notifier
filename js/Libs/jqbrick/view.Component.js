@@ -645,6 +645,11 @@ define([
 // ---[[   I T E M S   F I N D I N G   U T I L I T I E S   ]]--- //	
 // ------------------------------------------------------------- //
 	
+	/**
+	 * These methods are relative to the first level of item and
+	 * it is not a deep searching API.
+	 */
+	
 	Component.prototype.hasItem = function(item) {
 		return this.getItem(item) != null;
 	};
@@ -696,6 +701,16 @@ define([
 		}
 		
 		return objects;
+	};
+	
+	Component.prototype.getActiveItems = function() {
+		var items = [];
+		for (var i=0; i<this.items.length; i++) {
+			if (this.items[i].active) {
+				items.push(this.items[i].item);
+			}
+		}
+		return items;
 	};
 	
 	Component.prototype.getItemById = function(id) {

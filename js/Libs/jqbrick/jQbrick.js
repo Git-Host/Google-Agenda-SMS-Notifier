@@ -20,9 +20,13 @@ define([
 	"underscore",
 	"./lib.utils",
 	"./lib.xtype",
+	"./lib.layout",
 	
 	"./mixin.Callback",
 	"./mixin.Deferred",
+	
+	"./layout.Default",
+	"./layout.Fit",
 	
 	// Logic Components
 	"./AppClass",
@@ -30,23 +34,27 @@ define([
 	// UI Components
 	"./view.View",
 	"./view.Component",
-	//"./view.ComponentLayout"
+	"./view.Box"
 	
 ], function(
 	_,
 	LibUtils,
 	LibXType,
+	LibLayout,
 	
 	CallbackMixin,
 	DeferredMixin,
+	
+	DefaultLayout,
+	FitLayout,
 	
 	// Logic Components
 	AppClass,
 	
 	// UI Components
 	View,
-	Component
-	//ComponentLayout
+	Component,
+	Box
 
 	
 ) {
@@ -72,11 +80,12 @@ define([
 		this.libs.view = _.extend({
 			"View"					: View,
 			"Component"				: Component,
-			//"ComponentLayout"		: ComponentLayout
+			"Box"					: Box
 		}, this.libs.view);
 		
 		this._setupUtiliesLibrary();
-		this._setupXtypes();
+		this._setupXTypes();
+		this._setupLayouts();
 		return this.libs;
 	};
 	
@@ -97,7 +106,7 @@ define([
 	/**
 	 * Setup LibXType and register all known types
 	 */
-	jQbrick.prototype._setupXtypes = function() {
+	jQbrick.prototype._setupXTypes = function() {
 		
 		this.xtype = new LibXType(this);
 		
@@ -105,11 +114,26 @@ define([
 		this.libs.view.View.prototype.xtype = this.xtype;
 		
 		// register core's XTypes
-		this.xtype.register("view", this.libs.view.View);
-		this.xtype.register("component", this.libs.view.Component);
-		//this.xtype.register("componentlayout", this.libs.view.ComponentLayout);
+		this.xtype.register("view", 		this.libs.view.View);
+		this.xtype.register("component", 	this.libs.view.Component);
+		this.xtype.register("box", 			this.libs.view.Box);
 		
 	};
+	
+	
+	/**
+	 * 
+	 */
+	jQbrick.prototype._setupLayouts = function() {
+	
+		this.LayoutManager = new LibLayout(this);
+		
+		this.libs.view.Box.prototype.LayoutManager = this.LayoutManager;
+		
+		this.LayoutManager.register("default", DefaultLayout);
+		this.LayoutManager.register("fit", FitLayout);
+	};
+	
 	
 	return jQbrick;
 	
