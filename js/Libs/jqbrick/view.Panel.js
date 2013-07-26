@@ -27,17 +27,10 @@ define([
 				
 				
 				// active properties to configure box layout
+				// you can set a simple layout name as string without other params
 				layout: {
-					name: "default",
-					
-				},
-				/*
-				layout: 	null,
-				width: 		null,
-				height: 	null,
-				fullsize: 	null,
-				scrollable:	false
-				*/
+					name: "default",	
+				}
 								
 			});
 		},
@@ -142,13 +135,19 @@ define([
 	 */
 	Panel.prototype._initializePanel = function() {
 		
-		// get the layout manager object from string
 		if (_.isString(this.options.layout)) {
-			this.layoutObj = new (this.LayoutManager.get(this.options.layout));
+			var _layout = {name:this.options.layout};
+		} else {
+			var _layout = this.options.layout;
+		}
+		
+		// get the layout manager object from string
+		if (this.utils.isPlainObject(_layout)) {
+			this.layoutObj = new (this.LayoutManager.get(_layout.name))(_layout);
 		
 		// get the layout manager from a given manager object constructor
-		} else if (_.isFunction(this.options.layout)) {
-			this.layoutObj = new (this.options.layout);
+		} else if (_.isFunction(_layout)) {
+			this.layoutObj = new _layout;
 			this.options.layout = "custom";
 		
 		// fallback to the default layout manager
@@ -198,6 +197,31 @@ define([
 		
 		return _dfd.promise();
 	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+	Panel.prototype._initializeEl = function() {
+		Container.prototype._initializeEl.apply(this, arguments);
+		return this._initializeElPanel();
+	};
+	
+	Panel.prototype._initializeElPanel = function() {
+		this.$wrap = $('<div class="jqbrick-panel-content">');
+		this.$body.wrap(this.$wrap);
+	};
+	*/
+	
+	
+	
 	
 	
 	

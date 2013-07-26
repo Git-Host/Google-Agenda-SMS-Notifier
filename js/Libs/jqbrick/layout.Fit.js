@@ -11,49 +11,28 @@
 
 define(["backbone", "./layout.Block"], function(Backbone, BlockLayout) {
 	
-	var FitLayout = BlockLayout.extend();
-	
-	FitLayout.prototype.name = "fit";
-	
-	FitLayout.prototype.initialize = function(View) {
-		View.options.itemDefaults.layout = "block";
-	};
-	
-	
-	FitLayout.prototype._outerSize = function(View) {
+	var FitLayout = BlockLayout.extend({
 		
-		// check for forced dimensions setted up by parent component
-		if (this._forcedOuterSize(View)) return true;
-		
-		View.width 	= View.$container.innerWidth(true);
-		View.height = View.$container.innerHeight();
-		
-		var rules = {
-			display:	"block",
-			width: 		View.width,
-			height: 	View.height
-		};
-		
-		View.$el.css(rules);
-	};
-	
-	
-	FitLayout.prototype._innerSize = function(View) {
-		
-		var rules = {
-			width: View.$el.innerWidth(true)
-		};
-		
-		if (View.options.scrollable) {
-			rules.minHeight = View.$el.innerHeight() - parseInt(View.$body.css("borderTopWidth")) - parseInt(View.$body.css("borderBottomWidth"));
+		_outerSize: function(Panel) {
 			
-		} else {
-			rules.height = View.$el.innerHeight() - parseInt(View.$body.css("borderTopWidth")) - parseInt(View.$body.css("borderBottomWidth"));
+			var $parent = Panel.$el.parent();
+			if (!$parent.length) return;
+			
+			this.beforeWidth 	= this.width;
+			this.beforeHeight 	= this.height;
+			
+			this.width 			= $parent.innerWidth(true) - parseInt($parent.css("borderLeftWidth")) - parseInt($parent.css("borderRightWidth"));
+			this.height 		= $parent.innerHeight() - parseInt($parent.css("borderTopWidth")) - parseInt($parent.css("borderBottomWidth"));
+			
+			Panel.$el.css({
+				width: 	this.width,
+				height: this.height
+			});
+				
 		}
 		
-		View.$body.css(rules);
-		
-	}
+	});
+	
 	
 	return FitLayout;
 	

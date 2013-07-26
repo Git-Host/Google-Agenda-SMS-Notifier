@@ -34,13 +34,36 @@ define([
 				innerStyle: "border:4px solid yellow",
 				
 				items: [{
-					html: "Item 01"
+					html: "Item 01",
+					layout: {
+						name: "block",
+						height: 70
+					}
 				},{
-					html: "Item 02"
+					html: "Item 02",
+					layout: {
+						name: "block",
+						height: 70
+					}
 				},{
-					html: "Item 03"
+					html: "Item 03",
+					layout: {
+						name: "block",
+						height: 70
+					}
 				}],
 				
+				itemDefaults: {
+					style: "border:1px dashed #666"
+				},
+				
+				
+				layout: {
+					name: "block",
+					width: 200,
+					height: 150,
+					scrollable: true
+				}
 				
 				//fullsize:	true,
 				//layout: "fit",

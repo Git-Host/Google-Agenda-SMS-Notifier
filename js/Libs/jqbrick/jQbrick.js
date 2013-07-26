@@ -135,8 +135,8 @@ define([
 		this.libs.view.Panel.prototype.LayoutManager = this.LayoutManager;
 		
 		this.LayoutManager.register("default", DefaultLayout);
-		//this.LayoutManager.register("block", BlockLayout);
-		//this.LayoutManager.register("fit", FitLayout);
+		this.LayoutManager.register("block", BlockLayout);
+		this.LayoutManager.register("fit", FitLayout);
 		//this.LayoutManager.register("vbox", VBoxLayout);
 	};
 	

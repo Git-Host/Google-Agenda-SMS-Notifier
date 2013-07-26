@@ -15,7 +15,142 @@
 
 define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 	
-	var BlockLayout = DefaultLayout.extend();
+	var BlockLayout = DefaultLayout.extend({
+		
+		// actual size
+		width: 	null,
+		height: null,
+		
+		// last implemented size
+		beforeWidth: null,
+		beforeHeight: null,
+		
+		initialize: function(Panel) {
+			DefaultLayout.prototype.initialize.apply(this, arguments);
+			
+			this.options = $.extend({}, {
+				width: 		this.width,
+				height:		this.height,
+				fullsize:	true,			// $body match at least $el dimensions
+				scrollable:	false			// [false=disabled; true=iScoll or native; native=force to use only native behavior]
+			}, this.options);
+			
+			this.width 	= this.options.width;
+			this.height = this.options.height;
+			
+			Panel.$el.css({
+				display: 	"block",
+				overflow: 	"hidden"
+			});
+			
+		},
+		
+		layout: function(Panel) {
+			DefaultLayout.prototype.layout.apply(this, arguments);
+			
+			console.log("BlockLayout on " + Panel.cid + " ("+this.name+")");
+			this._outerSize(Panel);
+			this._innerSize(Panel);
+			this._updateScroller(Panel);
+		},
+		
+		finalize: function(Panel) {
+			this._finalizeScroller(Panel);
+		},
+		
+		_outerSize: function(Panel, width, height) {
+			
+			width = width || this.width;
+			height = height || this.height;
+			
+			this.beforeWidth = this.width;
+			this.beforeHeight = this.height;
+			
+			this.width = width;
+			this.height = height;
+			
+			Panel.$el.css({
+				width: 	this.width,
+				height: this.height
+			});
+			
+		},
+		
+		_innerSize: function(Panel) {
+			if (this.options.fullsize) {
+				Panel.$body.css({
+					minWidth: 	this.__hSpace(),
+					minHeight:	this.__vSpace()
+				});
+			}
+			
+		},
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/**
+		 * Implements Scrollable
+		 */
+		
+		_updateScroller: function(Panel) {
+			if (!this.options.scrollable) return;
+			
+			if (!this.__scrollerInitialized) {
+				Panel.$body.wrap('<div class="jqbrick-scroller-wrapper">');
+				this.__scrollerInitialized = true;
+			}
+			
+			var $scroller = Panel.$body.parent();
+			$scroller.css({
+				display: 	"block",
+				overflow: 	"hidden",
+				position:	"relative",
+				width: 		Panel.$el.innerWidth(),
+				height:		Panel.$el.innerHeight()
+			});
+			
+			if (window.iScroll && this.options.scrollable === true) {
+				var scroll = $scroller.data('iScroll');
+				if (!scroll) {
+					scroll = new iScroll($scroller[0]);
+					$scroller.data('iScroll', scroll);
+				} else {
+					scroll.refresh();
+				}
+				
+				
+			} else {
+				$scroller.css({
+					"overflow-x" : "auto",
+					"overflow-y" : "auto",
+					"-webkit-overflow-scrolling" : "touch"
+				});
+			}
+			
+		},
+		
+		_finalizeScroller: function(Panel) {
+			if (!this.options.scrollable) return;
+			
+			if (window.iScroll && this.options.scrollable === true) {
+				Panel.$body.parent().data('iScroll').refresh()
+			}
+		}
+		
+		
+		
+		
+		
+	});
+	
+	/*
+	
 	
 	BlockLayout.prototype.name = "block";
 	
@@ -82,6 +217,7 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		View.$el.css(rules);
 		
 	};
+	*/
 	
 	return BlockLayout;
 	

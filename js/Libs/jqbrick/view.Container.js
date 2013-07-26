@@ -81,6 +81,7 @@ define([
 		return _dfd;	
 	};
 	
+	
 	/**
 	 * Items initialization run "addItems()" in silent mode because this is not
 	 * an explicit items addition but just an initialization of the entire Container.
@@ -102,7 +103,7 @@ define([
 			
 			_done_ = self.addItems(self.options.items, {
 				defaults: 		self.options.itemDefaults,
-				overrides: 		{autoRender:false},
+				overrides: 		$.extend({}, self.options.itemOverrides, {autoRender:false}),
 				silent: 		false,
 				getDeferred:	true
 			});
