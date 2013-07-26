@@ -196,8 +196,8 @@ define([
 				$.when(self.renderComplete).then(_.bind(arguments[arguments.length-1], self));
 			}
 			
-			// allow to get a render deferred promise
-			if (options === true && arguments.length == 1) {
+			// last argument "true" to return deferred
+			if (arguments.length && arguments[arguments.length-1] === true) {
 				return this.renderComplete.promise();
 			} else {
 				return this;
@@ -227,11 +227,11 @@ define([
 			
 			// allow last given param to be a direct callback to be
 			if (arguments.length && _.isFunction(arguments[arguments.length-1])) {
-				$.when(self.renderComplete).then(_.bind(arguments[arguments.length-1], self));
+				$.when(self.appendComplete).then(_.bind(arguments[arguments.length-1], self));
 			}
 			
-			// allow to get a render deferred promise
-			if (options === true && arguments.length == 1) {
+			// last argument "true" to return deferred
+			if (arguments.length && arguments[arguments.length-1] === true) {
 				return this.appendComplete.promise();
 			} else {
 				return this;
@@ -264,8 +264,8 @@ define([
 				$.when(self.renderComplete).then(_.bind(arguments[arguments.length-1], self));
 			}
 			
-			// allow to get a render deferred promise
-			if (options === true && arguments.length == 1) {
+			// last argument "true" to return deferred
+			if (arguments.length && arguments[arguments.length-1] === true) {
 				return this.removeComplete.promise();
 			} else {
 				return this;
@@ -294,8 +294,8 @@ define([
 				$.when(self.destroyComplete).then(_.bind(arguments[arguments.length-1], self));
 			}
 			
-			// allow to get a render deferred promise
-			if (options === true && arguments.length == 1) {
+			// last argument "true" to return deferred
+			if (arguments.length && arguments[arguments.length-1] === true) {
 				return this.destroyComplete.promise();
 			} else {
 				return this;
@@ -406,9 +406,9 @@ define([
 		// bind onXXXReady() callbacks to checkpoints resolutions
 		// 
 		var self = this;
-		$.when(this.getDeferred("ready")).then(function() {				self.apply("ready")				});
-		$.when(this.getDeferred("modelready")).then(function() {		self.apply("modelReady")		});
-		$.when(this.getDeferred("collectionready")).then(function() {	self.apply("collectionReady")	});
+		$.when(this.getDeferred("ready")).then(function() {				self.apply("ready", arguments, {trigger:true})				});
+		$.when(this.getDeferred("modelready")).then(function() {		self.apply("modelReady", arguments, {trigger:true})			});
+		$.when(this.getDeferred("collectionready")).then(function() {	self.apply("collectionReady", arguments, {trigger:true})	});
 		
 		// register checkpoints callbacks defined by the options set.
 		this.__registerOptionsCheckpoints();

@@ -82,7 +82,7 @@ define([
 				onBeforeRemove: function () {
 					console.log('[CALLBACK] onBeforeRemove');
 					var _dfd = $.Deferred();
-					this.$el.fadeOut("slow", _dfd.resolve);
+					this.$el.fadeOut(2000, _dfd.resolve);
 					return _dfd;
 				},
 				
@@ -103,7 +103,7 @@ define([
 				onAfterAppend: function () {
 					console.log('[CALLBACK] onAfterAppend');
 					var _dfd = $.Deferred();
-					this.$el.fadeIn("slow", _dfd.resolve);
+					this.$el.fadeIn(2000, _dfd.resolve);
 					return _dfd;
 				},
 				
@@ -410,7 +410,9 @@ define([
 				setTimeout(function() {
 					console.log("============= READY CHECKPOINT =============");
 					
+					console.log("--- remove():");
 					$.when(self.remove(true)).then(function() {
+						console.log("--- append():");
 						$.when(self.append(true)).then(function() {
 							console.log(">>>>>>>>>>>>>>>>>>> TEST END !!!");
 						});

@@ -38,6 +38,10 @@ define(["backbone"], function(Backbone) {
 	 * }
 	 */
 	DefaultLayout.prototype._outerSize = function(View) {
+		this._forcedOuterSize(View);
+	};
+	
+	DefaultLayout.prototype._forcedOuterSize = function(View) {
 		if (View.forceOuterDimensions != null) {
 			
 			View.forceDimensions = $.extend({}, {
@@ -51,6 +55,8 @@ define(["backbone"], function(Backbone) {
 			});
 			View.forceDimensions.width = null;
 			return true;
+		} else {
+			return false;
 		}
 	};
 	

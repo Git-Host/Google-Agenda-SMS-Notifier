@@ -17,7 +17,7 @@ define([
 	DefaultLayout
 	
 ) {
-	var Box = Component.extend({
+	var Panel = Component.extend({
 		
 		defaults: function() {
 			return $.extend({}, Component.prototype.defaults.apply(this,arguments), {
@@ -25,11 +25,11 @@ define([
 				xtype: "box",
 				
 				// active properties to configure box layout
-				layout: 	"fit",
+				layout: 	null,
 				width: 		null,
 				height: 	null,
 				fullsize: 	null,
-				scrollable:	true
+				scrollable:	false
 								
 			});
 		},
@@ -80,12 +80,12 @@ define([
 	 * Setup Process
 	 * - add "layouted" checkpoint
 	 */
-	Box.prototype._setup = function() {
+	Panel.prototype._setup = function() {
 		Component.prototype._setup.apply(this, arguments);
 		this._setupBox.apply(this, arguments);
 	};
 	
-	Box.prototype._setupBox = function() {
+	Panel.prototype._setupBox = function() {
 		this.Deferred('layouted');
 		
 		// it is the object responsible of layouting
@@ -123,16 +123,16 @@ define([
 	 * identify and initializa a layout manager to be applied to the Box instance
 	 */
 	 
-	Box.prototype._initialize = function() {
+	Panel.prototype._initialize = function() {
 		Component.prototype._initialize.apply(this, arguments);
-		return this._initializeBox.apply(this, arguments);
+		return this._initializePanel.apply(this, arguments);
 	};
 	
 	/**
 	 * It is responsible in finding the correct layout manager 
 	 * to be initializated for the box
 	 */
-	Box.prototype._initializeBox = function() {
+	Panel.prototype._initializePanel = function() {
 		
 		// get the layout manager object from string
 		if (_.isString(this.options.layout)) {
@@ -166,7 +166,7 @@ define([
 	 * this way it is really possible to inject various kind of initialization logic
 	 * from outside this source code!!!
 	 */
-	Box.prototype._initializeLayout = function() {
+	Panel.prototype._initializeLayout = function() {
 		var self 	= this;
 		var _dfd 	= $.Deferred();
 		var cbname 	= "Initialize" + this.utils.ucFirst(this.options.layout) + "Layout";
@@ -201,7 +201,7 @@ define([
 	 * Apply the layout manager rules to the element and propagate to sub items.
 	 */
 	
-	Box.prototype._layout = function() {
+	Panel.prototype._layout = function() {
 		var self 	= this;
 		var _dfd 	= $.Deferred();
 		var cbname 	= this.utils.ucFirst(this.options.layout) + "Layout";
@@ -226,14 +226,14 @@ define([
 		return _dfd.promise();
 	};
 	
-	Box.prototype._layoutItem = function(item) {
+	Panel.prototype._layoutItem = function(item) {
 		return item.layout(true);
 	};
 	
-	Box.prototype._finalizeLayout = function() {};
+	Panel.prototype._finalizeLayout = function() {};
 	
 	
 	
-	return Box;
+	return Panel;
 	
 });

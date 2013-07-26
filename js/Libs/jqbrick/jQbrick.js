@@ -26,7 +26,9 @@ define([
 	"./mixin.Deferred",
 	
 	"./layout.Default",
+	"./layout.Block",
 	"./layout.Fit",
+	"./layout.VBox",
 	
 	// Logic Components
 	"./AppClass",
@@ -34,7 +36,7 @@ define([
 	// UI Components
 	"./view.View",
 	"./view.Component",
-	"./view.Box"
+	"./view.Panel"
 	
 ], function(
 	_,
@@ -46,7 +48,9 @@ define([
 	DeferredMixin,
 	
 	DefaultLayout,
+	BlockLayout,
 	FitLayout,
+	VBoxLayout,
 	
 	// Logic Components
 	AppClass,
@@ -54,7 +58,7 @@ define([
 	// UI Components
 	View,
 	Component,
-	Box
+	Panel
 
 	
 ) {
@@ -80,7 +84,7 @@ define([
 		this.libs.view = _.extend({
 			"View"					: View,
 			"Component"				: Component,
-			"Box"					: Box
+			"Panel"					: Panel
 		}, this.libs.view);
 		
 		this._setupUtiliesLibrary();
@@ -116,7 +120,7 @@ define([
 		// register core's XTypes
 		this.xtype.register("view", 		this.libs.view.View);
 		this.xtype.register("component", 	this.libs.view.Component);
-		this.xtype.register("box", 			this.libs.view.Box);
+		this.xtype.register("panel", 		this.libs.view.Panel);
 		
 	};
 	
@@ -128,10 +132,12 @@ define([
 	
 		this.LayoutManager = new LibLayout(this);
 		
-		this.libs.view.Box.prototype.LayoutManager = this.LayoutManager;
+		this.libs.view.Panel.prototype.LayoutManager = this.LayoutManager;
 		
 		this.LayoutManager.register("default", DefaultLayout);
-		this.LayoutManager.register("fit", FitLayout);
+		//this.LayoutManager.register("block", BlockLayout);
+		//this.LayoutManager.register("fit", FitLayout);
+		//this.LayoutManager.register("vbox", VBoxLayout);
 	};
 	
 	

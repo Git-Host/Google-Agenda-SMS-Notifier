@@ -28,7 +28,7 @@ define([
 			var testComponent = new jQbrickComponent({
 				autoRender: true,
 				container: 	this.options.viewport,
-				html: 		'TestView',
+				html: 		'TestComponent<hr>',
 				
 				style: 		"border:4px solid red",
 				innerStyle: "border:4px solid yellow",
@@ -63,12 +63,12 @@ define([
 					},
 					onBeforeRemove: function() {
 						var _dfd = $.Deferred();
-						this.$el.slideUp(1000, _dfd.resolve);
+						this.$el.slideUp(2000, _dfd.resolve);
 						return _dfd.promise();
 					},
 					onAfterAppend: function() {
 						var _dfd = $.Deferred();
-						this.$el.slideDown(1000, _dfd.resolve);
+						this.$el.slideDown(2000, _dfd.resolve);
 						return _dfd.promise();
 					}
 				}],
@@ -463,16 +463,19 @@ define([
 				var __toggle 	= $.Deferred();
 				
 				// Run add new item
-				console.log("-- Add new item: (1s)");
+				console.log("-- Add new item:");
 				$.when(testComponent.addItem({
 					getDeferred: 	true,
 					html: 			'New Item',
 					onInit: 		function() {
 						var _dfd = $.Deferred();
-						this.$el.hide().fadeIn(1000, _dfd.resolve);
+						this.$el.hide().fadeIn(2000, _dfd.resolve);
 						return _dfd.promise();
 					}
-				})).then(__add.resolve);
+				})).then(function() {
+					console.log("-- new item added");
+					__add.resolve()
+				});
 				
 				
 				// Run toggle

@@ -417,6 +417,7 @@ define([
 		var self = this;
 		var _dfd = $.Deferred();
 		
+		
 		if ((item = this.getItem(item)) !== -1) {
 			var idx = this.itemPos(item);
 			this.items[idx].active = true;

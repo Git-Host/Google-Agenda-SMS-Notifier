@@ -11,10 +11,10 @@
 
 define([
 	"jqbrick/TestClass",
-	"jqbrick/view.Box"
+	"jqbrick/view.Panel"
 ], function(
 	TestClass,
-	jQbrickBox
+	jQbrickPanel
 ) {
 	
 	var Test = TestClass.extend({
@@ -22,30 +22,36 @@ define([
 			var Test = this;
 			
 			console.log("###");
-			console.log("### RUN BOX TEST");
+			console.log("### RUN PANEL TEST");
 			console.log("###");
 			
-			var testBox = new jQbrickBox({
+			var testPanel = new jQbrickPanel({
 				autoRender: true,
 				container: 	this.options.viewport,
-				html: 		'TestBox',
+				html: 		'TestPanel',
 				
-				fullsize:	true,
 				style: 		"border:4px solid red",
 				innerStyle: "border:4px solid yellow",
 				
 				items: [{
 					html: "Item 01",
+					layout: "block",
+					height: 600
 				},{
 					html: "Item 02"
 				},{
 					html: "Item 03"
-				}]
+				}],
+				
+				
+				//fullsize:	true,
+				layout: "fit",
+				//scrollable: true
 				
 			});
 			
 			
-			testBox.on('beforerender', function(e) {
+			testPanel.on('beforerender', function(e) {
 				
 				console.log("BEFORE RENDER");
 				e.block();
@@ -54,19 +60,19 @@ define([
 				
 			});
 			
-			testBox.on('afterrender', function(e) {
+			testPanel.on('afterrender', function(e) {
 				
 				console.log("AFTER RENDER");
 				
 			});
 			
-			testBox.on('beforelayout', function(e) {
+			testPanel.on('beforelayout', function(e) {
 				
 				console.log("BEFORE LAYOUT");
 				
 			});
 			
-			testBox.on('afterlayout', function(e) {
+			testPanel.on('afterlayout', function(e) {
 				
 				console.log("AFTER LAYOUT");
 				
