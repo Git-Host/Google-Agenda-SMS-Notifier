@@ -34,9 +34,7 @@ define([
 				innerStyle: "border:4px solid yellow",
 				
 				items: [{
-					html: "Item 01",
-					layout: "block",
-					height: 600
+					html: "Item 01"
 				},{
 					html: "Item 02"
 				},{
@@ -45,7 +43,7 @@ define([
 				
 				
 				//fullsize:	true,
-				layout: "fit",
+				//layout: "fit",
 				//scrollable: true
 				
 			});
@@ -53,7 +51,7 @@ define([
 			
 			testPanel.on('beforerender', function(e) {
 				
-				console.log("BEFORE RENDER");
+				console.log("-- before RENDER");
 				e.block();
 				
 				$.when(this.layout(true)).then(e.unblock);
@@ -61,21 +59,23 @@ define([
 			});
 			
 			testPanel.on('afterrender', function(e) {
-				
-				console.log("AFTER RENDER");
-				
+				console.log("-- after RENDER");
 			});
 			
 			testPanel.on('beforelayout', function(e) {
-				
-				console.log("BEFORE LAYOUT");
-				
+				console.log("-- before LAYOUT");
 			});
 			
 			testPanel.on('afterlayout', function(e) {
-				
-				console.log("AFTER LAYOUT");
-				
+				console.log("-- after LAYOUT");
+			});
+			
+			
+			testPanel.on('beforedefaultlayout', function(e) {
+				console.log("-- before DefaultLayout");
+			});
+			testPanel.on('afterdefaultlayout', function(e) {
+				console.log("-- after DefaultLayout");
 			});
 			
 			

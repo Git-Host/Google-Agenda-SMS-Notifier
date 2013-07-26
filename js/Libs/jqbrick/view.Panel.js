@@ -8,28 +8,36 @@
 
 define([
 	"jquery", "underscore", "backbone",
-	"./view.Component",
+	"./view.Container",
 	"./layout.Default"
 	
 ], function(
 	$, _, Backbone,
-	Component,
+	Container,
 	DefaultLayout
 	
 ) {
-	var Panel = Component.extend({
+	var Panel = Container.extend({
 		
 		defaults: function() {
-			return $.extend({}, Component.prototype.defaults.apply(this,arguments), {
+			return $.extend({}, Container.prototype.defaults.apply(this,arguments), {
 				
-				xtype: "box",
+				xtype: 		"panel",
+				itemsXtype: "panel",
+				
 				
 				// active properties to configure box layout
+				layout: {
+					name: "default",
+					
+				},
+				/*
 				layout: 	null,
 				width: 		null,
 				height: 	null,
 				fullsize: 	null,
 				scrollable:	false
+				*/
 								
 			});
 		},
@@ -81,7 +89,7 @@ define([
 	 * - add "layouted" checkpoint
 	 */
 	Panel.prototype._setup = function() {
-		Component.prototype._setup.apply(this, arguments);
+		Container.prototype._setup.apply(this, arguments);
 		this._setupBox.apply(this, arguments);
 	};
 	
@@ -124,7 +132,7 @@ define([
 	 */
 	 
 	Panel.prototype._initialize = function() {
-		Component.prototype._initialize.apply(this, arguments);
+		Container.prototype._initialize.apply(this, arguments);
 		return this._initializePanel.apply(this, arguments);
 	};
 	
@@ -199,6 +207,11 @@ define([
 	
 	/**
 	 * Apply the layout manager rules to the element and propagate to sub items.
+	 * - before{LayoutName}Layout
+	 * -> layoutObj::layout
+	 * -> propagate to items
+	 * - after{LayoutName}Layout
+	 * -> layoutObj::finalize
 	 */
 	
 	Panel.prototype._layout = function() {
@@ -208,27 +221,33 @@ define([
 		
 		$.when(self.apply("before" + cbname, arguments, {trigger:true})).then(function() {
 			
-			$.when(self.layoutObj.render(self)).then(function() {
+			$.when(self.layoutObj.layout(self)).then(function() {
 				
-				// trigger update layout on child items
+				// Propagate layout update to children
+				// NOTICE: this is not a blocking process and may be really hard to switch into!
 				_.each(self.getActiveItems(), function(item) {
 					item.trigger("layoutchange");
 				});
 					
-				$.when(self.apply("after" + cbname, arguments, {trigger:true})).then(
-					_dfd.resolve,
-					_dfd.reject
-				);
-				
+				$.when(self.apply("after" + cbname, arguments, {trigger:true})).then(function() {
+					
+					// allow layout finalize itself after layouting all items
+					$.when(self.layoutObj.finalize(self)).then(
+						_dfd.resolve,
+						_dfd.reject
+					);
+				},_dfd.reject);
 			},_dfd.reject);	
 		},_dfd.reject);	
 		
 		return _dfd.promise();
 	};
 	
-	Panel.prototype._layoutItem = function(item) {
-		return item.layout(true);
-	};
+	
+	
+	/**
+	 * Run some Panel level post-layouting logic
+	 */
 	
 	Panel.prototype._finalizeLayout = function() {};
 	

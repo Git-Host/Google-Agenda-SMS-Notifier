@@ -15,19 +15,20 @@ define([
 	View
 	
 ) {
-	var Component = View.extend({
+	var Container = View.extend({
 		
 		defaults: function() {
 			return $.extend({}, View.prototype.defaults.apply(this,arguments), {
 				
-				xtype: "component",
+				xtype: 			"container",
+				itemsXtype:		"container",	// super-dafault to be applied to Container's items.
 				
 				// Content layer ($body) attributes:
 				innerAttrs:		{},		// a list of attributes to apply to $body
 				innerStyle: 	'',
 				innerCss: 		{},
 				
-				// A list of sub-items configuration to add to the component during initialization
+				// A list of sub-items configuration to add to the Container during initialization
 				items: [],
 				itemDefaults: {},
 				itemOverrides: {}
@@ -45,11 +46,11 @@ define([
 	 * - add items into the DOM node without render them!
 	 */
 	
-	Component.prototype._initializeEl = function() {
-		return this._initializeElComponent();
+	Container.prototype._initializeEl = function() {
+		return this._initializeElContainer();
 	}
 	
-	Component.prototype._initializeElComponent = function() {
+	Container.prototype._initializeElContainer = function() {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -71,7 +72,7 @@ define([
 		this.$body.append(this.options.html);
 		
 		// waith for items initialization to solve.
-		// DOM manipulation are done after all items are ready inside component $el
+		// DOM manipulation are done after all items are ready inside Container $el
 		$.when(this._initializeItems()).always(function() {
 			self._append();
 			_dfd.resolve();
@@ -82,12 +83,12 @@ define([
 	
 	/**
 	 * Items initialization run "addItems()" in silent mode because this is not
-	 * an explicit items addition but just an initialization of the entire component.
+	 * an explicit items addition but just an initialization of the entire Container.
 	 *
 	 * This method throws "beforeItems" and "afterItems" callbacks to allow
 	 * customize from outside.
 	 */
-	Component.prototype._initializeItems = function() {
+	Container.prototype._initializeItems = function() {
 		var self = this;
 		var args = arguments;
 		var _dfd = $.Deferred();
@@ -134,7 +135,7 @@ define([
 	 * - render each "active" item in the correct order
 	 */
 	
-	Component.prototype._render = function() {
+	Container.prototype._render = function() {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -145,7 +146,7 @@ define([
 		return _dfd.promise();
 	};
 	
-	Component.prototype._renderItems = function() {
+	Container.prototype._renderItems = function() {
 		// compose a list of items to render
 		var items = [];
 		for (var i=0; i<this.items.length; i++) {
@@ -157,7 +158,7 @@ define([
 		return this.__walkItems(items, this._renderItem, this);
 	};
 	
-	Component.prototype._renderItem = function(item) {
+	Container.prototype._renderItem = function(item) {
 		return item.render().renderComplete;
 	};
 	
@@ -185,7 +186,7 @@ define([
 	 * @TODO: initialization data should have an "active:false" key so that
 	 * item starts inactive... it is initialized but not rendered!
 	 */
-	Component.prototype.addItems = function(items, options) {
+	Container.prototype.addItems = function(items, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -204,10 +205,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItems(self.addItem, items, options, "beforeAddItems", "addItems");
+		return this.__performOnContainerItems(self.addItem, items, options, "beforeAddItems", "addItems");
 	};
 	
-	Component.prototype.addItem = function(item, options) {
+	Container.prototype.addItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -230,17 +231,17 @@ define([
 			options.active = item.active;
 		}
 		
-		return this.__performOnComponentItem(self.__addItem, item, options, "beforeAddItem", "addItem", "addItemError");
+		return this.__performOnContainerItem(self.__addItem, item, options, "beforeAddItem", "addItem", "addItemError");
 	};
 	
-	Component.prototype.__addItem = function(item, options) {
+	Container.prototype.__addItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
 		// Configuration object, create new XType
 		// defaults and overrides from options are applied before creating new object
 		if (this.utils.isPlainObject(item)) {
-			item = $.extend({}, options.defaults, item, options.overrides);
+			item = $.extend({},{xtype:this.options.itemsXtype}, options.defaults, item, options.overrides);
 			var _item = this.xtype.make(null, item, this);
 			var _itemDfd = _item.getDeferred("initialized");
 			
@@ -255,7 +256,7 @@ define([
 		}
 		
 		// Check for item validity and add to the items stack.
-		// item is appended to component items if valid
+		// item is appended to Container items if valid
 		// blocking deferred is resolved when item initialization ends
 		// and "addItem" callback and events resolves.
 		//
@@ -270,7 +271,7 @@ define([
 				
 				// remove inactive item from the DOM the quick possible way.
 				// here i don't use high level APIs such "item.remove()"
-				// because I just don't want item's HTML inside component's DOM now.
+				// because I just don't want item's HTML inside Container's DOM now.
 				if (!options.active) _item.$el.remove();
 				
 				_dfd.resolve(_item, self.items.length-1);
@@ -295,7 +296,7 @@ define([
 	 * ----------------------------
 	 */
 	
-	Component.prototype.removeItems = function(items, options) {
+	Container.prototype.removeItems = function(items, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -314,10 +315,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItems(self.removeItem, items, options, "beforeRemoveItems", "removeItems");
+		return this.__performOnContainerItems(self.removeItem, items, options, "beforeRemoveItems", "removeItems");
 	};
 	
-	Component.prototype.removeItem = function(item, options) {
+	Container.prototype.removeItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -331,10 +332,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItem(self._removeItem, item, options, "beforeRemoveItem", "removeItem", "removeItemError");
+		return this.__performOnContainerItem(self._removeItem, item, options, "beforeRemoveItem", "removeItem", "removeItemError");
 	};
 	
-	Component.prototype._removeItem = function(item) {
+	Container.prototype._removeItem = function(item) {
 		var self 	= this;
 		var _dfd 	= $.Deferred();
 		var _item 	= this.getItem(item);
@@ -374,7 +375,7 @@ define([
 	 * ----------------------------
 	 */
 	
-	Component.prototype.enableItems = function(items, options) {
+	Container.prototype.enableItems = function(items, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -393,10 +394,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItems(self.enableItem, items, options, "beforeEnableItems", "enableItems");
+		return this.__performOnContainerItems(self.enableItem, items, options, "beforeEnableItems", "enableItems");
 	};
 	
-	Component.prototype.enableItem = function(item, options) {
+	Container.prototype.enableItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -410,10 +411,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItem(self.__enableItem, item, options, "beforeEnableItem", "enableItem", "enableItemError");
+		return this.__performOnContainerItem(self.__enableItem, item, options, "beforeEnableItem", "enableItem", "enableItemError");
 	};
 	
-	Component.prototype.__enableItem = function(item) {
+	Container.prototype.__enableItem = function(item) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -466,7 +467,7 @@ define([
 				}
 			}
 			
-			// Fallback: append to the component's content if no other situation match
+			// Fallback: append to the Container's content if no other situation match
 			//if (!this.items[idx].item.$el.parent().length) {
 			if (!_done) {
 				//this.items[idx].item.$el.appendTo(this.$body);
@@ -499,7 +500,7 @@ define([
 	 * ----------------------------
 	 */
 	
-	Component.prototype.disableItems = function(items, options) {
+	Container.prototype.disableItems = function(items, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -518,10 +519,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItems(self.disableItem, items, options, "beforeDisableItems", "disableItems");
+		return this.__performOnContainerItems(self.disableItem, items, options, "beforeDisableItems", "disableItems");
 	};
 	
-	Component.prototype.disableItem = function(item, options) {
+	Container.prototype.disableItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -535,10 +536,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItem(self.__disableItem, item, options, "beforeDisableItem", "disableItem", "disableItemError");
+		return this.__performOnContainerItem(self.__disableItem, item, options, "beforeDisableItem", "disableItem", "disableItemError");
 	};
 	
-	Component.prototype.__disableItem = function(item, options) {
+	Container.prototype.__disableItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -568,7 +569,7 @@ define([
 	 * ----------------------------
 	 */
 	
-	Component.prototype.toggleItems = function(items, options) {
+	Container.prototype.toggleItems = function(items, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -587,10 +588,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItems(self.toggleItem, items, options, "beforeToggleItems", "toggleItems");
+		return this.__performOnContainerItems(self.toggleItem, items, options, "beforeToggleItems", "toggleItems");
 	};
 	
-	Component.prototype.toggleItem = function(item, options) {
+	Container.prototype.toggleItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -604,10 +605,10 @@ define([
 			error:			function() {}
 		}, options||{});
 		
-		return this.__performOnComponentItem(self.__toggleItem, item, options, "beforeToggleItem", "toggleItem", "toggleItemError");
+		return this.__performOnContainerItem(self.__toggleItem, item, options, "beforeToggleItem", "toggleItem", "toggleItemError");
 	};
 	
-	Component.prototype.__toggleItem = function(item, options) {
+	Container.prototype.__toggleItem = function(item, options) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -651,11 +652,11 @@ define([
 	 * it is not a deep searching API.
 	 */
 	
-	Component.prototype.hasItem = function(item) {
+	Container.prototype.hasItem = function(item) {
 		return this.getItem(item) != null;
 	};
 	
-	Component.prototype.getItem = function(id) {
+	Container.prototype.getItem = function(id) {
 		if (_.isString(id)) {
 			return this.getItemById(id);
 			
@@ -676,7 +677,7 @@ define([
 	 * -> ['foo', 0, obj]
 	 * <- [obj, obj, obj]
 	 */
-	Component.prototype.getItems = function(items, activeOnly) {
+	Container.prototype.getItems = function(items, activeOnly) {
 		var objects = [];
 		var item 	= null;
 		
@@ -704,7 +705,7 @@ define([
 		return objects;
 	};
 	
-	Component.prototype.getActiveItems = function() {
+	Container.prototype.getActiveItems = function() {
 		var items = [];
 		for (var i=0; i<this.items.length; i++) {
 			if (this.items[i].active) {
@@ -714,7 +715,7 @@ define([
 		return items;
 	};
 	
-	Component.prototype.getItemById = function(id) {
+	Container.prototype.getItemById = function(id) {
 		if (!this.items) {
 			return false;
 		}
@@ -728,7 +729,7 @@ define([
 		return -1;
 	};
 	
-	Component.prototype.itemPos = function(item) {
+	Container.prototype.itemPos = function(item) {
 		if (!this.items) {
 			return false;
 		}
@@ -748,7 +749,7 @@ define([
 	 *
 	 * NOTE: this method can work only after "initialized" checkpoint!
 	 */
-	Component.prototype.itemAt = function(idx, options) {
+	Container.prototype.itemAt = function(idx, options) {
 		if (!this.items) {
 			return false;
 		}
@@ -766,7 +767,7 @@ define([
 		}
 	};
 	
-	Component.prototype.getItemStatus = function(item) {
+	Container.prototype.getItemStatus = function(item) {
 		var idx = this.itemPos(this.getItem(item));
 		if (idx != -1 && this.items[idx]) {
 			return this.items[idx].active;
@@ -799,7 +800,7 @@ define([
 
 
 	
-	Component.prototype.__walkItems = function(items, callback, context, args) {
+	Container.prototype.__walkItems = function(items, callback, context, args) {
 		var self 	= this;
 		var _dfd 	= $.Deferred();
 		
@@ -847,7 +848,7 @@ define([
 	 * options.getDeferred - is used to decide if to return an execution complete DeferredObject or instance itself.
 	 */
 	
-	Component.prototype.__performOnComponentItems = function(__METHOD_NAME__, __ITEMS__, __OPTIONS__, __BEFORE__, __AFTER__) {
+	Container.prototype.__performOnContainerItems = function(__METHOD_NAME__, __ITEMS__, __OPTIONS__, __BEFORE__, __AFTER__) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -916,7 +917,7 @@ define([
 	 * options.silent - is used to decide if to throw callbacks (BEFORE, AFTER) or not.
 	 * options.getDeferred - is used to decide if to return an execution complete DeferredObject or instance itself.
 	 */
-	Component.prototype.__performOnComponentItem = function(__METHOD_NAME__, __ITEM__, __OPTIONS__, __BEFORE__, __AFTER__, __ERROR__) {
+	Container.prototype.__performOnContainerItem = function(__METHOD_NAME__, __ITEM__, __OPTIONS__, __BEFORE__, __AFTER__, __ERROR__) {
 		var self = this;
 		var _dfd = $.Deferred();
 		
@@ -966,6 +967,6 @@ define([
 	
 	
 	
-	return Component;
+	return Container;
 	
 });

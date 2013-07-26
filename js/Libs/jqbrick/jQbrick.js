@@ -35,7 +35,7 @@ define([
 	
 	// UI Components
 	"./view.View",
-	"./view.Component",
+	"./view.Container",
 	"./view.Panel"
 	
 ], function(
@@ -57,7 +57,7 @@ define([
 	
 	// UI Components
 	View,
-	Component,
+	Container,
 	Panel
 
 	
@@ -83,7 +83,7 @@ define([
 		
 		this.libs.view = _.extend({
 			"View"					: View,
-			"Component"				: Component,
+			"Container"				: Container,
 			"Panel"					: Panel
 		}, this.libs.view);
 		
@@ -119,7 +119,7 @@ define([
 		
 		// register core's XTypes
 		this.xtype.register("view", 		this.libs.view.View);
-		this.xtype.register("component", 	this.libs.view.Component);
+		this.xtype.register("container", 	this.libs.view.Container);
 		this.xtype.register("panel", 		this.libs.view.Panel);
 		
 	};

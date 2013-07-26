@@ -11,10 +11,10 @@
 
 define([
 	"jqbrick/TestClass",
-	"jqbrick/view.Component"
+	"jqbrick/view.Container"
 ], function(
 	TestClass,
-	jQbrickComponent
+	jQbrickContainer
 ) {
 	
 	var Test = TestClass.extend({
@@ -22,13 +22,13 @@ define([
 			var Test = this;
 			
 			console.log("###");
-			console.log("### RUN TEST COMPONENT");
+			console.log("### RUN TEST CONTAINER");
 			console.log("###");
 			
-			var testComponent = new jQbrickComponent({
+			var testContainer = new jQbrickContainer({
 				autoRender: true,
 				container: 	this.options.viewport,
-				html: 		'TestComponent<hr>',
+				html: 		'TestContainer<hr>',
 				
 				style: 		"border:4px solid red",
 				innerStyle: "border:4px solid yellow",
@@ -235,37 +235,37 @@ define([
 			 * that process using "e.block()" and "e.unblock()" apis
 			 */
 			
-			testComponent.on("setup", function(e) {
+			testContainer.on("setup", function(e) {
 				console.log("[EVENT] on:setup");
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testComponent.on("beforeitems", function(e) {
+			testContainer.on("beforeitems", function(e) {
 				console.log("[EVENT] on:beforeitems");
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testComponent.on("afteritems", function(e) {
+			testContainer.on("afteritems", function(e) {
 				console.log("[EVENT] on:afteritems");
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testComponent.on("init", function(e) {
+			testContainer.on("init", function(e) {
 				console.log("[EVENT] on:init");
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testComponent.on("beforerender", function(e) {
+			testContainer.on("beforerender", function(e) {
 				console.log("[EVENT] on:beforerender");
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
 			});
 			
-			testComponent.on("afterrender", function(e) {
+			testContainer.on("afterrender", function(e) {
 				console.log("[EVENT] on:afterrender");
 				console.log(e);
 				e.block();setTimeout(e.unblock, Test.options.timeout);
@@ -287,22 +287,22 @@ define([
 			 * considered as blocking events!
 			 */
 			
-			testComponent.on("rendercomplete", function(e) {
+			testContainer.on("rendercomplete", function(e) {
 				console.log("[EVENT] on:rendercomplete");
 				console.log(e);
 			});
 			
-			testComponent.on("ready", function(e) {
+			testContainer.on("ready", function(e) {
 				console.log("[EVENT] on:ready");
 				console.log(e);
 			});
 			
-			testComponent.on("modelready", function(e) {
+			testContainer.on("modelready", function(e) {
 				console.log("[EVENT] on:modelready");
 				console.log(e);
 			});
 			
-			testComponent.on("collectionready", function(e) {
+			testContainer.on("collectionready", function(e) {
 				console.log("[EVENT] on:collectionready");
 				console.log(e);
 			});
@@ -321,7 +321,7 @@ define([
 			 * Component CheckPoints
 			 */
 			
-			$.when(testComponent.getDeferred('initialized')).then(
+			$.when(testContainer.getDeferred('initialized')).then(
 				function() {console.log("[Deferred] initialized - done")},
 				function() {console.log("[Deferred] initialized - fail")},
 				function() {console.log("[Deferred] initialized - progress")}
@@ -329,7 +329,7 @@ define([
 				function() {console.log("[Deferred] initialized - complete")}
 			);
 			
-			$.when(testComponent.getDeferred('rendered')).then(
+			$.when(testContainer.getDeferred('rendered')).then(
 				function() {console.log("[Deferred] rendered - done")},
 				function() {console.log("[Deferred] rendered - fail")},
 				function() {console.log("[Deferred] rendered - progress")}
@@ -337,7 +337,7 @@ define([
 				function() {console.log("[Deferred] rendered - complete")}
 			);
 			
-			$.when(testComponent.getDeferred('ready')).then(
+			$.when(testContainer.getDeferred('ready')).then(
 				function() {console.log("[Deferred] ready - done")},
 				function() {console.log("[Deferred] ready - fail")},
 				function() {console.log("[Deferred] ready - progress")}
@@ -345,7 +345,7 @@ define([
 				function() {console.log("[Deferred] ready - complete")}
 			);
 			
-			$.when(testComponent.getDeferred('modelready')).then(
+			$.when(testContainer.getDeferred('modelready')).then(
 				function() {console.log("[Deferred] modelready - done")},
 				function() {console.log("[Deferred] modelready - fail")},
 				function() {console.log("[Deferred] modelready - progress")}
@@ -353,7 +353,7 @@ define([
 				function() {console.log("[Deferred] modelready - complete")}
 			);
 			
-			$.when(testComponent.getDeferred('collectionready')).then(
+			$.when(testContainer.getDeferred('collectionready')).then(
 				function() {console.log("[Deferred] collectionready - done")},
 				function() {console.log("[Deferred] collectionready - fail")},
 				function() {console.log("[Deferred] collectionready - progress")}
@@ -376,27 +376,27 @@ define([
 			 * Checkpoint's Callbacks
 			 */
 			
-			testComponent.on("initializedcheckpoint", function(e) {
+			testContainer.on("initializedcheckpoint", function(e) {
 				console.log("[checkpointEvent] on:initializedcheckpoint");
 				console.log(e);
 			});
 			
-			testComponent.on("renderedcheckpoint", function(e) {
+			testContainer.on("renderedcheckpoint", function(e) {
 				console.log("[checkpointEvent] on:renderedcheckpoint");
 				console.log(e);
 			});
 			
-			testComponent.on("readycheckpoint", function(e) {
+			testContainer.on("readycheckpoint", function(e) {
 				console.log("[checkpointEvent] on:readycheckpoint");
 				console.log(e);
 			});
 			
-			testComponent.on("modelreadycheckpoint", function(e) {
+			testContainer.on("modelreadycheckpoint", function(e) {
 				console.log("[checkpointEvent] on:modelreadycheckpoint");
 				console.log(e);
 			});
 			
-			testComponent.on("collectionreadycheckpoint", function(e) {
+			testContainer.on("collectionreadycheckpoint", function(e) {
 				console.log("[checkpointEvent] on:collectionreadycheckpoint");
 				console.log(e);
 			});
@@ -412,22 +412,22 @@ define([
 			 * Simulation of out-of-process checkpoints resolution
 			 */
 			
-			testComponent.on("rendercomplete", function() {
+			testContainer.on("rendercomplete", function() {
 				
 				console.log("###");
 				console.log("### READY RESOLUTION SIMULATION");
 				console.log("###");
 				
 				setTimeout(function() {
-					testComponent.resolve("modelready");
+					testContainer.resolve("modelready");
 				}, Test.options.timeout);
 				
 				setTimeout(function() {
-					testComponent.resolve("collectionready");
+					testContainer.resolve("collectionready");
 				}, Test.options.timeout*4);
 				
 				setTimeout(function() {
-					testComponent.resolve("ready");
+					testContainer.resolve("ready");
 				}, Test.options.timeout*8);
 				
 			});
@@ -446,25 +446,25 @@ define([
 			 * Simulation of altering Items structure
 			 */
 			
-			testComponent.on("ready", function() {
+			testContainer.on("ready", function() {
 				
 				console.log("###");
 				console.log("### PLAY WITH ITEMS");
 				console.log("###");
 				
 				console.log("-- Instance.itemAt(0):");
-				console.log(testComponent.itemAt(0));
+				console.log(testContainer.itemAt(0));
 				console.log("-- Instance.itemAt(1):");
-				console.log(testComponent.itemAt(1));
+				console.log(testContainer.itemAt(1));
 				console.log("-- Instance.itemAt(5) -- expected \"-1\" --:");
-				console.log(testComponent.itemAt(5));
+				console.log(testContainer.itemAt(5));
 				
 				var __add 		= $.Deferred();
 				var __toggle 	= $.Deferred();
 				
 				// Run add new item
 				console.log("-- Add new item:");
-				$.when(testComponent.addItem({
+				$.when(testContainer.addItem({
 					getDeferred: 	true,
 					html: 			'New Item',
 					onInit: 		function() {
@@ -481,9 +481,9 @@ define([
 				// Run toggle
 				$.when(__add).then(function(){
 					console.log("-- Toggle item 2:");
-					$.when(testComponent.toggleItem('item-02', true)).then(function() {
+					$.when(testContainer.toggleItem('item-02', true)).then(function() {
 						console.log("-- Toggle Back:");
-						$.when(testComponent.toggleItem('item-02', true)).then(function() {
+						$.when(testContainer.toggleItem('item-02', true)).then(function() {
 							console.log("-- Toggle Complete");
 							__toggle.resolve();
 						});

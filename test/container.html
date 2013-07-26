@@ -23,11 +23,11 @@
 	 */
 	require([
 		"jqbrick/amd.jqm",
-		"test/TestComponent"
+		"test/TestContainer"
 		
 	], function(
 		jQbrick,
-		TestComponent
+		TestContainer
 		
 	) {
 	
@@ -42,7 +42,7 @@
 			ajaxEnabled: false
 		},
 		onReady: function() {
-			var test = new TestComponent({
+			var test = new TestContainer({
 				viewport: 	'#viewport',
 				timeout: 	100
 			});
@@ -63,7 +63,7 @@
 	<div id="test" data-role="page" data-theme="d">
 		<div data-role="header" data-theme="b">
 			<a href="index.html" data-icon="arrow-l">Back</a>
-			<h1>TestComponent</h1>
+			<h1>TestContainer</h1>
 		</div>
 		<div data-role="content">
 			<div id="viewport" style="background:#efefef;width:100%;min-height:200px;border:1px dashed black;"></div>
