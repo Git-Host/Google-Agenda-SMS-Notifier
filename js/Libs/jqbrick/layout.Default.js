@@ -32,7 +32,9 @@ define(["backbone"], function(Backbone) {
 	_.extend(LayoutInterface.prototype, {
 		
 		/**
-		 * It is called during Panel initialization process
+		 * It is called during Panel initialization process when
+		 * Panel DOM is initialized but before items initialization.
+		 *
 		 */
 		initialize: 	function(Panel) {},
 		
@@ -142,7 +144,7 @@ define(["backbone"], function(Backbone) {
 		name: "default",
 		
 		initialize: function(Panel) {
-			
+			console.log("Initialize "+this.name+" layout on: " + Panel.cid);
 			this.Panel = Panel;
 			
 			if (this.options.itemLayout != null) {
@@ -154,10 +156,8 @@ define(["backbone"], function(Backbone) {
 		},
 		
 		layout: function(Panel) {
-			
+			console.log("Do " + this.name + " layout on " + Panel.cid);
 			this.Panel = Panel;
-			
-			console.log("DefaultLayout on " + Panel.cid);
 		}
 		
 	});	

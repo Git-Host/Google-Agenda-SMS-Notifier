@@ -47,12 +47,11 @@ define([
 	 */
 	
 	Container.prototype._initializeEl = function() {
-		return this._initializeElContainer();
+		this._initializeElContainer();
+		return this._initializeContainerItems();
 	}
 	
 	Container.prototype._initializeElContainer = function() {
-		var self = this;
-		var _dfd = $.Deferred();
 		
 		// separate container from content layer
 		this.$body = $('<div>')
@@ -65,20 +64,26 @@ define([
 		if (this.options.innerCss) 		this.$body.css(this.options.innerCss);
 		
 		// add basic classes
-		this.$el.addClass('jqbrik-cmp');
-		this.$body.addClass('jqbrik-cmp-inner');
+		this.$el.addClass("jqbrick");
+		this.$body.addClass("jqbrik-inner");
 		
 		// append raw html
-		this.$body.append(this.options.html);
+		this.$body.append(this.options.html);	
+	};
+	
+	/**
+	 * Initialize all container's items before to append DOM node to parent!
+	 */
+	Container.prototype._initializeContainerItems = function() {
+		var self = this;
+		var _dfd = $.Deferred();
 		
-		// waith for items initialization to solve.
-		// DOM manipulation are done after all items are ready inside Container $el
 		$.when(this._initializeItems()).always(function() {
 			self._append();
 			_dfd.resolve();
 		});
 		
-		return _dfd;	
+		return _dfd;
 	};
 	
 	

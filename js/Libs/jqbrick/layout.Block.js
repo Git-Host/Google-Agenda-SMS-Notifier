@@ -25,7 +25,7 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		beforeWidth: null,
 		beforeHeight: null,
 		
-		initialize: function(Panel) {
+		initialize: function() {
 			DefaultLayout.prototype.initialize.apply(this, arguments);
 			
 			this.options = $.extend({}, {
@@ -38,27 +38,36 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 			this.width 	= this.options.width;
 			this.height = this.options.height;
 			
-			Panel.$el.css({
+			this.Panel.$el.css({
 				display: 	"block",
 				overflow: 	"hidden"
 			});
 			
+			this.Panel.$wrapper.css({
+				display: 	"block",
+				overflow:	"hidden",
+				position:	"relative"
+			});
+			
+			this._initializeScroller();
+			console.log(this.Panel.$wrapper);
 		},
 		
-		layout: function(Panel) {
+		layout: function() {
 			DefaultLayout.prototype.layout.apply(this, arguments);
 			
-			console.log("BlockLayout on " + Panel.cid + " ("+this.name+")");
-			this._outerSize(Panel);
-			this._innerSize(Panel);
-			this._updateScroller(Panel);
+			this._outerSize();
+			this._wrapperSize();
+			this._innerSize();
+			
+			this._updateScroller();
 		},
 		
-		finalize: function(Panel) {
-			this._finalizeScroller(Panel);
+		finalize: function() {
+			this._finalizeScroller();
 		},
 		
-		_outerSize: function(Panel, width, height) {
+		_outerSize: function(width, height) {
 			
 			width = width || this.width;
 			height = height || this.height;
@@ -69,21 +78,27 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 			this.width = width;
 			this.height = height;
 			
-			Panel.$el.css({
+			this.Panel.$el.css({
 				width: 	this.width,
 				height: this.height
 			});
 			
 		},
 		
-		_innerSize: function(Panel) {
+		_wrapperSize: function() {
+			this.Panel.$wrapper.css({
+				width: 	this.width,
+				height: this.height
+			});
+		},
+		
+		_innerSize: function() {
 			if (this.options.fullsize) {
-				Panel.$body.css({
+				this.Panel.$body.css({
 					minWidth: 	this.__hSpace(),
 					minHeight:	this.__vSpace()
 				});
 			}
-			
 		},
 		
 		
@@ -98,48 +113,30 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		 * Implements Scrollable
 		 */
 		
-		_updateScroller: function(Panel) {
+		_initializeScroller: function() {
 			if (!this.options.scrollable) return;
 			
-			if (!this.__scrollerInitialized) {
-				Panel.$body.wrap('<div class="jqbrick-scroller-wrapper">');
-				this.__scrollerInitialized = true;
-			}
-			
-			var $scroller = Panel.$body.parent();
-			$scroller.css({
-				display: 	"block",
-				overflow: 	"hidden",
-				position:	"relative",
-				width: 		Panel.$el.innerWidth(),
-				height:		Panel.$el.innerHeight()
-			});
-			
 			if (window.iScroll && this.options.scrollable === true) {
-				var scroll = $scroller.data('iScroll');
-				if (!scroll) {
-					scroll = new iScroll($scroller[0]);
-					$scroller.data('iScroll', scroll);
-				} else {
-					scroll.refresh();
+				if (!this.Panel.$wrapper.data('iScroll')) {
+					this.Panel.$wrapper.data('iScroll', new iScroll(this.Panel.$wrapper[0]));
 				}
 				
-				
 			} else {
-				$scroller.css({
+				this.Panel.$wrapper.css({
 					"overflow-x" : "auto",
 					"overflow-y" : "auto",
 					"-webkit-overflow-scrolling" : "touch"
 				});
 			}
+		},
+		
+		_updateScroller: function(Panel) {
 			
 		},
 		
-		_finalizeScroller: function(Panel) {
-			if (!this.options.scrollable) return;
-			
-			if (window.iScroll && this.options.scrollable === true) {
-				Panel.$body.parent().data('iScroll').refresh()
+		_finalizeScroller: function() {
+			if (this.Panel.$wrapper.data('iScroll')) {
+				this.Panel.$wrapper.data('iScroll').refresh();
 			}
 		}
 		
@@ -149,75 +146,7 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		
 	});
 	
-	/*
 	
-	
-	BlockLayout.prototype.name = "block";
-	
-	BlockLayout.prototype.initialize = function(View) {
-		View.options.itemDefaults.layout = "block";
-	};
-	
-	BlockLayout.prototype.render = function(View) {
-		DefaultLayout.prototype.render.apply(this, arguments);
-		this._scrollable(View);
-	};
-	
-	BlockLayout.prototype._outerSize = function(View) {
-	
-		View.$el.css("display", "block");
-		
-		// check for forced dimensions setted up by parent component
-		if (this._forcedOuterSize(View)) return true;
-		
-		var rules = {};
-		
-		if (View.options.width != null) {
-			View.width 		= View.options.width;
-			rules.width 	= View.width;
-		}
-		if (View.options.height != null) {
-			View.height 	= View.options.height;
-			rules.height 	= View.height;
-		}
-		
-		View.$el.css(rules);
-	};
-	
-	
-	BlockLayout.prototype._scrollable = function(View) {
-		
-		var rules = {};
-		
-		if (View.options.scrollable) {
-			if (window.iScroll) {
-				
-				View.$el.css({
-					display:	"block",
-					overflow: 	"hidden",
-					position: 	"relative"
-				});
-				
-				var scroll = View.$el.data('iScroll');
-				if (!scroll) {
-					scroll = new iScroll(View.el);
-					View.$el.data('iScroll', scroll);
-				} else {
-					scroll.refresh();
-				}
-				
-			} else {
-				rules.overflow = "auto";
-				rules["-webkit-overflow-scrolling"] = "touch";	
-			}
-		} else {
-			rules.overflow = "hidden";
-		};
-		
-		View.$el.css(rules);
-		
-	};
-	*/
 	
 	return BlockLayout;
 	

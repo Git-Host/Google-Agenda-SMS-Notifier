@@ -470,6 +470,7 @@ define([
 		// !! subclasses may add some DOM layers between $el and $body!
 		// !! $el is appended to $container
 		// !! $body is the container for sub-modules views!
+		this.$el.addClass('jqbrik');
 		this.$body = this.$el;
 		this.$body.append(this.options.html);
 		this._append();

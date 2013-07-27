@@ -94,10 +94,10 @@ define([
 	 */
 	Panel.prototype._setup = function() {
 		Container.prototype._setup.apply(this, arguments);
-		this._setupBox.apply(this, arguments);
+		this._setupPanel.apply(this, arguments);
 	};
 	
-	Panel.prototype._setupBox = function() {
+	Panel.prototype._setupPanel = function() {
 		this.Deferred('layouted');
 		
 		// it is the object responsible of layouting
@@ -142,10 +142,10 @@ define([
 	
 	/**
 	 * It is responsible in finding the correct layout manager 
-	 * to be initializated for the box
 	 */
 	Panel.prototype._initializePanel = function() {
 		
+		// interpret a string layout option
 		if (_.isString(this.options.layout)) {
 			var _layout = {name:this.options.layout};
 		} else {
@@ -167,10 +167,67 @@ define([
 			this.options.layout = "default";
 		}
 		
-		// run layout initialization cycle!
-		return this._initializeLayout();
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Chain Container's initialization with Panel's operations.
+	 * return a promise() when all stuff is done.
+	 *
+	 * Inject Panel DOM manipulations before Items initialization!
+	 *
+	 * may need refactoring to make easy to extend Panel and add 
+	 * DOM ligic inside!
+	 * IDEA: introduce an empty method "_initializePanelStructure()" 
+	 * before initialize layout
+	 */
+	Panel.prototype._initializeEl = function() {
+		var self = this;
+		var _dfd = $.Deferred();
+		
+		this._initializeElContainer();
+		
+		$.when(self._initializeElPanel()).then(function() {
+			$.when(self._initializeLayout()).then(function() {
+				$.when(self._initializeContainerItems()).then(
+					_dfd.resolve,
+					_dfd.reject
+				);
+			},_dfd.reject);
+		},_dfd.reject);
+		
+		return _dfd.promise();
+	};
+	
+	
+	
+	/**
+	 * Panel's $el Initialization:
+	 * - wrap $body with a custom DIV
+	 * - create docked DOMs (TODO)
+	 *
+	 * REFACTORING NOTES:
+	 * this logic introduce $wrapper and docked items.
+	 * it may take some time to end so I will need to return a promise()
+	 *
+	 * I may decide to introduce an internal empty method "_initializePanelBody" 
+	 * to be extended by Panel's subclasses to make easy inject come body related DOM nodes
+	 */
+	Panel.prototype._initializeElPanel = function() {
+		this.$wrapper = $('<div class="jqbrick-wrapper">').append(this.$body);
+		this.$el.append(this.$wrapper);
+	};
 	
 	/**
 	 * Layout Initialization Cycle
@@ -208,29 +265,6 @@ define([
 		
 		return _dfd.promise();
 	};
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	Panel.prototype._initializeEl = function() {
-		Container.prototype._initializeEl.apply(this, arguments);
-		return this._initializeElPanel();
-	};
-	
-	Panel.prototype._initializeElPanel = function() {
-		this.$wrap = $('<div class="jqbrick-panel-content">');
-		this.$body.wrap(this.$wrap);
-	};
-	*/
-	
 	
 	
 	
