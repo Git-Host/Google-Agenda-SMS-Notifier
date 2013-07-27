@@ -36,21 +36,25 @@ define(["backbone"], function(Backbone) {
 		 * Panel DOM is initialized but before items initialization.
 		 *
 		 */
-		initialize: 	function(Panel) {},
+		initialize: 		function(Panel) {},
 		
 		/**
 		 * Run main layouting rules on given Panel
 		 */
-		layout: 		function(Panel) {},
+		layout: 			function(Panel) {},
 		
 		/**
 		 * It is called after triggering layoutupdate on Panel's Items.
 		 */
-		finalize: 		function(Panel) {},
+		finalize: 			function(Panel) {},
 		
-		
-		_outerSize: 			function(Panel) {},
-		_innerSize: 			function(Panel) {},
+		/**
+		 * Panel's DOM nodes sizing utilities
+		 */
+		_elSize: 		function() {},
+		_wrapperSize:		function() {},
+		_bodyWrapperSize:	function() {},
+		_bodySize: 			function() {},
 		
 		
 		
@@ -64,6 +68,34 @@ define(["backbone"], function(Backbone) {
 		},
 		
 		
+		
+		/**
+		 * Container Borders Utilities
+		 */
+		
+		__containerBorderTopWidth: function() {
+			return parseInt(this.Panel.$container.css("borderTopWidth"));
+		},
+		
+		__containerBorderBottomWidth: function() {
+			return parseInt(this.Panel.$container.css("borderBottomWidth"));
+		},
+		
+		__containerBorderLeftWidth: function() {
+			return parseInt(this.Panel.$container.css("borderLeftWidth"));
+		},
+		
+		__containerBorderRightWidth: function() {
+			return parseInt(this.Panel.$container.css("borderRightWidth"));
+		},
+		
+		__containerVBordersWidth: function() {
+			return this.__containerBorderTopWidth() + this.__containerBorderBottomWidth();
+		},
+		
+		__containerHBordersWidth: function() {
+			return this.__containerBorderLeftWidth() + this.__containerBorderRightWidth();
+		},
 		
 		
 		/** 
@@ -98,40 +130,31 @@ define(["backbone"], function(Backbone) {
 		
 		
 		/** 
-		 * Inner Borders Utilities
+		 * Body Borders Utilities
 		 */
 		 
-		__innerBorderTopWidth: function() {
+		__bodyBorderTopWidth: function() {
 			return parseInt(this.Panel.$body.css("borderTopWidth"));
 		},
 		
-		__innerBorderBottomWidth: function() {
+		__bodyBorderBottomWidth: function() {
 			return parseInt(this.Panel.$body.css("borderBottomWidth"));
 		},
 		
-		__innerBorderLeftWidth: function() {
+		__bodyBorderLeftWidth: function() {
 			return parseInt(this.Panel.$body.css("borderLeftWidth"));
 		},
 		
-		__innerBorderRightWidth: function() {
+		__bodyBorderRightWidth: function() {
 			return parseInt(this.Panel.$body.css("borderRightWidth"));
 		},
 		
-		__innerVBordersWidth: function() {
-			return this.__innerBorderTopWidth() + this.__innerBorderBottomWidth();
+		__bodyVBordersWidth: function() {
+			return this.__bodyBorderTopWidth() + this.__bodyBorderBottomWidth();
 		},
 		
-		__innerHBordersWidth: function() {
-			return this.__innerBorderLeftWidth() + this.__innerBorderRightWidth();
-		},
-		
-		
-		__hSpace: function() {
-			return this.Panel.$el.innerWidth() - this.__hBordersWidth();
-		},
-		
-		__vSpace: function() {
-			return this.Panel.$el.innerHeight() - this.__vBordersWidth();
+		__bodyHBordersWidth: function() {
+			return this.__bodyBorderLeftWidth() + this.__bodyBorderRightWidth();
 		}
 		
 		

@@ -13,18 +13,18 @@ define(["backbone", "./layout.Block"], function(Backbone, BlockLayout) {
 	
 	var FitLayout = BlockLayout.extend({
 		
-		_outerSize: function(Panel) {
+		_elSize: function() {
 			
-			var $parent = Panel.$el.parent();
+			var $parent = this.Panel.$el.parent();
 			if (!$parent.length) return;
 			
 			this.beforeWidth 	= this.width;
 			this.beforeHeight 	= this.height;
 			
-			this.width 			= $parent.innerWidth(true) - parseInt($parent.css("borderLeftWidth")) - parseInt($parent.css("borderRightWidth"));
-			this.height 		= $parent.innerHeight() - parseInt($parent.css("borderTopWidth")) - parseInt($parent.css("borderBottomWidth"));
+			this.width 			= $parent.innerWidth(true) - this.__containerHBordersWidth();
+			this.height 		= $parent.innerHeight() - this.__containerVBordersWidth();
 			
-			Panel.$el.css({
+			this.Panel.$el.css({
 				width: 	this.width,
 				height: this.height
 			});

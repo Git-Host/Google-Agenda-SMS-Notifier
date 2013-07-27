@@ -47,11 +47,16 @@ define([
 				
 				
 				layout: {
-					name: "block",
+					name: "fit",
 					width: 200,
 					height: 150,
 					scrollable: true,
-					itemOverrideLayout: {name:"block",height:70}
+					fullsize: true,
+					itemOverrideLayout: {name:"block",height:70},
+					paddingTop: 10,
+					paddingRight: 20,
+					paddingBottom: 30,
+					paddingLeft: 40
 				}
 				
 				//fullsize:	true,
