@@ -34,23 +34,11 @@ define([
 				innerStyle: "border:4px solid yellow",
 				
 				items: [{
-					html: "Item 01",
-					layout: {
-						name: "block",
-						height: 70
-					}
+					html: "Item 01"
 				},{
-					html: "Item 02",
-					layout: {
-						name: "block",
-						height: 70
-					}
+					html: "Item 02"
 				},{
-					html: "Item 03",
-					layout: {
-						name: "block",
-						height: 70
-					}
+					html: "Item 03"
 				}],
 				
 				itemDefaults: {
@@ -62,7 +50,8 @@ define([
 					name: "block",
 					width: 200,
 					height: 150,
-					scrollable: true
+					scrollable: true,
+					itemOverrideLayout: {name:"block",height:70}
 				}
 				
 				//fullsize:	true,

@@ -23,24 +23,35 @@ define([
 			return $.extend({}, Container.prototype.defaults.apply(this,arguments), {
 				
 				xtype: 		"panel",
-				itemsXtype: "panel",
+				itemXtype: 	"panel",
 				
 				
 				// active properties to configure box layout
 				// you can set a simple layout name as string without other params
 				layout: {
-					name: "default",	
+					name: "default"
+					// a lot of detailed configurations should be used
+					// by different layouts!
+					// please refer to those layouts documentation
 				}
 								
 			});
 		},
 		
+		
+		
+		/**
+		 * This is the public layout API to make panel update it's appearence.
+		 * by default it returns a "this" reference but give the last TRUE param
+		 * to get process promise() as output!
+		 *
+		 * Many of core process is demanded to "_layout()" internal method who is
+		 * the real responsible in apply layouting rules!
+		 */
 		layout: function(options) {
 			var self = this;
 			
-			// reset rendered DeferredObject to fit this rendering process
 			this.layoutComplete = $.Deferred();
-			
 			$.when(self.apply("beforeLayout", arguments, {trigger:true})).then(function() {
 				
 				$.when(self._layout()).then(function() {

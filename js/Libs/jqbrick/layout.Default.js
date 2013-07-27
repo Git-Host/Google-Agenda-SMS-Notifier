@@ -19,8 +19,8 @@ define(["backbone"], function(Backbone) {
 	var LayoutInterface = function(options) {
 		
 		this.options = $.extend({}, this.defaults, {
-			itemsDefaultLayout:		null,	// extends View.itemDefaults.layout
-			itemsOverrideLayout:	null,	// extends View.itemOverrides.layout			
+			itemLayout:			null,	// extends View.itemDefaults.layout
+			itemOverrideLayout:	null,	// extends View.itemOverrides.layout			
 		}, options || {});
 		
 		if (this.options.name) {
@@ -145,11 +145,11 @@ define(["backbone"], function(Backbone) {
 			
 			this.Panel = Panel;
 			
-			if (this.options.itemsDefaultLayout != null) {
-				_.extend(this.Panel.options.itemDefaults, {layout:this.options.itemsDefaultLayout});
+			if (this.options.itemLayout != null) {
+				_.extend(this.Panel.options.itemDefaults, {layout:this.options.itemLayout});
 			}
-			if (this.options.itemsOverrideLayout != null) {
-				_.extend(this.Panel.options.itemOverrides, {layout:this.options.itemsOverrideLayout});
+			if (this.options.itemOverrideLayout != null) {
+				_.extend(this.Panel.options.itemOverrides, {layout:this.options.itemOverrideLayout});
 			}
 		},
 		
