@@ -65,7 +65,7 @@ define([
 		
 		// add basic classes
 		this.$el.addClass("jqbrick");
-		this.$body.addClass("jqbrik-inner");
+		this.$body.addClass("jqbrik-body");
 		
 		// append raw html
 		this.$body.append(this.options.html);	

@@ -225,7 +225,8 @@ define([
 	 * to be extended by Panel's subclasses to make easy inject come body related DOM nodes
 	 */
 	Panel.prototype._initializeElPanel = function() {
-		this.$wrapper = $('<div class="jqbrick-wrapper">').append(this.$body);
+		this.$bodyWrapper = $('<div class="jqbrick-bodyWrapper">').append(this.$body);
+		this.$wrapper = $('<div class="jqbrick-wrapper">').append(this.$bodyWrapper);
 		this.$el.append(this.$wrapper);
 	};
 	

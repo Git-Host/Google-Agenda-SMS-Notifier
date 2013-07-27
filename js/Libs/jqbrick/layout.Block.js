@@ -43,14 +43,14 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 				overflow: 	"hidden"
 			});
 			
-			this.Panel.$wrapper.css({
+			this.Panel.$bodyWrapper.css({
 				display: 	"block",
 				overflow:	"hidden",
 				position:	"relative"
 			});
 			
 			this._initializeScroller();
-			console.log(this.Panel.$wrapper);
+			console.log(this.Panel.$bodyWrapper);
 		},
 		
 		layout: function() {
@@ -86,7 +86,7 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		},
 		
 		_wrapperSize: function() {
-			this.Panel.$wrapper.css({
+			this.Panel.$bodyWrapper.css({
 				width: 	this.width,
 				height: this.height
 			});
@@ -117,12 +117,12 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 			if (!this.options.scrollable) return;
 			
 			if (window.iScroll && this.options.scrollable === true) {
-				if (!this.Panel.$wrapper.data('iScroll')) {
-					this.Panel.$wrapper.data('iScroll', new iScroll(this.Panel.$wrapper[0]));
+				if (!this.Panel.$bodyWrapper.data('iScroll')) {
+					this.Panel.$bodyWrapper.data('iScroll', new iScroll(this.Panel.$bodyWrapper[0]));
 				}
 				
 			} else {
-				this.Panel.$wrapper.css({
+				this.Panel.$bodyWrapper.css({
 					"overflow-x" : "auto",
 					"overflow-y" : "auto",
 					"-webkit-overflow-scrolling" : "touch"
@@ -135,8 +135,8 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		},
 		
 		_finalizeScroller: function() {
-			if (this.Panel.$wrapper.data('iScroll')) {
-				this.Panel.$wrapper.data('iScroll').refresh();
+			if (this.Panel.$bodyWrapper.data('iScroll')) {
+				this.Panel.$bodyWrapper.data('iScroll').refresh();
 			}
 		}
 		
