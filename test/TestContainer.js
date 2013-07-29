@@ -31,7 +31,7 @@ define([
 				html: 		'TestContainer<hr>',
 				
 				style: 		"border:4px solid red",
-				innerStyle: "border:4px solid yellow",
+				bodyStyle: 	"border:4px solid yellow",
 				
 				
 				

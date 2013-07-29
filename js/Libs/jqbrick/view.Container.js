@@ -24,9 +24,9 @@ define([
 				itemXtype:		"container",	// super-dafault to be applied to Container's items.
 				
 				// Content layer ($body) attributes:
-				innerAttrs:		{},		// a list of attributes to apply to $body
-				innerStyle: 	'',
-				innerCss: 		{},
+				bodyAttrs:		{},		// a list of attributes to apply to $body
+				bodyStyle: 		'',
+				bodyCss: 		{},
 				
 				// A list of sub-items configuration to add to the Container during initialization
 				items: [],
@@ -59,9 +59,9 @@ define([
 		this.$body.appendTo(this.$el);
 		
 		// apply raw attributes to the node
-		this.utils.applyAttributes(this.$body, this.options.innerAttrs);
-		if (this.options.innerStyle) 	this.$body.attr('style', this.options.innerStyle);
-		if (this.options.innerCss) 		this.$body.css(this.options.innerCss);
+		this.utils.applyAttributes(this.$body, this.options.bodyAttrs);
+		if (this.options.bodyStyle) 	this.$body.attr('style', this.options.bodyStyle);
+		if (this.options.bodyCss) 		this.$body.css(this.options.bodyCss);
 		
 		// add basic classes
 		this.$el.addClass("jqbrick");

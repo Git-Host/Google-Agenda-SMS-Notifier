@@ -33,7 +33,7 @@ define([
 				html: 		'TestPanel',
 				
 				style: 		"border:4px solid red",
-				innerStyle: "border:4px solid yellow",
+				bodyStyle: 	"border:4px solid yellow",
 				
 				items: [{
 					html: "Item 01"
@@ -72,7 +72,7 @@ define([
 					docked: "top",
 					html:	"Page Title",
 					style:	"border:4px solid #444;background:#aaa;text-align:center",
-					innerStyle: "line-height:30px",
+					bodyStyle: "line-height:30px",
 					toolbars: [{
 						docked: "left",
 						html: "left",
