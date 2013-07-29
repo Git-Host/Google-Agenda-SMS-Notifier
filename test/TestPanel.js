@@ -109,8 +109,8 @@ define([
 			
 			testPanel.on('afterrender', function(e) {
 				console.log("-- after RENDER");
-				e.block();
-				$.when(this.layout(true)).then(e.unblock);
+				//e.block();
+				//$.when(this.layout(true)).then(e.unblock);
 			});
 			
 			testPanel.on('beforelayout', function(e) {

@@ -15,6 +15,7 @@ requirejs.config({
 		
 		// Libraries
 		"jquery"		: "./js/Libs/jquery.v2.0.3",
+		//"jquery"		: "./js/Libs/jquery.v1.10.2",
 		"jqueryui"		: "./js/Libs/jqueryui",
 		"underscore"	: "./js/Libs/underscore",
 		"backbone"		: "./js/Libs/backbone",

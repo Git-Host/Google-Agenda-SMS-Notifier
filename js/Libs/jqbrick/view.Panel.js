@@ -398,6 +398,17 @@ define([
 	
 	
 	
+	
+	
+	/**
+	 * Run layouting when rendering operation ends
+	 */
+	Panel.prototype._finalize = function() {
+		this.layout();
+	};
+	
+	
+	
 	return Panel;
 	
 });
