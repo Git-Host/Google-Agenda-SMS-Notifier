@@ -33,7 +33,11 @@ define([
 					// a lot of detailed configurations should be used
 					// by different layouts!
 					// please refer to those layouts documentation
-				}
+				},
+				
+				
+				toolbars: 		[],
+				toolbarSize: 	48
 								
 			});
 		},
@@ -109,15 +113,6 @@ define([
 		this.width = null;
 		this.height = null;
 		
-		// this property should contain forced dimmensions to be
-		// applied to $el by layoutManagaer.
-		//
-		// if this property is not null layoutManager is asked to apply
-		// those dimensions instead of calculate by itself rules.
-		//
-		// Example: this.forceOuterDimensions = {width:22,height:22};
-		this.forceOuterDimensions = null;
-		
 		// bind event to update layout dinamically
 		this.on("layoutchange", this.layout, this);
 		
@@ -150,7 +145,7 @@ define([
 			var _layout = {name:this.options.layout};
 		} else {
 			var _layout = this.options.layout;
-		}
+		};
 		
 		// get the layout manager object from string
 		if (this.utils.isPlainObject(_layout)) {
@@ -165,9 +160,12 @@ define([
 		} else {
 			this.layoutObj = new DefaultLayout;
 			this.options.layout = "default";
-		}
+		};
 		
-	}
+		// setup toolbars handler array
+		this.toolbars = [];
+		
+	};
 	
 	
 	
@@ -199,11 +197,13 @@ define([
 		this._initializeElContainer();
 		
 		$.when(self._initializeElPanel()).then(function() {
-			$.when(self._initializeLayout()).then(function() {
-				$.when(self._initializeContainerItems()).then(
-					_dfd.resolve,
-					_dfd.reject
-				);
+			$.when(self._initializeElToolbars()).then(function() {
+				$.when(self._initializeLayout()).then(function() {
+					$.when(self._initializeContainerItems()).then(
+						_dfd.resolve,
+						_dfd.reject
+					);
+				},_dfd.reject);
 			},_dfd.reject);
 		},_dfd.reject);
 		
@@ -229,6 +229,81 @@ define([
 		this.$wrapper = $('<div class="jqbrick-wrapper">').append(this.$bodyWrapper);
 		this.$el.append(this.$wrapper);
 	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Panel's Toolbars Initialization:
+	 * toolbars are sub-panels attached to one of panel's borders.
+	 */
+	Panel.prototype._initializeElToolbars = function() {
+		var self = this;
+		var _dfd = $.Deferred();
+		this.toolbars = [];
+		
+		if (this.options.toolbars.length) {
+			$.when(this.__walkItems(this.options.toolbars, this._initializeElToolbar, this)).always(_dfd.resolve);
+		} else {
+			_dfd.resolve();
+		};
+		
+		return _dfd.promise();
+	};
+	
+	
+	Panel.prototype._initializeElToolbar = function(tbOptions) {
+		var self = this;
+		
+		var tbConfig	= _.extend({
+			docked		: "top",
+			size		: this.options.toolbarSize,
+			layout		: {}
+		}, tbOptions, {
+			parent		: this,
+			container	: this.$wrapper
+		});
+		
+		// layout config defaults
+		tbConfig.layout = _.extend({
+			scrollable: "auto"
+		}, tbConfig.layout, {
+			name:		"block"
+		});
+		
+		var tbObj = new Panel(tbConfig);
+		var tbDfd = tbObj.getDeferred("initialized");
+		
+		tbDfd.done(function() {
+			tbObj.$el.addClass("jqbrick-panel-toolbar");
+			tbObj.$el.css({
+				position: 	"absolute",
+				overflow:	"hidden"
+			});
+			self.toolbars.push(tbObj);
+		});
+		
+		tbDfd.fail(function() {
+			tbObj.destroy();
+			tbObj = null;
+		});
+		
+		return tbDfd;
+	};
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * Layout Initialization Cycle

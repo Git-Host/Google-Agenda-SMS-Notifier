@@ -25,6 +25,8 @@ define([
 			console.log("### RUN PANEL TEST");
 			console.log("###");
 			
+			
+			
 			var testPanel = new jQbrickPanel({
 				autoRender: true,
 				container: 	this.options.viewport,
@@ -39,29 +41,64 @@ define([
 					html: "Item 02"
 				},{
 					html: "Item 03"
+				},{
+					html: "Item 04"
+				},{
+					html: "Item 05"
 				}],
 				
 				itemDefaults: {
 					style: "border:1px dashed #666"
 				},
 				
-				
 				layout: {
 					name: "fit",
-					width: 200,
+					width: 300,
 					height: 150,
 					scrollable: true,
-					fullsize: true,
-					itemOverrideLayout: {name:"block",height:70},
+					//fullsize: false,
+					itemLayoutOverrides: {name:"block",height:70},
+					
+					/*
 					paddingTop: 10,
 					paddingRight: 20,
 					paddingBottom: 30,
 					paddingLeft: 40
-				}
+					*/
+				},
 				
-				//fullsize:	true,
-				//layout: "fit",
-				//scrollable: true
+				
+				toolbars: [{
+					docked: "top",
+					html:	"Page Title",
+					style:	"border:4px solid #444;background:#aaa;text-align:center",
+					innerStyle: "line-height:30px",
+					toolbars: [{
+						docked: "left",
+						html: "left",
+						style: "border-right:1px solid #fff;line-height:30px"
+					},{
+						docked: "right",
+						html:"right",
+						style: "border-left:1px solid #fff;line-height:30px"
+					}]
+				},{
+					docked: "bottom",
+					size: 	60,
+					html:	"bottom layout",
+					style:	"border:2px solid #444;background:#aaa"
+				},{
+					docked: "left",
+					size: 	96,
+					html:	"<p>left 01</p><p>left 02</p><p>left 03</p><p>left 04</p>",
+					style:	"border:2px solid blue;background:#aaa"
+				},{
+					docked: "right",
+					size: 	96,
+					html:	"<p>right 01</p><p>right 02</p><p>right 03</p><p>right 04</p><p>right 05</p><p>right 06</p><p>right 07</p><p>right 08</p><p>right 09</p>",
+					style:	"border:2px solid blue;background:#aaa"
+				}]
+			
 				
 			});
 			

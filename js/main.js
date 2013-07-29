@@ -8,40 +8,16 @@
  */
 
 define([
-	"jqbrick/amd.jqm",
-	"jqbrick/tests/TestView",
-	"jqbrick/tests/TestComponent"
+	"jqbrick/amd.jqm"
 ], function(
-	jQbrick,
-	TestView,
-	TestComponent
+	jQbrick
 ) {
 	
 	window.App = new jQbrick.AppClass({
-		resetUrl: true
-	});
-	
-	
-	
-	$(document).delegate('#home', 'pageshow', function() {
-		
-		
-		/*
-		// TestView
-		var test = new TestView({
-			viewport: 	'#viewport'
-		});
-		*/
-		
-		
-		// TestComponent
-		var test = new TestComponent({
-			viewport: 	'#viewport',
-			timeout: 	50
-		});
-		
-		
-		
+		resetUrl: true,
+		jqmDefaults: {
+			ajaxEnabled: false
+		}
 	});
 	
 });
