@@ -48,40 +48,46 @@ define([
 					html: "Item 04"
 				},{
 					html: "Item 05"
+				},{
+					html: "Item 06"
+				},{
+					html: "Item 07"
+				},{
+					html: "Item 08"
+				},{
+					html: "Item 09"
+				},{
+					html: "Item 10"
 				}],
 				
 				itemDefaults: {
-					style: "border:1px dashed #666; background:#ccc",
-					bodyStyle: "padding:5px"
+					style: 		"border:1px dashed #666; background:#ccc",
+					bodyStyle: 	"padding:5px",
+					layout: 	"block",
+					height: 	50
 				},
 				
+				layout: "fit",
+				
+				toolbars: [{
+					html: 		"Toolbar - docked on Top",
+					style:		"border: 4px solid blue;"
+				},{
+					docked: 	"bottom",
+					html: 		"Toolbar - docked on Bottom",
+					style:		"border: 4px solid blue;"
+				},{
+					docked:		"right",
+					html:		"Toolbar - docked on Right",
+					style:		"border: 4px solid green;font-size:8pt"
+				},{
+					docked:		"left",
+					html:		"Toolbar - docked on Left",
+					style:		"border: 4px solid green;font-size:8pt"
+				}]
 				
 				
-				layout: {
-					name:	"block",
-					width:	250,
-					height:	200,
-					
-					itemLayout: {
-						name: "block",
-						height: 50
-					}
-					
-				},
 				
-				
-				/**
-				 * You can also setup some layout properties inside
-				 * panel's configuration.
-				 *
-				 * It depens on your coding preferences!
-				 */
-				/*
-				layout: "block",
-				width: 250,
-				height: 200,
-				fullsize: false
-				*/
 				
 			});
 			

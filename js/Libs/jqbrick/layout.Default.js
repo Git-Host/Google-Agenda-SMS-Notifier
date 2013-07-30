@@ -24,7 +24,7 @@ define([
 			var self = this;
 			this.Panel = Panel;
 			
-			//console.log("Initialize "+this.name+" layout on: " + Panel.cid);
+			console.log("Initialize "+this.name+" layout on: " + Panel.cid);
 			
 			if (this.options.itemLayout != null) {
 				_.extend(this.Panel.options.itemDefaults, {layout:this.options.itemLayout});
@@ -45,7 +45,7 @@ define([
 		
 		layout: function(Panel) {
 			
-			//console.log("Do " + this.name + " layout on " + Panel.cid);
+			console.log("Do " + this.name + " layout on " + Panel.cid);
 			
 			this.Panel = Panel;
 			

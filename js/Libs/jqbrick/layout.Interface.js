@@ -103,14 +103,25 @@ define(["backbone"], function(Backbone) {
 		/**
 		 * Get desired outer width/height for a box end return appropriate
 		 * CSS value considering borders, paddings, etc in different browsers
+		 *
+		 * you can call with only a $DOM node to obtain a value to match
+		 * node's internal space
 		 */
 		__outerWidthValue: function(val, $el) {
+			if (val && val.length) {
+				$el = val;
+				val = $el.width(true);
+			}
 			if (!$el || !$el.length) {
 				return val;
 			};
 			return val - this.__hBordersWidth($el);
 		},
 		__outerHeightValue: function(val, $el) {
+			if (val && val.length) {
+				$el = val;
+				val = $el.height();
+			}
 			if (!$el || !$el.length) {
 				return val;
 			};

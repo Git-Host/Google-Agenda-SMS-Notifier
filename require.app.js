@@ -24,6 +24,7 @@ requirejs.config({
 		
 		// Application
 		"app" 			: "./js",
+		"lib"			: "./js/Libs",
 		"model" 		: "./js/Model",
 		"collection"	: "./js/Collection",
 		"view"			: "./js/View",

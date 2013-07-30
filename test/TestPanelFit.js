@@ -48,19 +48,28 @@ define([
 					html: "Item 04"
 				},{
 					html: "Item 05"
+				},{
+					html: "Item 06"
+				},{
+					html: "Item 07"
+				},{
+					html: "Item 08"
+				},{
+					html: "Item 09"
+				},{
+					html: "Item 10"
 				}],
 				
 				itemDefaults: {
-					style: "border:1px dashed #666; background:#ccc",
-					bodyStyle: "padding:5px"
+					style: 		"border:1px dashed #666; background:#ccc",
+					bodyStyle: 	"padding:5px"
 				},
 				
 				
 				
 				layout: {
-					name:	"block",
-					width:	250,
-					height:	200,
+					name:	"fit",
+					scrollable: true,
 					
 					itemLayout: {
 						name: "block",
@@ -76,12 +85,7 @@ define([
 				 *
 				 * It depens on your coding preferences!
 				 */
-				/*
-				layout: "block",
-				width: 250,
-				height: 200,
-				fullsize: false
-				*/
+				//layout: "block"
 				
 			});
 			

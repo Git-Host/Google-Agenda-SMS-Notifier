@@ -40,15 +40,23 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 			DefaultLayout.prototype.initialize.apply(this, arguments);
 			
 			this.options = $.extend({}, {
-				width: 			this.width,
-				height:			this.height,
-				fullsize:		true,			// $body match at least $el dimensions
-				scrollable:		"native",		// [false=disabled; true=iScoll or native; native=force to use only native behavior]
+				width: 			this.width || this.Panel.options.width,
+				height:			this.height || this.Panel.options.height,
+				
+				// $body match at least $el dimensions
+				fullsize:		this.Panel.options.fullsize,
+				
+				// [false=disabled; true=iScoll or native; native=force to use only native behavior]
+				scrollable:		this.Panel.options.scrollable || "auto",
+				
 				paddingTop: 	0,
 				paddingRight: 	0,
 				paddingBottom: 	0,
 				paddingLeft: 	0
 			}, this.options);
+			
+			// default true value but allow to setup a false value from configuration
+			if (!_.isBoolean(this.options.fullsize)) this.options.fullsize = true;
 			
 			this.width 			= this.options.width;
 			this.height 		= this.options.height;
@@ -60,7 +68,7 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 			this.Panel.$el.css({
 				display: 	"block",
 				overflow: 	"hidden"
-			});
+			}).addClass("jqbrick-ly-block");
 			
 			this.Panel.$wrapper.css({
 				display: 	"block",
@@ -90,8 +98,8 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 			height 	= height 	|| this.height;
 			
 			// in case of NULL values fetch box itself values (ex defaults)
-			if (width == null) 	width 	= this.Panel.$el.width();
-			if (height == null) height 	= this.Panel.$el.height();
+			if (width == null) 	width 	= this.__outerWidthValue(this.Panel.$el.parent());
+			if (height == null) height 	= this.Panel.$el.outerHeight();
 			
 			this.beforeWidth 	= this.width;
 			this.beforeHeight 	= this.height;
@@ -152,7 +160,7 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 					this.Panel.toolbars[i].trigger("blocksize");
 					this.Panel.toolbars[i].trigger("layoutchange");
 				}
-			}
+			};
 			
 			for (var i=0; i<this.Panel.toolbars.length; i++) {
 				if (this.Panel.toolbars[i].options.docked == "left" || this.Panel.toolbars[i].options.docked == "right") {
@@ -176,7 +184,7 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 					this.Panel.toolbars[i].trigger("blocksize");
 					this.Panel.toolbars[i].trigger("layoutchange");
 				}
-			}
+			};
 			
 		},
 		
@@ -203,8 +211,8 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		_bodySize: function() {
 			if (this.options.fullsize) {
 				this.Panel.$body.css({
-					minWidth: 	this.__outerWidthValue(this.bodyWrapperWidth, this.Panel.$body),
-					minHeight:	this.__outerHeightValue(this.bodyWrapperHeight, this.Panel.$body)
+					minWidth: 	this.__outerWidthValue(this.Panel.$bodyWrapper.width(true), this.Panel.$body),
+					minHeight:	this.__outerHeightValue(this.bodyWrapperHeight, this.Panel.$body) -1 // mozilla need a "-1".... to fix!
 				});
 			}
 		},
@@ -238,9 +246,29 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 			}
 		},
 		
-		// implements "auto" mode who activate/deactivate iScroll on the fly based
-		// on real scrolling needings
-		_updateScroller: function() {
+		
+		_updateScroller: function() {},
+		
+		_finalizeScroller: function() {
+			var self = this;
+			
+			setTimeout(function() {
+				
+				// do autoscroll
+				self._autoScroller();
+				
+				// refresh scroller plugin if available
+				if (self.Panel.$bodyWrapper.data('iScroll')) {
+					self.Panel.$bodyWrapper.data('iScroll').refresh();
+				}
+				
+			}, 1);
+		},
+		
+		/**
+		 * activate / deactivate iScroll plugin based on body size
+		 */
+		_autoScroller: function() {
 			if (this.options.scrollable == "auto") {
 				if (this.Panel.$body.height() > this.Panel.$bodyWrapper.height()) {
 					if (window.iScroll && !this.Panel.$bodyWrapper.data('iScroll')) {
@@ -253,15 +281,6 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 					}
 				}
 			}
-		},
-		
-		_finalizeScroller: function() {
-			var self = this;
-			setTimeout(function() {
-				if (self.Panel.$bodyWrapper.data('iScroll')) {
-					self.Panel.$bodyWrapper.data('iScroll').refresh();
-				}
-			}, 1);
 		}
 		
 		

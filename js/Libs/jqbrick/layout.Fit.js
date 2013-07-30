@@ -24,7 +24,6 @@ define(["backbone", "./layout.Block"], function(Backbone, BlockLayout) {
 			this.width 			= this.__outerWidthValue($parent.width(), this.Panel.$el);
 			this.height 		= this.__outerHeightValue($parent.height(), this.Panel.$el);
 			
-			
 			this.Panel.$el.css({
 				width: 	this.width,
 				height: this.height

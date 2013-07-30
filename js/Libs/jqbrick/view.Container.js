@@ -247,7 +247,7 @@ define([
 		// Configuration object, create new XType
 		// defaults and overrides from options are applied before creating new object
 		if (this.utils.isPlainObject(item)) {
-			item = $.extend({},{xtype:this.options.itemXtype}, options.defaults, item, options.overrides);
+			item = $.extend(true, {},{xtype:this.options.itemXtype}, options.defaults, item, options.overrides);
 			var _item = this.xtype.make(null, item, this);
 			var _itemDfd = _item.getDeferred("initialized");
 			
