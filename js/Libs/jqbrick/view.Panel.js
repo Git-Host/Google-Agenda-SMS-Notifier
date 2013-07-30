@@ -35,6 +35,8 @@ define([
 					// please refer to those layouts documentation
 				},
 				
+				autoLayout: 	true,
+				
 				
 				toolbars: 		[],
 				toolbarSize: 	48
@@ -42,6 +44,82 @@ define([
 			});
 		},
 		
+		
+		/**
+		 * Overrides render() process to queque layout() triggering if autoLayout is true.
+		 * there are also scalar values you can give to render(xxx) to change it's behavior.
+		 *
+		 * if you throw render() on a specific instance and you want to force layouting 
+		 * just use:
+		 *     Instance.render("layout")
+		 *
+		 * if you want to run layout and to receive rendering deferred:
+		 *     Instance.render("layout", true);
+		 *
+		 * if you want to run layout and receive a render+layout complete deferred:
+		 *     Instance.render("complete");
+		 *
+		 */
+		render: function(options) {
+			var self = this;
+			var _dfd = $.Deferred();
+			
+			// classig 
+			if (options === true) {
+				options = {
+					getDeferred 	: true
+				};
+			
+			// "layout" rendering option
+			} else if (_.isString(options) && options.toLowerCase() === "layout") {
+				options = {
+					autoLayout		: true
+				};
+			
+			// "complete" rendering option
+			} else if (_.isString(options) && options.toLowerCase() === "complete") {
+				options = {
+					getDeferred 	: true,
+					autoLayout		: true,
+					returnDeferred	: "layout"
+				};
+			}
+			
+			// apply default options
+			options = _.extend({
+				getDeferred			: false,
+				autoLayout			: this.options.autoLayout,
+				returnDeferred		: "render"
+			}, options || {});
+			
+			var _renderDfd = Container.prototype.render.call(this, options, true);
+			var _layoutDfd = null;
+			
+			// run layouting process after 
+			_renderDfd.done(function() {
+				if (options.autoLayout == true) {
+					_layoutDfd = self.layout(true);
+					
+					// --> resolve DFD after layouting
+					if (options.returnDeferred == "layout") {
+						_layoutDfd.done(_dfd.resolve).fail(_dfd.reject);
+					}
+					
+				}
+				
+				// --> resolve DFD at parent's render()
+				if (options.returnDeferred == "render") {
+					_renderDfd.done(_dfd.resolve).fail(_dfd.reject);
+				}
+			});
+			
+			// last argument "true" to return deferred
+			if (options.getDeferred || (arguments.length && arguments[arguments.length-1] === true)) {
+				return _dfd;
+			} else {
+				return this;
+			}
+		},
 		
 		
 		/**
@@ -64,9 +142,9 @@ define([
 					
 							$.when(self._finalizeLayout()).then(function() {
 								
-								self.layoutComplete.resolve();
 								self.apply("layoutComplete", arguments, {trigger:true});
 								self.resolve('layouted');
+								self.layoutComplete.resolve();
 									
 							},self.layoutComplete.reject);
 					}, self.layoutComplete.reject);
@@ -99,6 +177,7 @@ define([
 	Panel.prototype._setup = function() {
 		Container.prototype._setup.apply(this, arguments);
 		this._setupPanel.apply(this, arguments);
+		this.removeComplete = $.Deferred();
 	};
 	
 	Panel.prototype._setupPanel = function() {
@@ -164,6 +243,9 @@ define([
 		
 		// setup toolbars handler array
 		this.toolbars = [];
+		
+		// prevent autoLayout on panel's items!
+		this.options.itemOverrides.autoLayout = false;
 		
 	};
 	
@@ -320,7 +402,7 @@ define([
 	Panel.prototype._initializeLayout = function() {
 		var self 	= this;
 		var _dfd 	= $.Deferred();
-		var cbname 	= "Initialize" + this.utils.ucFirst(this.options.layout) + "Layout";
+		var cbname 	= "Initialize" + this.utils.ucFirst(this.options.layout.name) + "Layout";
 		
 		$.when(self.apply("beforeInitializeLayout", arguments, {trigger:true})).then(function() {
 			
@@ -362,7 +444,7 @@ define([
 	Panel.prototype._layout = function() {
 		var self 	= this;
 		var _dfd 	= $.Deferred();
-		var cbname 	= this.utils.ucFirst(this.options.layout) + "Layout";
+		var cbname 	= this.utils.ucFirst(this.options.layout.name) + "Layout";
 		
 		$.when(self.apply("before" + cbname, arguments, {trigger:true})).then(function() {
 			
@@ -395,17 +477,6 @@ define([
 	 */
 	
 	Panel.prototype._finalizeLayout = function() {};
-	
-	
-	
-	
-	
-	/**
-	 * Run layouting when rendering operation ends
-	 */
-	Panel.prototype._finalize = function() {
-		this.layout();
-	};
 	
 	
 	

@@ -97,52 +97,35 @@ define([
 				
 				onSetup: function() {
 					console.log('[CALLBACK] onSetup');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				onBeforeItems: function() {
 					console.log('[CALLBACK] onBeforeItems');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				onAfterItems: function() {
 					console.log('[CALLBACK] onAfterItems');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				onInit: function() {
 					console.log('[CALLBACK] onInit');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				onBeforeRender: function() {
 					console.log('[CALLBACK] onBeforeRender');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				onAfterRender: function() {
 					console.log('[CALLBACK] onAfterRender');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
-				onRenderComplete: function() {
-					console.log('[CALLBACK] onRenderComplete');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
-				},
+				
 				
 				
 				
@@ -161,25 +144,24 @@ define([
 				 * these callbacks are invoked after Checkpoint's callbacks and events!
 				 */
 				
+				onRenderComplete: function() {
+					console.log('[CALLBACK] onRenderComplete');
+					return this.utils.delayedDeferred(Test.options.timeout);
+				},
+				
 				onReady: function() {
 					console.log('[CALLBACK] onReady');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				onModelReady: function() {
 					console.log('[CALLBACK] onModelReady');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				onCollectionReady: function() {
 					console.log('[CALLBACK] onCollectionReady');
-					var _dfd = $.Deferred();
-					setTimeout(_dfd.resolve, Test.options.timeout);
-					return _dfd;
+					return this.utils.delayedDeferred(Test.options.timeout);
 				},
 				
 				

@@ -182,9 +182,9 @@ define([
 					
 							$.when(self._finalize()).then(function() {
 								
-								self.renderComplete.resolve();
 								self.apply("renderComplete", arguments, {trigger:true});
 								self.resolve('rendered');
+								self.renderComplete.resolve();
 									
 							},self.renderComplete.reject);
 					}, self.renderComplete.reject);

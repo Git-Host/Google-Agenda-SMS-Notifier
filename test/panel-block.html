@@ -13,8 +13,7 @@
 	<link rel="stylesheet"  href="../css/app.css?v001">
 	
 	<!-- // Choose Developement or Production Entry Point -->
-	<script src="../require.js"></script>
-	<script>
+	<script src="../require.js"></script><script>
 	// Configure RequireJS
 	requirejs.config({"baseUrl":"../","urlArgs":"devTime="+(new Date()).getTime(),"paths":{"jquery":"./js/Libs/jquery.v2.0.3","jqueryui":"./js/Libs/jqueryui","underscore":"./js/Libs/underscore","backbone":"./js/Libs/backbone","jqm":"./js/Libs/jqm","jqbrick":"./js/Libs/jqbrick","app":"./js","model":"./js/Model","collection":"./js/Collection","view":"./js/View","template":"./js/Template","page":"./js/Page",},"shim":{"underscore":{"deps":["jquery"],"exports":"_"},"backbone":{"deps":["underscore","jquery"],"exports":"Backbone"},"jqm":{"deps":["jquery"]}}});
 	
@@ -23,10 +22,12 @@
 	 * Load Test Dependencies
 	 */
 	require([
-		"jqbrick/amd.jqm"
+		"jqbrick/amd.jqm",
+		"test/TestPanelBlock"
 		
 	], function(
-		jQbrick
+		jQbrick,
+		TestPanelBlock
 		
 	) {
 	
@@ -39,11 +40,14 @@
 	window.App = new jQbrick.AppClass({
 		jqmDefaults: {
 			ajaxEnabled: false
+		},
+		onReady: function() {
+			var test = new TestPanelBlock({
+				viewport: 	'#viewport',
+				timeout: 	500
+			});
 		}
-	});
-	
-	
-	
+	});	
 	
 	
 	/**
@@ -56,48 +60,15 @@
 </head>
 <body style="display:none">
 	
-	<div id="home" data-role="page">
+	<div id="test" data-role="page" data-theme="d">
 		<div data-role="header" data-theme="b">
-			<a href="../index.html" data-icon="arrow-l" data-ajax="false">Back</a>
-			<h1>jQbrick Tests</h1>
+			<a href="index.html" data-icon="arrow-l">Back</a>
+			<h1>TestPanelBox</h1>
 		</div>
 		<div data-role="content">
-			
-			<p>
-				<i>Before run any test please open your javascript console!</i><br>
-				<small>Supported Browsers: Firefox, Chrome, Safari, MobileSafari</small>
-			</p>
-			
-			<ul data-role="listview" data-inset="true">
-				<li>
-					<a href="view.html">
-						<h2>jQbrick.view.View</h2>
-						<p class="ui-li-desc-long">test initialization and rendering process</p>
-					</a>
-				</li>
-				<li>
-					<a href="container.html">
-						<h2>jQbrick.view.Container</h2>
-						<p class="ui-li-desc-long">test initialization and rendering process of a component with some items</p>
-					</a>
-				</li>
-				<li data-role="list-divider">jQbrick.view.Panel</li>
-				<li>
-					<a href="panel.html">
-						<h2>Simple Panel</h2>
-						<p class="ui-li-desc-long">default layout, using every callbacks and events</p>
-					</a>
-				</li>
-				<li>
-					<a href="panel-block.html">
-						<h2>Panel - BlockLayout</h2>
-						<p class="ui-li-desc-long">test Panel: a component with a layout</p>
-					</a>
-				</li>
-			</ul>
+			<div id="viewport" style="background:#efefef;width:100%;min-height:330px;border:1px dashed black;"></div>
 		</div>
 	</div>
-	
 	
 </body>
 </html>
