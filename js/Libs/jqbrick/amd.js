@@ -28,13 +28,7 @@ define([
 	 * instance to the global namespace too.
 	 */
 	
-	var _Singleton = new jQbrick({
-		/*
-		NewLibName : NewLibObj,
-		NewLibName : NewLibObj,
-		NewLibName : NewLibObj,
-		*/
-	});
+	var _Singleton = new jQbrick();
 	
 	if (!window.jQbrick) {
 		window.jQbrick = _Singleton;

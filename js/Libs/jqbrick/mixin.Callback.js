@@ -53,20 +53,17 @@ define([
 	 * Callback Utility
 	 * - throw callback from [given anonymous function | instance configuration options | object callback method]
 	 * - trigger a custom event on view's instance class
-	 * - trigger a custom event on view's DOM node
 	 *
 	 * callback's names are prefixed by "on" so if you code:
 	 *     ViewInstance.apply('render')
 	 *     -> instance.options.onRender()
 	 *     -> instance.onRender()
 	 *     -> "render" event thrown on instance
-	 *     -> "render" event thrown on instance.$el
 	 *
 	 *     ViewInstance.apply('custoEvent')
 	 *     -> instance.options.onCustomEvent()
 	 *     -> instance.onCustomEvent()
 	 *     -> "customevent" event thrown on instance
-	 *     -> "customevent" event thrown on instance.$el
 	 *
 	 *
 	 * !!! anonymous functions skip triggering of events because the name is... anonymous!
@@ -123,6 +120,7 @@ define([
 		}
 		
 		
+		// CALLBACK:
 		// first argument is a function
 		// complete skip of event triggering!
 		if (_.isFunction(name)) {
@@ -146,11 +144,9 @@ define([
 		}
 		
 		
-		
-		// trigger callback event on both View instance and DOM node
+		// EVENT:
+		// trigger callback event on View instance
 		var viewEventDfd	= null;
-		var domEventDfd		= null;
-		
 		var evtName 		= name.toLowerCase();
 		var viewEvtInfo 	= {
 			type:			evtName,
@@ -158,34 +154,19 @@ define([
 			details: 		args,
 			context: 		options.context,
 			
+			// block/ublock mechanism from event listeners!
 			block: 			function() {if (!viewEventDfd) 	{viewEventDfd = $.Deferred()}},
 			unblock:		function() {if (viewEventDfd) 	{viewEventDfd.resolve()}},
 		};
-		var domEvtInfo 		= {
-			type:			evtName,
-			originalName:	name,
-			details: 		args,
-			context: 		options.context,
-			
-			block: 			function() {if (!domEventDfd) 	{domEventDfd = $.Deferred()}},
-			unblock:		function() {if (domEventDfd) 	{domEventDfd.resolve()}},
-		};
-		
 		
 		// event trigger after callback resolves:
-		// callback must exists for event to be triggered!
-		// event's callbacks can block code execution using these methods
+		// event's listeners can block code execution using these methods
 		// - block()
 		// - unblock()
 		if (options.trigger !== false) {
 			$.when(callbackDfd).then(function() {
 				self.trigger(evtName, $.extend({},viewEvtInfo,{}));
-				if (self.$el) {
-					self.$el.trigger($.Event(evtName, domEvtInfo));
-				}
-				
-				$.when(viewEventDfd, domEventDfd).then(_dfd.resolve);
-				
+				$.when(viewEventDfd).then(_dfd.resolve);
 			});
 		
 		// no events, resolve only with binded callback

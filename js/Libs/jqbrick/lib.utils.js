@@ -109,6 +109,16 @@ define(['jquery', 'underscore'], function($, _) {
 	
 	
 	
+	LibUtils.prototype.elapsed = function(t1, t2) {
+		
+		t1 = t1 || Date.now();
+		t2 = t2 || Date.now();
+		
+		return t2 - t1;
+	}
+	
+	
+	
 	
 	
 	

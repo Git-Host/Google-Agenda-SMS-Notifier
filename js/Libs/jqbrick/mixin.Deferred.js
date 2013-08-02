@@ -174,7 +174,7 @@ define([
 	
 	
 	Mixin.prototype.when = function(name) {
-		return $.when(this.__deferred(name));
+		return $.when(this.getDeferred(name));
 	};
 	
 	/**

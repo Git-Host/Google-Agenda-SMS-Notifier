@@ -28,6 +28,13 @@ define(["backbone", "./layout.Default"], function(Backbone, DefaultLayout) {
 		}
 	};
 	
+	LibLayout.prototype.check = function(name) {
+		if (this.__layouts[name])	{
+			return true;
+		} else {
+			return false;
+		}
+	};
 	
 	return LibLayout;
 	
