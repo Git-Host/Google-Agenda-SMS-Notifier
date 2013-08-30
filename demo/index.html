@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>jQbrick - Bricks for Mobile App Directors</title>
+    <meta charset="utf-8">
+	
+	<!-- WebApp Properties -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+	
+	<!-- Home screen icons -->
+	<!--
+	<link rel="shortcut icon" href="assets/img/icons/icon.png?v003" />
+	<link rel="apple-touch-icon" sizes="57x57" href="assets/img/icons/icon-57.png?v003" />
+	<link rel="apple-touch-icon" sizes="72x72" href="assets/img/icons/icon-72.png?v003" />
+	<link rel="apple-touch-icon" sizes="114x114 href="assets/img/icons/icon@2x.png?v003" />
+	-->
+	
+	<!-- App Assets -->
+	<link rel="stylesheet"  href="../css/main.css?v003">
+	<script src="../js/Lib/jquery/jquery-1.10.2.min.js"></script>
+	<script>
+	$(document).on("mobileinit", function() {
+		$.mobile.ajaxEnabled = false;
+	});
+	</script>
+	<script src="../js/Lib/jquerymobile/jquery.mobile-1.3.2.min.js"></script>
+		
+</head>
+<body>
+	
+	<!-- App's Entry Page -->
+	<div id="home" data-role="page" data-theme="d">
+		<div data-role="header" data-theme="b">
+			<h1>jQbrick Demo</h1>
+		</div>
+		<div data-role="content">
+			<h3>HTML Driven Apps</h3>
+			<ul data-role="listview">
+				<li>
+					<a href="html/single-page">Single Page</a>
+				</li>
+				<li>
+					<a href="html/multi-page">Multi Page</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+		
+</body>
+</html>

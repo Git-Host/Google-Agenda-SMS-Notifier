@@ -1,0 +1,137 @@
+/**
+ * jQbrick Stylesheet
+ * ==================
+ *
+ * use this skeleton file to build up a compiled stylesheet for
+ * your custom app.
+ */
+
+
+
+
+
+
+// -------------------------------------------- //
+// ---[[   A P P   P R E L O A D I N G   ]] --- //
+// -------------------------------------------- //
+
+.jqbrick-startingApp, .jqbrick-loadingOverlay {
+	display:block;
+	width:100%;
+	height:100%;
+	overflow:hidden;
+	background-color:#3DAFE4;
+	background-image: url(../img/ajax-loader.gif);
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+.jqbrick-startingApp body *, .jqbrick-startingApp body * * {
+	display:none;
+}
+
+
+
+
+
+
+// ----------------------------------------- //
+// ---[[   J Q U E R Y   M O B I L E   ]]--- //
+// ----------------------------------------- //
+
+/**
+ * jQueryMobile's Default Theme
+ * -- use it while mockupping your app --
+ */
+@import "jquerymobile/jquery.mobile-1.3.2-min";
+
+
+
+/**
+ * jQUeryMobile's Theme
+ * -- use it in production with your own composed theme --
+ */
+//@import "themes/XXX-min";
+//@import "jquerymobile/jquery.mobile.structure-1.3.2-min";
+
+
+
+/**
+ * Android Optimization Overrides
+ * (uncomment if your app runs under Android devices)
+ */
+html.jqbrick-deviceAndroid {
+	
+	// remove shadows
+	.ui-body-a,
+	.ui-bar-a,
+	.ui-btn-up-a,
+	.ui-btn-hover-a,
+	.ui-btn-down-a,
+	
+	.ui-body-b,
+	.ui-bar-b,
+	.ui-btn-up-b,
+	.ui-btn-hover-b,
+	.ui-btn-down-b,
+	
+	.ui-body-c,
+	.ui-bar-c,
+	.ui-btn-up-c,
+	.ui-btn-hover-c,
+	.ui-btn-down-c,
+	
+	.ui-body-d,
+	.ui-bar-d,
+	.ui-btn-up-d,
+	.ui-btn-hover-d,
+	.ui-btn-down-d,
+	
+	.ui-body-e,
+	.ui-bar-e,
+	.ui-btn-up-e,
+	.ui-btn-hover-e,
+	.ui-btn-down-e,
+	
+	.ui-shadow-inset,
+	.ui-icon-shadow,
+	.ui-focus,
+	.ui-overlay-shadow,
+	.ui-shadow,
+	.ui-btn-active {
+		 text-shadow: none;
+		 box-shadow: none;
+		 -webkit-box-shadow: none;
+		 -moz-box-shadow: none;
+	 }
+}
+
+
+html.jqbrick-deviceApple {
+	
+	// force hardware acceleration
+	* {
+		 -webkit-transform: translatez(360deg);
+	}
+	
+	// prevent transition flickering
+	.ui-page { -webkit-backface-visibility: hidden; }
+	
+}
+
+
+
+
+
+
+
+
+
+// ------------------------------------------- //
+// ---[[   C U S T O M I Z A T I O N S   ]]--- //
+// ------------------------------------------- //
+
+/**
+ * Application Customizations
+ * -- import less or write your own customization below --
+ */
+
