@@ -22,6 +22,7 @@
 	<script>
 	$(document).on("mobileinit", function() {
 		$.mobile.ajaxEnabled = false;
+		$.mobile.gradeA = function() {return true};
 	});
 	</script>
 	<script src="../js/Lib/jquerymobile/jquery.mobile-1.3.2.min.js"></script>
@@ -38,12 +39,22 @@
 			<h3>HTML Driven Apps</h3>
 			<ul data-role="listview">
 				<li>
-					<a href="html/single-page">Single Page</a>
+					<a href="html/jqm-single-page">jQM - Single Page</a>
 				</li>
 				<li>
-					<a href="html/multi-page">Multi Page</a>
+					<a href="html/jqm-multi-page">jQM - Multi Page</a>
 				</li>
 			</ul>
+			
+			
+			<h3 style="margin-top:50px">JavaScript Driven Apps</h3>
+			<ul data-role="listview">
+				<li>
+					<a href="jsd/jqm-hello-world">jQM - Hello World</a>
+				</li>
+			</ul>
+			
+			
 		</div>
 	</div>
 		
