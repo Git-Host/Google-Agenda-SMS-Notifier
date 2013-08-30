@@ -1,3 +1,7 @@
+jQbrick
+===========
+
+
 `jQbrick` is a **modern web application template framework** who's objective is to mix up 
 some really valid **OpenSource** projects, add some other code and release **a tool to 
 build modern web apps easily and efficiently**.
