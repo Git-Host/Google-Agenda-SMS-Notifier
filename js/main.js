@@ -9,14 +9,16 @@
 
 
 define([
-	"jqbrick"
+	"jqbrick",
+	"async"
 	
 ], function(
-	jQbrick
+	jQbrick,
+	Async
 	
 ) {
 	
-	
+	/*
 	jQbrick.App({
 		name: "MyApp",
 		displayBodyWith: "slideLeft",
@@ -49,58 +51,32 @@ define([
 		console.log("Initialization errors occours!");
 		
 	});
+	*/
 	
-	
-	
-	/*
-	jQbrick.App({
-		jqmDefaults: {
-			ajaxEnabled: true
+	Async.series([
+		function(callback) {
+			return callback(new Error("Task1 cancelled"));
+			console.log("Task1 Start");
+			setTimeout(function() {
+				console.log("Task1 End");
+				callback();
+			}, 2000);
+		},
+		function(callback) {
+			console.log("Task2 Start");
+			setTimeout(function() {
+				console.log("Task2 End");
+				callback();
+			}, 1000);
+		}
+	], function(err) {
+		if (err) {
+			console.log("Error Happens");
+			console.log(err);
+		} else {
+			console.log("Done");
 		}
 	});
 	
-	App.counters = {
-		page1: 0,
-		page2: 0
-	};
-	*/
-	
-	
-	
-	
-	//console.log("--- INIT APP");
-	
-	/*
-	jQbrick.App({
-		//bodyDisplay: "none",
-	}).onReady(function() {
-		
-		var self = this;
-		
-		var $btn = $('<a href="#" data-role="button">click</a>');
-		
-		var $p1 = this.createPage({
-			show: 	false,
-			title: 	"Page 1",
-			content: $btn
-		});
-		
-		$btn.click(function() {
 			
-			var $p2 = self.createPage({
-				id: "aaa",
-				title: "page2" + new Date().getTime(),
-				back: true,
-				destroy: false
-			});
-			
-		});
-		
-		$p1.appendTo("body");
-		this.jqmInitializePage();
-		
-	});
-	*/
-	
-		
 });

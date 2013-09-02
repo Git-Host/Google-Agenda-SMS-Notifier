@@ -16,12 +16,12 @@
 
 
 define([
-	"underscore",
+	"underscore", "async",
 	"./utils",
 	"./AppClass"
 
 ], function(
-	_,
+	_, Async,
 	Utils,
 	AppClass
 

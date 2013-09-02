@@ -27,6 +27,7 @@ requirejs.config({
 		"jquery"		: "./js/Lib/jquery/jquery-2.0.3",
 		"underscore"	: "./js/Lib/underscore/underscore.1.5.1",
 		"backbone"		: "./js/Lib/backbone/backbone.1.0.0",
+		"async"			: "./js/Lib/asyncjs/async.0.2.9",
 		"jqm"			: "./js/Lib/jquerymobile/jquery.mobile-1.3.2",
 		"jqueryui"		: "./js/Lib/jqueryui",
 		"plugin"		: "./js/Lib/plugins",
@@ -53,6 +54,16 @@ requirejs.config({
 			name			: "jqbrick",
 			location		: "./js/Lib/jqbrick",
 			main			: "loader.jqm"
+		},
+		
+		
+		// SQLite Package
+		// mobile database abstraction layer
+		{
+			name			: "sqlite",
+			location		: "./js/Lib/sqlite",
+			main			: "sqlite"
+			
 		}
 	],
 	
