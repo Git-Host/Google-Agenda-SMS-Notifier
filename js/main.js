@@ -10,15 +10,16 @@
 
 define([
 	"jqbrick",
-	"async"
+	"async",
+	"sqlite"
 	
 ], function(
 	jQbrick,
-	Async
+	Async,
+	SQLite
 	
 ) {
 	
-	/*
 	jQbrick.App({
 		name: "MyApp",
 		displayBodyWith: "slideLeft",
@@ -28,9 +29,9 @@ define([
 		}
 		
 	}).onReady(function() {
-		console.log("App is ready!");
+		//console.log("App is ready!");
 		
-		console.log(this.data.get("steps"));
+		//console.log(this.data.get("steps"));
 		
 		$home = MyApp.createPage({
 			title: "Hello World!",
@@ -51,8 +52,33 @@ define([
 		console.log("Initialization errors occours!");
 		
 	});
-	*/
 	
+	
+	
+	var db = new SQLite({
+		name: "mona"
+		
+	}).onReady(function() {
+		
+		this.query("CREATE TABLE IF NOT EXISTS colors (color VARCHAR(20))", function() {
+			this.log("Table \"colors\" ok");
+		});
+		
+		this.many([
+			"INSERT INTO colors (color) VALUES ('blue')",
+			"INSERT INTO colors (color) VALUES ('black')",
+			"INSERT INTO colors (color) VALUES ('yellow')"
+		]).always(function() {
+			console.log("many queries always");
+			console.log(arguments);
+		});
+		
+			
+	});
+	
+	
+	
+	/*
 	Async.series([
 		function(callback) {
 			return callback(new Error("Task1 cancelled"));
@@ -77,6 +103,7 @@ define([
 			console.log("Done");
 		}
 	});
+	*/
 	
 			
 });
