@@ -10,10 +10,7 @@
  */
 
 
-
-
-
-
+	
 requirejs.config({
 	"baseUrl" : "./",
 	"urlArgs" : "devTime=" + (new Date()).getTime(),
@@ -35,10 +32,10 @@ requirejs.config({
 		// Application Related
 		"app" 			: "./js",
 		"lib"			: "./js/Lib",
+		"delegate"		: "./js/Delegate",
 		"model" 		: "./js/Model",
 		"collection"	: "./js/Collection",
-		"view"			: "./js/View",
-		"delegate"		: "./js/Delegate"
+		"view"			: "./js/View"
 		
 	},
 	
@@ -55,7 +52,6 @@ requirejs.config({
 			location		: "./js/Lib/jqbrick",
 			main			: "loader.jqm"
 		},
-		
 		
 		// SQLite Package
 		// mobile database abstraction layer
@@ -96,7 +92,6 @@ requirejs.config({
 		}
 		
 	}
-	
 	
 });
 

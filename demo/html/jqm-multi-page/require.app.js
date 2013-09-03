@@ -14,10 +14,8 @@
  *
  */
 
-
-
-
-
+// shortcut used in demo folders
+var __relativeLibPath__ = "../../../js/Lib/";
 
 requirejs.config({
 	"baseUrl" : "./",
@@ -29,12 +27,13 @@ requirejs.config({
 	"paths" : {
 		
 		// Libraries
-		"jquery"		: "../../../js/Lib/jquery/jquery-2.0.3",
-		"underscore"	: "../../../js/Lib/underscore/underscore.1.5.1",
-		"backbone"		: "../../../js/Lib/backbone/backbone.1.0.0",
-		"jqm"			: "../../../js/Lib/jquerymobile/jquery.mobile-1.3.2",
-		"jqueryui"		: "../../../js/Lib/jqueryui",
-		"plugin"		: "../../../js/Lib/plugins",
+		"jquery"		: __relativeLibPath__ + "jquery/jquery-2.0.3",
+		"underscore"	: __relativeLibPath__ + "underscore/underscore.1.5.1",
+		"backbone"		: __relativeLibPath__ + "backbone/backbone.1.0.0",
+		"async"			: __relativeLibPath__ + "asyncjs/async.0.2.9",
+		"jqm"			: __relativeLibPath__ + "jquerymobile/jquery.mobile-1.3.2",
+		"jqueryui"		: __relativeLibPath__ + "jqueryui",
+		"plugin"		: __relativeLibPath__ + "plugins",
 		
 		// Application Related
 		"app" 			: "./js",
@@ -56,8 +55,17 @@ requirejs.config({
 		// - loader.jqm     : jQueryMobile UI App
 		{
 			name			: "jqbrick",
-			location		: "../../../js/Lib/jqbrick",
+			location		: __relativeLibPath__ + "jqbrick",
 			main			: "loader.jqm"
+		},
+		
+		// SQLite Package
+		// mobile database abstraction layer
+		{
+			name			: "sqlite",
+			location		: __relativeLibPath__ + "sqlite",
+			main			: "sqlite"
+			
 		}
 	],
 	
@@ -91,9 +99,7 @@ requirejs.config({
 		
 	}
 	
-	
 });
-
 
 
 
