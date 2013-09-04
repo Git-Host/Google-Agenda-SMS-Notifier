@@ -60,7 +60,12 @@ define([
 		 * each data property will be observable as a Backbone.Model property!
 		 */
 		data			: {},
-		dataHandlers	: {}
+		dataHandlers	: {},
+		
+		/**
+		 * SQLite configuration as local storage layer
+		 */
+		sqlite			: null
 		
 	};
 	
@@ -117,6 +122,7 @@ define([
 				initDeferred.resolve.call(self, self);
 				return $.when(
 					self.startup.call(self),
+					self.startupStorage.call(self),
 					self.startupUi.call(self)
 				);
 			
@@ -212,14 +218,43 @@ define([
 	
 	AppClass.prototype.startupUi = function() {};
 	
+	/**
+	 * It is responsible to initialize app's storage layers.
+	 * data layers initialization should be a blocking action!
+	 */
+	AppClass.prototype.startupStorage = function() {
+		
+		var sqlite = (window.SQLite && this.options.sqlite) ? this.startupSQLite() : true,
+			locale = true;
+		
+		return $.when(sqlite, locale);
+	};
 	
 	
 	
 	
 	
-	
-	
-	
+	/**
+	 * 
+	 */
+	AppClass.prototype.startupSQLite = function() {
+		
+		if (this.options.sqlite === true) {
+			this.options.sqlite = {};
+			
+		} else if (typeof this.options.sqlite == "string") {
+			this.options.sqlite = {name : this.options.sqlite};
+			
+		}
+		
+		var _cfg = $.extend({}, {
+			name		: "AppSqliteDb",
+			varName		: "sqlite"
+		}, this.options.sqlite);
+		
+		this[_cfg.varName] = new window.SQLite(_cfg);
+		return this[_cfg.varName].readyPromise;
+	};
 	
 	
 	

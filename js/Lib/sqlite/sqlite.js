@@ -13,15 +13,24 @@ define([
 	"./sqlite.class",
 	
 	// methods
+	"./sqlite.utils",
 	"./sqlite.connect",
-	"./sqlite.query"
+	"./sqlite.query",
+	"./sqlite.many",
+	"./sqlite.read",
+	"./sqlite.list",
+	"./sqlite.first",
+	"./sqlite.insert",
+	"./sqlite.insertMany"
 	
 ], function(
 	$, Async,
 	SQLite
 	
 ) {
-		
+	
+	window.SQLite = SQLite;
+	
 	return SQLite;
 	
 });
