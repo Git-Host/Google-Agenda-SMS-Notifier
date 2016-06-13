@@ -43,7 +43,7 @@ requirejs.config({
 		
 		// jQbrick Package
 		// here you can configure what kind of jQbrick application you are
-		// going to develope:
+		// going to develop:
 		//
 		// - loader         : standard Web App
 		// - loader.jqm     : jQueryMobile UI App

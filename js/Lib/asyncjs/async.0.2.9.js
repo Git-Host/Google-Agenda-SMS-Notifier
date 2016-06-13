@@ -25,7 +25,7 @@
         }
     }
 
-    //// cross-browser compatiblity functions ////
+    //// cross-browser compatibility functions ////
 
     var _each = function (arr, iterator) {
         if (arr.forEach) {
