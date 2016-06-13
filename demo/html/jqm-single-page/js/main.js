@@ -15,7 +15,7 @@ This main script is responsible of startupping the application
 and handle `jQM` page events to collect to display a 
 simple view counter in both internal pages.
 
-> Please be carefull about single-page apps because of DOM and
+> Please be careful about single-page apps because of DOM and
 > memory issues if a large application is done this way! 
 
 ---

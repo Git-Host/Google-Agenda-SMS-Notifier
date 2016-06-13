@@ -14,7 +14,7 @@
  * After that you can remove "/AppDeploy/js/" and "/AppDeploy/less/" folders to reduce
  * production folder size.
  *
- * Please be carefull to remove hidden ".git" folder who can be quite heavy!
+ * Please be careful to remove hidden ".git" folder who can be quite heavy!
  */
 
 ({

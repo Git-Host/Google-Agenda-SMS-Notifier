@@ -47,7 +47,7 @@ to produce well structured MobileApps.
 > I like the sound of it's complete name *"jay kubrik"* who remember me  
 > the famous film director **Stanley Kubrick**.
 > 
-> And I like to figure **the developer as a director in a developement process**
+> And I like to figure **the developer as a director in a development process**
 > where actors are represented by modules: bricks!
 
 
@@ -57,7 +57,7 @@ to produce well structured MobileApps.
 
 Forking or downloading `jQbrick` will provide you a fully functional test application
 - a "kitchen sink" - where I put all provided features into a real Web/Mobile App.  
-<small>(by now - early developement - you got only a test page, go to `/demo`)</small>
+<small>(by now - early development - you got only a test page, go to `/demo`)</small>
 
 **Dependencies are also included** into the repo but you should fetch a fresh copy
 from their own repositories.
@@ -66,7 +66,7 @@ from their own repositories.
 
 ## For the Web, For Mobile
 
-`jQbrick` is not only for Mobile developement!  
+`jQbrick` is not only for Mobile development!  
 **It isn't tied up to jQueryMobile!**
 
 `jQbrick` should be used as a simple _jQuery+Backbone+RequireJs_ boilerplate who

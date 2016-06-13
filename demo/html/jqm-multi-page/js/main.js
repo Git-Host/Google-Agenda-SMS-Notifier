@@ -139,7 +139,7 @@ define([
 	
 	
 	/**
-	 * Setup page counters default values withing 
+	 * Setup page counters default values within 
 	 * the newly created App namespace.
 	 */
 	App.counters = {
